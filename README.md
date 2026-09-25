@@ -25,14 +25,32 @@ npm run dev
 ## Kansiorakenne
 
 ```
+public/              # favicon ja robots.txt
 scripts/
 └── check-links.mjs  # lisälukemista-linkkien tarkistus
 src/
 ├── components/   # React-komponentit: kortti ja sen osat, ruudukko, johdanto, haku ja suodatin
 ├── data/         # tunnusluvut, kategoriat, sanasto, linkkien sivustot ja johdannon lukujärjestys
-├── hooks/        # selitysikkunat, korttiin siirtyminen, haku ja suodatus, URL-tila, selaimeen muistetut valinnat
-├── styles/       # värit, välit ja teemat
+├── hooks/        # selitysikkunat, korttiin siirtyminen, haku ja suodatus, URL-tila, teema, selaimeen muistetut valinnat
+├── styles/       # värit, välit ja teemat sekä niiden kontrastitesti
 └── test/         # testien alustus
+```
+
+## Saavutettavuus
+
+`npm test` tarkistaa saavutettavuuden kahdella tavalla:
+
+- `src/components/a11y.test.tsx` ajaa axe-tarkistuksen koko sovellukselle eri tiloissa.
+- `src/styles/contrast.test.ts` laskee WCAG AA -kontrastit `tokens.css`:n väreistä molemmissa teemoissa. Uusi teksti–tausta-pari lisätään sen listaan.
+
+Lighthouse ajetaan käsin tuotantoversiota vasten. Tavoite on saavutettavuus ≥ 95. Chromen sijaan käy Edge (`CHROME_PATH`).
+
+```bash
+npm run build && npx vite preview --port 4173
+```
+
+```bash
+npx lighthouse http://localhost:4173/ --only-categories=accessibility --view
 ```
 
 Uuden tunnusluvun lisäämisohje kirjoitetaan tähän vaiheessa 11.

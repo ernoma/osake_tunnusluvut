@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useTheme } from "../hooks/useTheme.ts";
 import styles from "./Header.module.css";
 
 export const INTRO_LINK_ID = "johdanto-avaa";
@@ -19,9 +20,11 @@ function isEditable(target: EventTarget | null): boolean {
   );
 }
 
-/** Otsikko, haku ja linkki johdantoon. Pikanäppäin "/" vie hakuun. */
+/** Otsikko, teemavalitsin, haku ja linkki johdantoon. Pikanäppäin "/" vie hakuun. */
 export default function Header({ query, onQueryChange, showIntroLink, onOpenIntro }: Props) {
   const searchRef = useRef<HTMLInputElement>(null);
+  const [theme, setTheme] = useTheme();
+  const dark = theme === "dark";
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -36,7 +39,19 @@ export default function Header({ query, onQueryChange, showIntroLink, onOpenIntr
 
   return (
     <header className={styles.header}>
-      <h1 className={styles.title}>Osakkeen tunnusluvut – selkokielellä</h1>
+      <div className={styles.titleRow}>
+        <h1 className={styles.title}>Osakkeen tunnusluvut – selkokielellä</h1>
+        {/* Nimi pysyy samana ja aria-pressed kertoo tilan, jotta ruudunlukija ei hämmenny. */}
+        <button
+          type="button"
+          className={styles.themeToggle}
+          aria-pressed={dark}
+          onClick={() => setTheme(dark ? "light" : "dark")}
+        >
+          <span aria-hidden="true">☾</span>
+          <span className={styles.themeLabel}>Tumma teema</span>
+        </button>
+      </div>
       <p className={styles.lead}>
         Mitä luku kertoo, onko suuri vai pieni arvo hyvä ja mitä kannattaa katsoa rinnalla.
       </p>

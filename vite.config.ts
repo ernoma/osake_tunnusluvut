@@ -9,6 +9,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
-    css: { modules: { classNameStrategy: "non-scoped" } },
+    // tokens.css luetaan kontrastitestissä (?raw), joten Vitest ei saa tyhjentää sitä.
+    css: { include: [/tokens\.css/], modules: { classNameStrategy: "non-scoped" } },
   },
 });

@@ -7,7 +7,16 @@
       name="description"
       content="Osakesijoittamisen tunnusluvut selkokielellä: mitä luku kertoo, onko suuri vai pieni arvo hyvä ja mitä katsoa rinnalla."
     />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Osakkeen tunnusluvut</title>
+    <script>
+      // Tallennettu teema ennen ensimmäistä piirtoa, ettei sivu välähdä väärän värisenä (useTheme.ts).
+      try {
+        var theme = localStorage.getItem("tunnusluvut.teema");
+        if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

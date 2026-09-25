@@ -339,9 +339,11 @@ src/
 │   ├── useCardNavigation.ts # korttiin siirtyminen: vieritys, kohdistus ja korostus
 │   ├── useMetricFilter.ts  # haku- ja suodatuslogiikka (puhdas funktio, testattava)
 │   ├── useStoredBoolean.ts # selaimeen muistettava valinta (johdanto, syventävät)
+│   ├── useTheme.ts         # vaalea ja tumma teema: järjestelmän asetus tai oma valinta
 │   └── useUrlState.ts      # tilan synkronointi URL:iin
 └── styles/
-    └── tokens.css          # värit, välit, tumma ja vaalea teema
+    ├── tokens.css          # värit, välit, tumma ja vaalea teema
+    └── contrast.test.ts    # WCAG AA -kontrastit molemmissa teemoissa
 ```
 
 ### 5.5 Saavutettavuus ja ulkoasu
@@ -349,7 +351,8 @@ src/
 - **Luettavuus:** perusfontti on 17–18 px, rivinpituus enintään noin 70 merkkiä ja riviväli väljä.
 - **Semantiikka:** kortit ovat `<article>`-elementtejä, laajennus on `<button aria-expanded>`, väliotsikot ovat `<h2>` ja sanastotermit ovat `<button>`-elementtejä, joihin selitysikkuna on liitetty `aria-describedby`-attribuutilla.
 - **Ei pelkän värin varassa:** suunta ilmaistaan aina myös ikonilla ja tekstillä.
-- **Kontrasti:** täyttää WCAG AA:n molemmissa teemoissa.
+- **Teema:** oletuksena seurataan järjestelmän asetusta. Otsikon "Tumma teema" -painike (`aria-pressed`) vaihtaa teeman, ja valinta muistetaan selaimessa. `index.html` asettaa tallennetun teeman ennen ensimmäistä piirtoa, joten sivu ei välähdä väärän värisenä.
+- **Kontrasti:** täyttää WCAG AA:n molemmissa teemoissa. Testi laskee kontrastit `tokens.css`:n väreistä.
 - **Näppäimistö:** kaikkea voi käyttää näppäimistöllä (Tab, Enter, Esc ja `/` hakuun).
 - **Kosketus:** painikkeiden kosketusalue on vähintään 44 × 44 px.
 - **Vastuuvapauslauseke:** näkyy sivun alareunassa ja johdannossa ystävällisellä sävyllä: *"Tämä on opas tunnuslukujen ymmärtämiseen, ei sijoitusneuvontaa. Sijoittamiseen liittyy aina riski."*
@@ -451,7 +454,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **5. Ruudukko ja navigointi** ✅ | `MetricGrid`, kysymysotsikot, rinnakkaislinkkien vieritys ja korostus | Linkki P/E → PEG toimii |
 | **6. Johdanto** ✅ | `IntroPanel` ja suositeltu lukujärjestys | Paneelin voi sulkea ja avata uudelleen, ja askeleet vievät oikeisiin kortteihin |
 | **7. Haku ja suodatus** ✅ | `FilterBar`, "Näytä myös syventävät", `useMetricFilter`, `useUrlState` ja pikanäppäin `/` | "velaton" löytää EV:n, ja URL säilyttää tilan |
-| **8. Ulkoasu** | Teemat, responsiivisuus ja saavutettavuustarkistus (axe tai Lighthouse) | Lighthouse-saavutettavuus ≥ 95, toimii 375 px leveydellä |
+| **8. Ulkoasu** ✅ | Teemat, responsiivisuus ja saavutettavuustarkistus (axe tai Lighthouse) | Lighthouse-saavutettavuus ≥ 95, toimii 375 px leveydellä |
 | **9. Käyttäjätesti** | 3–5 osakesijoittamista tuntematonta testaajaa, esimerkiksi tuttavia (kohta 8) | Testaajat löytävät vastaukset tavoiteajassa, ja löydetyt ongelmat on korjattu |
 | **10. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Sivu on julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 | **11. Ohje ylläpitäjälle** | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |

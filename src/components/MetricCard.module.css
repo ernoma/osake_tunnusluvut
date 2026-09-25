@@ -38,16 +38,21 @@
   margin: 0;
 }
 
+/* Pitkä nimi (Nettovelkaantumisaste) siirtää tasomerkin omalle rivilleen kapealla näytöllä. */
 .header {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-1) var(--space-3);
 }
 
 .name {
+  min-width: 0;
   margin: 0;
   font-size: 1.4rem;
+  /* Viimeinen keino, jos yksittäinen sana on koko korttia leveämpi. */
+  overflow-wrap: anywhere;
 }
 
 .nameButton {
