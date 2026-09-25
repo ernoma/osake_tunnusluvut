@@ -24,7 +24,14 @@ describe("sisältö", () => {
     expect(Array.isArray(result.warnings)).toBe(true);
   });
 
-  it("sisältää vähintään yhden tunnusluvun", () => {
-    expect(metrics.length).toBeGreaterThan(0);
+  it("jokaisessa kategoriassa on vähintään yksi perustason tunnusluku", () => {
+    for (const c of categories) {
+      const basics = metrics.filter((m) => m.category === c.id && m.level === "perus");
+      expect(basics.length, `kategoria ${c.id}`).toBeGreaterThan(0);
+    }
+  });
+
+  it("jokainen esimerkki on laskutoimitus", () => {
+    for (const m of metrics) expect(m.example, m.id).toMatch(/=/);
   });
 });
