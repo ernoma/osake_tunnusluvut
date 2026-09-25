@@ -6,22 +6,25 @@ import { categories } from "./categories.ts";
 import { glossary } from "./glossary.ts";
 import { metrics } from "./metrics.ts";
 import { planned } from "./planned.ts";
+import { sources } from "./sources.ts";
 import { validateContent } from "./validate.ts";
 
 describe("sisältö", () => {
-  const result = validateContent({ metrics, planned, categories, glossary });
+  const result = validateContent({ metrics, planned, categories, glossary, sources });
 
   it("läpäisee kaikki tarkistukset", () => {
     expect(result.errors).toEqual([]);
   });
 
-  it("listaa tulossa-viittaukset varoituksina", () => {
+  it("listaa varoitukset (tulossa-viittaukset ja huomiota kaipaavat linkit)", () => {
     if (result.warnings.length > 0) {
-      console.info(
-        `Tulossa-viittauksia ${result.warnings.length}:\n  ${result.warnings.join("\n  ")}`,
-      );
+      console.info(`Varoituksia ${result.warnings.length}:\n  ${result.warnings.join("\n  ")}`);
     }
     expect(Array.isArray(result.warnings)).toBe(true);
+  });
+
+  it("jokaisella tunnusluvulla on vähintään yksi lisälukemista-linkki", () => {
+    for (const m of metrics) expect(m.links.length, m.id).toBeGreaterThan(0);
   });
 
   it("jokaisessa kategoriassa on vähintään yksi perustason tunnusluku", () => {

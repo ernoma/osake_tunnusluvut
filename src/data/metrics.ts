@@ -52,6 +52,24 @@ export const metrics: Metric[] = [
       },
       { id: "liikevaihto", reason: "Kun markkina-arvo jaetaan myynnillä, saadaan P/S-luku." },
     ],
+    links: [
+      {
+        title: "Markkina-arvon määritelmä: osakeyhtiö ja asunto",
+        url: "https://fi.wikipedia.org/wiki/Markkina-arvo",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "Market cap: how it is calculated and size classes",
+        url: "https://www.investopedia.com/terms/m/marketcapitalization.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+    ],
   },
   {
     id: "ev",
@@ -103,6 +121,24 @@ export const metrics: Metric[] = [
         reason: "Kertoo, onko velkaa paljon suhteessa omistajien rahaan.",
       },
     ],
+    links: [
+      {
+        title: "Yritysarvo velattomana hintana ja kahden yhtiön vertailu",
+        url: "https://www.inderes.fi/articles/mika-enterprise-value-eli-ev-enta-evebit-ja-evebitda",
+        sourceId: "inderes",
+        language: "fi",
+        kind: "esimerkki",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "Enterprise value: formula, components and an example",
+        url: "https://www.investopedia.com/terms/e/enterprisevalue.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+    ],
   },
   {
     id: "liikevaihto",
@@ -141,6 +177,16 @@ export const metrics: Metric[] = [
       { id: "ebit", reason: "Kertoo, jääkö myynnistä voittoa." },
       { id: "ebit-prosentti", reason: "Kertoo, montako prosenttia myynnistä jää voitoksi." },
       { id: "ps", reason: "Vertaa osakkeen hintaa myyntiin." },
+    ],
+    links: [
+      {
+        title: "Liikevaihdon määritelmä ja paikka tuloslaskelmassa",
+        url: "https://fi.wikipedia.org/wiki/Liikevaihto",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
     ],
   },
 
@@ -187,6 +233,24 @@ export const metrics: Metric[] = [
         reason: "Suhteuttaa voiton myyntiin, jolloin eri kokoisia yhtiöitä voi verrata.",
       },
       { id: "ev-ebit", reason: "Kertoo, paljonko maksat koko yhtiöstä suhteessa liikevoittoon." },
+    ],
+    links: [
+      {
+        title: "Liikevoiton määritelmä ja kertaerien vaikutus",
+        url: "https://fi.wikipedia.org/wiki/Liikevoitto",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "EBIT explained: why interest and taxes are left out",
+        url: "https://www.investopedia.com/terms/e/ebit.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
     ],
   },
   {
@@ -247,6 +311,24 @@ export const metrics: Metric[] = [
       { id: "ps", reason: "Hyvä kate oikeuttaa korkeamman hinnan suhteessa myyntiin." },
       { id: "roe", reason: "Kertoo, kuinka hyvin voitto tuottaa omistajien rahalle." },
     ],
+    links: [
+      {
+        title: "Liikevoittoprosentti ja sen ohjearvot",
+        url: "https://fi.wikipedia.org/wiki/Liikevoitto#Liikevoittoprosentti",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "Operating margin: formula and a worked example",
+        url: "https://www.investopedia.com/terms/o/operatingmargin.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "esimerkki",
+        checkedAt: "2026-09-25",
+      },
+    ],
   },
   {
     id: "roe",
@@ -302,6 +384,24 @@ export const metrics: Metric[] = [
         reason: "Näyttää, kuinka suuri osa yhtiöstä on rahoitettu omalla rahalla.",
       },
     ],
+    links: [
+      {
+        title: "Mitä oman pääoman tuotto kertoo ja miten se lasketaan",
+        url: "https://www.nordnet.fi/koulu/roe",
+        sourceId: "nordnet",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "ROE explained: industry differences and the effect of debt",
+        url: "https://www.investopedia.com/terms/r/returnonequity.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+    ],
   },
 
   // ─── Per osake: Paljonko yhdelle osakkeelle kuuluu? ───────────────────────
@@ -346,6 +446,32 @@ export const metrics: Metric[] = [
       { id: "osinko-per-osake", reason: "Paljonko EPS:stä maksetaan sinulle osinkona?" },
       { id: "osinkosuhde", reason: "Kertoo, onko osinko kestävä suhteessa tulokseen." },
     ],
+    links: [
+      {
+        title: "Tärkeimmät tunnusluvut: EPS, P/E, osinkotuotto ja P/B",
+        url: "https://www.porssisaatio.fi/osakesijoittajan-tarkeimmat-tunnusluvut/",
+        sourceId: "porssisaatio",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "Osakekohtaisen tuloksen lyhyt määritelmä",
+        url: "https://fi.wikipedia.org/wiki/EPS_(talous)",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "EPS explained: basic vs. diluted EPS, with an example",
+        url: "https://www.investopedia.com/terms/e/eps.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "esimerkki",
+        checkedAt: "2026-09-25",
+      },
+    ],
   },
   {
     id: "osinko-per-osake",
@@ -384,6 +510,24 @@ export const metrics: Metric[] = [
       { id: "osinkotuotto", reason: "Suhteuttaa osingon osakkeen hintaan." },
       { id: "osinkosuhde", reason: "Kertoo, onko osingolle katetta tuloksessa." },
       { id: "eps", reason: "Osingon pitäisi yleensä olla pienempi kuin EPS." },
+    ],
+    links: [
+      {
+        title: "Mikä osinko on, kuka siitä päättää ja milloin se maksetaan",
+        url: "https://fi.wikipedia.org/wiki/Osinko",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "Dividend per share: formula and what a rising DPS tells",
+        url: "https://www.investopedia.com/terms/d/dividend-per-share.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
     ],
   },
 
@@ -447,6 +591,32 @@ export const metrics: Metric[] = [
         reason: "Matala P/E ja korkea osinkotuotto voivat kertoa markkinoiden epäluottamuksesta.",
       },
     ],
+    links: [
+      {
+        title: "Tärkeimmät tunnusluvut: osinkotuotto, EPS, P/E ja P/B",
+        url: "https://www.porssisaatio.fi/osakesijoittajan-tarkeimmat-tunnusluvut/",
+        sourceId: "porssisaatio",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "Osinkotuoton määritelmä ja tulkinta",
+        url: "https://fi.wikipedia.org/wiki/Osinkotuotto",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "Dividend yield: why a high yield can be a warning sign",
+        url: "https://www.investopedia.com/terms/d/dividendyield.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "esimerkki",
+        checkedAt: "2026-09-25",
+      },
+    ],
   },
   {
     id: "osinkosuhde",
@@ -499,6 +669,24 @@ export const metrics: Metric[] = [
       { id: "eps", reason: "Osinkosuhteen pohja: kasvaako tulos, josta osinko maksetaan?" },
       { id: "osinko-per-osake", reason: "Osingon euromäärä ja sen kehitys." },
     ],
+    links: [
+      {
+        title: "Osinkosuhde ja miksi se voi joskus ylittää 100 %",
+        url: "https://fi.wikipedia.org/wiki/Osinkosuhde",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "Payout ratio: formula, example and industry differences",
+        url: "https://www.investopedia.com/terms/p/payoutratio.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "esimerkki",
+        checkedAt: "2026-09-25",
+      },
+    ],
   },
 
   // ─── Velka: Onko yhtiöllä liikaa velkaa? ──────────────────────────────────
@@ -549,6 +737,16 @@ export const metrics: Metric[] = [
       },
       { id: "roe", reason: "Matala omavaraisuus nostaa ROE:ta. Katso molemmat yhdessä." },
     ],
+    links: [
+      {
+        title: "Laskukaava, ohjearvot ja yhteys konkurssiriskiin",
+        url: "https://fi.wikipedia.org/wiki/Omavaraisuusaste",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+    ],
   },
   {
     id: "nettovelkaantumisaste",
@@ -596,6 +794,16 @@ export const metrics: Metric[] = [
       { id: "omavaraisuusaste", reason: "Toinen näkökulma velkaisuuteen, koko taseen kautta." },
       { id: "ev", reason: "Nettovelka on se osa, jolla EV eroaa markkina-arvosta." },
       { id: "roe", reason: "Paljastaa, onko korkea ROE saavutettu velalla." },
+    ],
+    links: [
+      {
+        title: "Laskukaava, ohjearvot ja vertailu omavaraisuusasteeseen",
+        url: "https://fi.wikipedia.org/wiki/Nettovelkaantumisaste",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
     ],
   },
 
@@ -663,6 +871,32 @@ export const metrics: Metric[] = [
       { id: "eps", reason: "P/E lasketaan EPS:stä. Katso, onko tulos kasvussa vai laskussa." },
       { id: "ev-ebit", reason: "Parempi vertailuun, kun yhtiöillä on eri määrä velkaa." },
     ],
+    links: [
+      {
+        title: "P/E-luku ja sen tulkinta laskuesimerkin kanssa",
+        url: "https://www.porssisaatio.fi/osakesijoittajan-tarkeimmat-tunnusluvut/",
+        sourceId: "porssisaatio",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "P/E-luvun määritelmä ja käytön ongelmat",
+        url: "https://fi.wikipedia.org/wiki/P/E-luku",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "P/E ratio explained: forward vs. trailing P/E, with examples",
+        url: "https://www.investopedia.com/terms/p/price-earningsratio.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "esimerkki",
+        checkedAt: "2026-09-25",
+      },
+    ],
   },
   {
     id: "peg",
@@ -711,6 +945,24 @@ export const metrics: Metric[] = [
     companions: [
       { id: "pe", reason: "PEG lasketaan P/E:stä. Katso aina molemmat." },
       { id: "eps", reason: "Näyttää, onko tulos todella kasvanut aiempina vuosina." },
+    ],
+    links: [
+      {
+        title: "PEG-luvun laskeminen esimerkin avulla ja sen rajoitukset",
+        url: "https://www.inderes.fi/questions-and-answers/kasvuyhtiosijoittaminen-ja-peg-luku",
+        sourceId: "inderes",
+        language: "fi",
+        kind: "esimerkki",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "PEG ratio: formula and why the growth estimate matters",
+        url: "https://www.investopedia.com/terms/p/pegratio.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
     ],
   },
   {
@@ -769,6 +1021,16 @@ export const metrics: Metric[] = [
       { id: "ev", reason: "Luvun pohja: mitä koko yhtiö maksaa velkoineen." },
       { id: "ebit-prosentti", reason: "Korkea kannattavuus voi oikeuttaa korkeamman luvun." },
     ],
+    links: [
+      {
+        title: "Yritysarvo ja EV/EBIT: miksi velat ja kassa pitää huomioida",
+        url: "https://www.inderes.fi/articles/mika-enterprise-value-eli-ev-enta-evebit-ja-evebitda",
+        sourceId: "inderes",
+        language: "fi",
+        kind: "esimerkki",
+        checkedAt: "2026-09-25",
+      },
+    ],
   },
   {
     id: "pb",
@@ -817,6 +1079,32 @@ export const metrics: Metric[] = [
       { id: "roe", reason: "Korkea ROE selittää korkean P/B:n, matala ROE matalan." },
       { id: "pe", reason: "Kertoo hinnan suhteessa tulokseen omaisuuden sijaan." },
     ],
+    links: [
+      {
+        title: "P/B eli osakkeen hinta suhteessa omaan pääomaan",
+        url: "https://www.porssisaatio.fi/osakesijoittajan-tarkeimmat-tunnusluvut/",
+        sourceId: "porssisaatio",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "P/B-luvun lyhyt määritelmä",
+        url: "https://fi.wikipedia.org/wiki/P/B-luku",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "P/B ratio: formula, example and when it works poorly",
+        url: "https://www.investopedia.com/terms/p/price-to-bookratio.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "esimerkki",
+        checkedAt: "2026-09-25",
+      },
+    ],
   },
   {
     id: "ps",
@@ -855,6 +1143,24 @@ export const metrics: Metric[] = [
       { id: "ebit-prosentti", reason: "Kertoo, kuinka suuri osa myynnistä jää voitoksi." },
       { id: "liikevaihto", reason: "Kasvaako myynti? Kasvu selittää usein korkeaa P/S:ää." },
       { id: "pe", reason: "Kun yhtiö tekee voittoa, P/E kertoo hinnan suhteessa tulokseen." },
+    ],
+    links: [
+      {
+        title: "P/S-luvun määritelmä, edut ja heikkoudet",
+        url: "https://fi.wikipedia.org/wiki/P/S-luku",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
+      {
+        title: "P/S ratio explained: formula and comparing within a sector",
+        url: "https://www.investopedia.com/terms/p/price-to-salesratio.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-25",
+      },
     ],
   },
 ];

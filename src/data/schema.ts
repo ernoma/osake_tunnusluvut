@@ -8,12 +8,17 @@ import {
   CATEGORY_IDS,
   DIRECTIONS,
   LEVELS,
+  LINK_KINDS,
+  LINK_LANGUAGES,
+  SOURCE_TYPES,
   TONES,
   UNITS,
   type Category,
+  type ExternalLink,
   type GlossaryTerm,
   type Metric,
   type PlannedMetric,
+  type Source,
 } from "./types.ts";
 
 /** Pituusrajat pitävät kortit tiiviinä. Muuta vain harkiten. */
@@ -29,6 +34,8 @@ export const LIMITS = {
   listItem: 220,
   companionReason: 120,
   glossaryDefinition: 220,
+  linkTitle: 70,
+  maxLinks: 3,
 } as const;
 
 const idSchema = z
@@ -43,6 +50,39 @@ function rich(max: number) {
     message: `näkyvä teksti saa olla enintään ${max} merkkiä`,
   });
 }
+
+/** Päivämäärä muodossa VVVV-KK-PP, ja sen pitää olla oikea kalenteripäivä. */
+const isoDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "päivämäärän muoto on VVVV-KK-PP")
+  .refine((s) => {
+    const d = new Date(`${s}T00:00:00Z`);
+    return !Number.isNaN(d.getTime()) && d.toISOString().startsWith(s);
+  }, "päivämäärä ei ole kelvollinen");
+
+export const externalLinkSchema: z.ZodType<ExternalLink> = z.object({
+  title: plain.max(LIMITS.linkTitle),
+  url: z
+    .string()
+    .url("osoite ei ole kelvollinen")
+    .refine((s) => s.startsWith("https://"), "osoitteen pitää alkaa https://"),
+  sourceId: idSchema,
+  language: z.enum(LINK_LANGUAGES),
+  kind: z.enum(LINK_KINDS),
+  checkedAt: isoDate,
+});
+
+export const sourceSchema: z.ZodType<Source> = z.object({
+  id: idSchema,
+  name: plain,
+  domain: z
+    .string()
+    .regex(
+      /^[a-z0-9-]+(\.[a-z0-9-]+)+$/,
+      "verkkotunnus ilman https:// ja polkua, esim. example.fi",
+    ),
+  type: z.enum(SOURCE_TYPES),
+});
 
 export const metricSchema: z.ZodType<Metric> = z.object({
   id: idSchema,
@@ -82,6 +122,9 @@ export const metricSchema: z.ZodType<Metric> = z.object({
   companions: z
     .array(z.object({ id: idSchema, reason: rich(LIMITS.companionReason) }))
     .min(1, "vähintään yksi rinnakkaistunnusluku"),
+  links: z
+    .array(externalLinkSchema)
+    .max(LIMITS.maxLinks, `enintään ${LIMITS.maxLinks} lisälukemista-linkkiä`),
 });
 
 export const plannedMetricSchema: z.ZodType<PlannedMetric> = z.object({

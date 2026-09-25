@@ -91,6 +91,41 @@ export interface Metric {
   /** "Nyrkkisääntö, vaihtelee toimialoittain" */
   rangesNote?: string;
   companions: Companion[];
+  /** Lisälukemista muilla sivustoilla, 0–3 kpl. Suomenkieliset ensin. */
+  links: ExternalLink[];
+}
+
+export const LINK_LANGUAGES = ["fi", "en"] as const;
+export type LinkLanguage = (typeof LINK_LANGUAGES)[number];
+
+export const LINK_KINDS = ["selitys", "esimerkki", "laskuri", "video"] as const;
+export type LinkKind = (typeof LINK_KINDS)[number];
+
+export interface ExternalLink {
+  /** Mitä sivulta löytyy: "Selitys ja laskuesimerkki". Ei pelkkä sivuston nimi. */
+  title: string;
+  /** Vain https. Verkkotunnuksen pitää kuulua sourceId:n sivustoon. */
+  url: string;
+  /** Viittaus sources.ts:n sivustoon. */
+  sourceId: string;
+  language: LinkLanguage;
+  kind: LinkKind;
+  /** "2026-09-25": milloin sisältö viimeksi luettu käsin. */
+  checkedAt: string;
+}
+
+export const SOURCE_TYPES = ["neutraali", "kaupallinen"] as const;
+export type SourceType = (typeof SOURCE_TYPES)[number];
+
+/** Sivusto, jolle lisälukemista-linkit osoittavat. */
+export interface Source {
+  id: string;
+  /** "Pörssisäätiö" */
+  name: string;
+  /** "porssisaatio.fi". Kattaa myös alitunnukset, esim. www.porssisaatio.fi. */
+  domain: string;
+  /** kaupallinen = pankki, välittäjä, analyysitalo tms. */
+  type: SourceType;
 }
 
 /** Tunnusluku, johon saa jo viitata, mutta jota ei ole vielä kirjoitettu. Näkyy "tulossa"-tilassa. */

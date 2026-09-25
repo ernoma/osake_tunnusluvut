@@ -1,9 +1,16 @@
-// Koko sisällön tarkistus: skeemat, id:iden yksilöllisyys, rinnakkaisviittaukset ja sanastotermit.
-// Virheet (errors) kaatavat testit. Varoitukset (warnings) kertovat "tulossa"-viittauksista.
+// Koko sisällön tarkistus: skeemat, id:iden yksilöllisyys, rinnakkaisviittaukset, sanastotermit
+// ja lisälukemista-linkit. Virheet (errors) kaatavat testit. Varoitukset (warnings) kertovat
+// "tulossa"-viittauksista ja linkeistä, jotka kaipaavat huomiota.
 
 import type { z } from "zod";
 import { hasMalformedMarkup, termKeys } from "./richText.ts";
-import { categorySchema, glossaryTermSchema, metricSchema, plannedMetricSchema } from "./schema.ts";
+import {
+  categorySchema,
+  glossaryTermSchema,
+  metricSchema,
+  plannedMetricSchema,
+  sourceSchema,
+} from "./schema.ts";
 import { buildTermIndex } from "./terms.ts";
 import {
   CATEGORY_IDS,
@@ -11,6 +18,7 @@ import {
   type GlossaryTerm,
   type Metric,
   type PlannedMetric,
+  type Source,
 } from "./types.ts";
 
 export interface Content {
@@ -18,6 +26,7 @@ export interface Content {
   planned: readonly PlannedMetric[];
   categories: readonly Category[];
   glossary: readonly GlossaryTerm[];
+  sources: readonly Source[];
 }
 
 export interface ValidationResult {
@@ -25,15 +34,27 @@ export interface ValidationResult {
   warnings: string[];
 }
 
-export function validateContent(content: Content): ValidationResult {
+export interface ValidateOptions {
+  /** Päivä, johon linkkien checkedAt-päiviä verrataan. Oletuksena tämä päivä. */
+  today?: Date;
+}
+
+/** Näin monen kuukauden jälkeen linkin sisältö pitää lukea uudelleen. */
+export const LINK_RECHECK_MONTHS = 12;
+
+export function validateContent(
+  content: Content,
+  { today = new Date() }: ValidateOptions = {},
+): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
-  const { metrics, planned, categories, glossary } = content;
+  const { metrics, planned, categories, glossary, sources } = content;
 
   checkSchema(metricSchema, metrics, "tunnusluku", errors);
   checkSchema(plannedMetricSchema, planned, "tulossa", errors);
   checkSchema(categorySchema, categories, "kategoria", errors);
   checkSchema(glossaryTermSchema, glossary, "sanasto", errors);
+  checkSchema(sourceSchema, sources, "sivusto", errors);
 
   // Yksilöllisyys
   for (const id of duplicates(metrics.map((m) => m.id)))
@@ -85,11 +106,47 @@ export function validateContent(content: Content): ValidationResult {
     }
   }
 
-  // Sanastotermit teksteissä
+  // Lisälukemista-linkit
+  for (const id of duplicates(sources.map((s) => s.id)))
+    errors.push(`sivuston id "${id}" on käytössä useasti (sources.ts)`);
+  const sourceById = new Map(sources.map((s) => [s.id, s]));
+  const todayStr = toIsoDate(today);
+  const recheckLimit = new Date(today);
+  recheckLimit.setUTCMonth(recheckLimit.getUTCMonth() - LINK_RECHECK_MONTHS);
+  const recheckStr = toIsoDate(recheckLimit);
+  for (const m of metrics) {
+    if (m.links.length === 0) {
+      warnings.push(`${m.id}: ei yhtään lisälukemista-linkkiä`);
+      continue;
+    }
+    if (!m.links.some((l) => l.language === "fi"))
+      warnings.push(`${m.id}: ei yhtään suomenkielistä lisälukemista-linkkiä`);
+    const firstForeign = m.links.findIndex((l) => l.language !== "fi");
+    if (firstForeign !== -1 && m.links.slice(firstForeign).some((l) => l.language === "fi"))
+      errors.push(`${m.id}: suomenkieliset linkit kuuluvat listassa ensin`);
+    for (const url of duplicates(m.links.map((l) => l.url)))
+      errors.push(`${m.id}: linkki ${url} on listattu useasti`);
+    m.links.forEach((link, i) => {
+      const path = `${m.id}.links[${i}]`;
+      const source = sourceById.get(link.sourceId);
+      if (!source) {
+        errors.push(`${path}: tuntematon sivusto "${link.sourceId}" (lisää se sources.ts:ään)`);
+      } else if (!hostMatches(link.url, source.domain)) {
+        errors.push(`${path}: osoite ${link.url} ei ole sivuston ${source.domain} osoite`);
+      }
+      if (link.checkedAt > todayStr) {
+        errors.push(`${path}: checkedAt ${link.checkedAt} on tulevaisuudessa`);
+      } else if (link.checkedAt < recheckStr) {
+        warnings.push(`${path}: luettu viimeksi ${link.checkedAt}, lue sisältö uudelleen`);
+      }
+    });
+  }
+
+  // Sanastotermit teksteissä (linkkien otsikoissa ei käytetä [[ ]]-merkintöjä)
   const { index, collisions } = buildTermIndex(metrics, planned, glossary);
   for (const c of collisions) errors.push(`termi ${c}`);
   const texts = [
-    ...metrics.flatMap((m) => [...walkStrings(m, m.id)]),
+    ...metrics.flatMap((m) => [...walkStrings({ ...m, links: undefined }, m.id)]),
     ...glossary.flatMap((g) => [...walkStrings(g, `sanasto ${g.id}`)]),
   ];
   for (const { path, text } of texts) {
@@ -120,6 +177,21 @@ function checkSchema<T>(
       errors.push(`${label} ${String(name)}.${issue.path.join(".")}: ${issue.message}`);
     }
   });
+}
+
+/** Osoitteen verkkotunnus on domain itse tai sen alitunnus (esim. www.domain). */
+export function hostMatches(url: string, domain: string): boolean {
+  let host: string;
+  try {
+    host = new URL(url).hostname;
+  } catch {
+    return false;
+  }
+  return host === domain || host.endsWith(`.${domain}`);
+}
+
+function toIsoDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
 }
 
 function duplicates(values: readonly string[]): string[] {
