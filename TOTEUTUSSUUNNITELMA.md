@@ -269,6 +269,10 @@ src/
 │   ├── schema.ts           # Zod-skeemat
 │   ├── categories.ts       # kategoriat kysymyksinä
 │   ├── glossary.ts         # sanasto
+│   ├── planned.ts          # "tulossa"-tunnusluvut, joihin saa jo viitata
+│   ├── richText.ts         # [[termi]]-merkintöjen jäsennys
+│   ├── terms.ts            # termihakemisto: mihin [[termi]] osoittaa
+│   ├── validate.ts         # koko sisällön ristiintarkistus
 │   └── metrics.ts          # KAIKKI TUNNUSLUVUT
 ├── components/
 │   ├── App.tsx
