@@ -28,9 +28,9 @@ npm run dev
 scripts/
 └── check-links.mjs  # lisälukemista-linkkien tarkistus
 src/
-├── components/   # React-komponentit: tunnuslukukortti ja sen osat (vaihe 4)
+├── components/   # React-komponentit: tunnuslukukortti ja sen osat (vaihe 4), ruudukko (vaihe 5)
 ├── data/         # tunnusluvut, kategoriat, sanasto ja linkkien sivustot (vaihe 2–3b)
-├── hooks/        # selitysikkunat (usePopover), haku- ja suodatuslogiikka (vaihe 7)
+├── hooks/        # selitysikkunat (usePopover), korttiin siirtyminen (useCardNavigation), haku- ja suodatuslogiikka (vaihe 7)
 ├── styles/       # värit, välit ja teemat
 └── test/         # testien alustus
 ```

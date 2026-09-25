@@ -333,6 +333,8 @@ src/
 │   ├── RichText.tsx        # muuttaa [[termi]]-merkinnät GlossaryTerm-komponenteiksi
 │   └── GlossaryTerm.tsx    # selitettävä sana ja selitysikkuna
 ├── hooks/
+│   ├── usePopover.ts       # selitysikkunan avaus ja sulkeminen
+│   ├── useCardNavigation.ts # korttiin siirtyminen: vieritys, kohdistus ja korostus
 │   ├── useMetricFilter.ts  # haku- ja suodatuslogiikka (puhdas funktio, testattava)
 │   └── useUrlState.ts      # tilan synkronointi URL:iin
 └── styles/
@@ -443,7 +445,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **3. Sisältö** ✅ | Kaikki 17 tunnuslukua ja sanasto kirjoitetaan kohdan 2 periaatteiden mukaan | Validointitestit menevät läpi, ja jokainen teksti on tarkistettu kohdan 9 listalla |
 | **3b. Lisälukemista-linkit** ✅ | `ExternalLink`- ja `Source`-tyypit, skeema ja tarkistukset, `sources.ts`, 1–3 linkkiä jokaiselle tunnusluvulle kohdan 6.7 periaatteiden mukaan sekä `scripts/check-links.mjs` | Jokaisella tunnusluvulla on vähintään yksi linkki, testit ja `npm run check-links` menevät läpi, ja jokainen linkki on luettu käsin |
 | **4. Kortti** ✅ | `MetricCard`, `DirectionBadge`, `FormulaBox`, `CompanionChips`, `ExternalLinks`, `RichText` ja `GlossaryTerm` | Yksi kortti näyttää kaikki kohdan 5.2 tiedot, ja sanastoikkuna toimii hiirellä, kosketuksella ja näppäimistöllä |
-| **5. Ruudukko ja navigointi** | `MetricGrid`, kysymysotsikot, rinnakkaislinkkien vieritys ja korostus | Linkki P/E → PEG toimii |
+| **5. Ruudukko ja navigointi** ✅ | `MetricGrid`, kysymysotsikot, rinnakkaislinkkien vieritys ja korostus | Linkki P/E → PEG toimii |
 | **6. Johdanto** | `IntroPanel` ja suositeltu lukujärjestys | Paneelin voi sulkea ja avata uudelleen, ja askeleet vievät oikeisiin kortteihin |
 | **7. Haku ja suodatus** | `FilterBar`, "Näytä myös syventävät", `useMetricFilter`, `useUrlState` ja pikanäppäin `/` | "velaton" löytää EV:n, ja URL säilyttää tilan |
 | **8. Ulkoasu** | Teemat, responsiivisuus ja saavutettavuustarkistus (axe tai Lighthouse) | Lighthouse-saavutettavuus ≥ 95, toimii 375 px leveydellä |

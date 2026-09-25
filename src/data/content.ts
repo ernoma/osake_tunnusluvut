@@ -8,7 +8,7 @@ import { planned } from "./planned.ts";
 import { normalizeKey } from "./richText.ts";
 import { sources } from "./sources.ts";
 import { buildTermIndex, type TermTarget } from "./terms.ts";
-import type { GlossaryTerm, Metric, PlannedMetric, Source } from "./types.ts";
+import type { Category, GlossaryTerm, Metric, PlannedMetric, Source } from "./types.ts";
 
 export { categories, glossary, metrics, planned, sources };
 
@@ -37,4 +37,29 @@ export function displayName(m: { name: string; abbreviation?: string }): string 
   return m.abbreviation && !m.name.includes(m.abbreviation)
     ? `${m.name} (${m.abbreviation})`
     : m.name;
+}
+
+export interface CategoryGroup {
+  category: Category;
+  metrics: Metric[];
+}
+
+/**
+ * Tunnusluvut kategorioittain kategorioiden järjestyksessä. Kategorian sisällä perustason
+ * luvut ovat ensin, muuten järjestys on sama kuin metrics.ts:ssä. Tyhjät kategoriat jätetään pois.
+ */
+export function groupByCategory(items: readonly Metric[]): CategoryGroup[] {
+  return [...categories]
+    .sort((a, b) => a.order - b.order)
+    .map((category) => {
+      const inCategory = items.filter((m) => m.category === category.id);
+      return {
+        category,
+        metrics: [
+          ...inCategory.filter((m) => m.level === "perus"),
+          ...inCategory.filter((m) => m.level !== "perus"),
+        ],
+      };
+    })
+    .filter((group) => group.metrics.length > 0);
 }

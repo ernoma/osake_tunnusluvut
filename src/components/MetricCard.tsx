@@ -30,7 +30,8 @@ export default function MetricCard({ metric, defaultExpanded = false }: Props) {
   const moreId = `${metric.id}-lisaa`;
 
   return (
-    <article id={metric.id} className={styles.card} aria-labelledby={titleId}>
+    // tabIndex -1: korttiin siirtyvä linkki voi viedä kohdistuksen korttiin (useCardNavigation).
+    <article id={metric.id} className={styles.card} aria-labelledby={titleId} tabIndex={-1}>
       <header className={styles.header}>
         <h3 id={titleId} className={styles.name}>
           <MetricName metric={metric} />

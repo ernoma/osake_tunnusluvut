@@ -9,6 +9,30 @@
   scroll-margin-top: var(--space-5);
 }
 
+/* Kortti, johon linkki juuri vei (useCardNavigation). Kesto on sama kuin HIGHLIGHT_MS. */
+.card[data-highlighted] {
+  animation: highlight 2s ease-out;
+}
+
+@keyframes highlight {
+  0%,
+  40% {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent);
+  }
+  100% {
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card[data-highlighted] {
+    animation: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent);
+  }
+}
+
 .card p {
   margin: 0;
 }
