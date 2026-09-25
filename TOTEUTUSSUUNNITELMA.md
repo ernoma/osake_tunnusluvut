@@ -17,7 +17,7 @@ Aikuinen, joka on nähnyt tunnuslukuja esimerkiksi pankin sovelluksessa, osakeve
    - mitä muita tunnuslukuja kannattaa katsoa rinnalla
 2. **Aloittelija ymmärtää kortin ilman muita lähteitä.** Jokainen vaikea sana on selitetty samassa näkymässä. Tätä mitataan käyttäjätestillä (kohta 7).
 3. Uuden tunnusluvun lisääminen onnistuu **lisäämällä yksi tietue datatiedostoon**, eikä koodia tarvitse muuttaa.
-4. Käyttöliittymä pysyy selkeänä, vaikka tunnuslukuja olisi 15 sijaan 50.
+4. Käyttöliittymä pysyy selkeänä, vaikka tunnuslukuja olisi 17 sijaan 50.
 
 **Rajaukset (ei kuulu versioon 1)**
 
@@ -78,6 +78,7 @@ export type CategoryId =
   | "kannattavuus"   // Tekeekö yhtiö hyvin rahaa?
   | "osakekohtaiset" // Paljonko yhdelle osakkeelle kuuluu?
   | "osinko"         // Paljonko osinkoa saan, ja onko se kestävää?
+  | "velka"          // Onko yhtiöllä liikaa velkaa?
   | "arvostus";      // Onko osake halpa vai kallis?
 
 export interface Metric {
@@ -129,6 +130,7 @@ Kategoriat ovat tiedostossa `src/data/categories.ts`: `id`, `question`, `shortNa
 | kannattavuus | Kannattavuus | Tekeekö yhtiö hyvin rahaa? |
 | osakekohtaiset | Per osake | Paljonko yhdelle osakkeelle kuuluu? |
 | osinko | Osinko | Paljonko osinkoa saan, ja onko se kestävää? |
+| velka | Velka | Onko yhtiöllä liikaa velkaa? |
 | arvostus | Hinta | Onko osake halpa vai kallis? |
 
 ### 4.3 Sanasto
@@ -141,6 +143,8 @@ Ensimmäiset termit:
 - nettotulos
 - nettovelka
 - korollinen velka
+- tase ja taseen loppusumma
+- saadut ennakot
 - kassa
 - kertaerä
 - osakeanti ja laimentuminen
@@ -158,7 +162,7 @@ Jokaisen tunnusluvun nimi on automaattisesti myös sanastotermi. Siksi esimerkik
 ### 4.4 Laajennettavuuden periaatteet
 
 - Kategoriat ja sanasto ovat dataa samalla tavalla kuin tunnusluvut.
-- `companions`-kenttä voi viitata tunnuslukuun, jota ei ole vielä lisätty, esimerkiksi omavaraisuusasteeseen. Käyttöliittymä näyttää silloin harmaan merkinnän "tulossa", ja testi listaa nämä viittaukset varoituksina, mutta build ei kaadu.
+- `companions`-kenttä voi viitata tunnuslukuun, jota ei ole vielä lisätty, esimerkiksi vapaaseen kassavirtaan. Käyttöliittymä näyttää silloin harmaan merkinnän "tulossa", ja testi listaa nämä viittaukset varoituksina, mutta build ei kaadu.
 - Zod-skeema tarkistaa testeissä:
   - pakolliset kentät
   - id:iden yksilöllisyyden
@@ -175,7 +179,7 @@ Sivun yläosassa on ensimmäisellä käynnillä lyhyt johdantopaneeli, jonka voi
 
 - Kolme lausetta siitä, mitä tunnusluku on: *"Tunnusluku tiivistää yhtiön tilinpäätöksen tai osakkeen hinnan yhdeksi luvuksi, jota on helppo verrata."*
 - Tärkein periaate: *"Mikään luku ei yksin kerro, kannattaako osake ostaa. Katso aina useampaa lukua ja vertaa saman alan yhtiöihin."*
-- **Suositeltu lukujärjestys** klikattavina askelina: Liikevaihto → EBIT → EBIT-% → EPS → P/E → Osinkotuotto → Osinkosuhde. Jokainen askel vie kyseiseen korttiin.
+- **Suositeltu lukujärjestys** klikattavina askelina: Liikevaihto → EBIT → EBIT-% → EPS → P/E → Omavaraisuusaste → Osinkotuotto → Osinkosuhde. Jokainen askel vie kyseiseen korttiin.
 - Suuntamerkkien selitys (kohta 5.2) pienenä selitteenä.
 
 ### 5.2 Päänäkymä: korttiruudukko
@@ -183,7 +187,8 @@ Sivun yläosassa on ensimmäisellä käynnillä lyhyt johdantopaneeli, jonka voi
 ```
 ┌────────────────────────────────────────────────────────────────┐
 │  Osakkeen tunnusluvut – selkokielellä       [🔍 Hae...]  [☾]  │
-│  [Kaikki] [Koko] [Kannattavuus] [Per osake] [Osinko] [Hinta]   │
+│  [Kaikki] [Koko] [Kannattavuus] [Per osake] [Osinko] [Velka]   │
+│  [Hinta]                                                       │
 │  [✓] Näytä myös syventävät                                     │
 ├────────────────────────────────────────────────────────────────┤
 │ ONKO OSAKE HALPA VAI KALLIS?                                   │
@@ -295,21 +300,21 @@ src/
 - **Kosketus:** painikkeiden kosketusalue on vähintään 44 × 44 px.
 - **Vastuuvapauslauseke:** näkyy sivun alareunassa ja johdannossa ystävällisellä sävyllä: *"Tämä on opas tunnuslukujen ymmärtämiseen, ei sijoitusneuvontaa. Sijoittamiseen liittyy aina riski."*
 
-## 6. Sisältö: 15 tunnuslukua
+## 6. Sisältö: 17 tunnuslukua
 
 Tämä on luonnos `metrics.ts`-tiedoston sisällöstä. Tekstit viimeistellään vaiheessa 3 kohdan 2 periaatteiden mukaisiksi.
 
 **Tasot**
 
-- **Perus:** Markkina-arvo, Liikevaihto, EBIT, EBIT-%, EPS, Osinko/osake, Osinkotuotto, P/E
-- **Syventävä:** EV, ROE, Osinkosuhde, P/B, PEG, P/S, EV/EBIT
+- **Perus:** Markkina-arvo, Liikevaihto, EBIT, EBIT-%, EPS, Osinko/osake, Osinkotuotto, Omavaraisuusaste, P/E
+- **Syventävä:** EV, ROE, Osinkosuhde, Nettovelkaantumisaste, P/B, PEG, P/S, EV/EBIT
 
 ### 6.1 Koko: Kuinka iso yhtiö on?
 
 | Tunnusluku | Kysymys | Kaava sanoin | Suunta | Tärkeimmät säännöt | ⚠ Yleinen virhe | Vertaus | Katso rinnalla |
 |---|---|---|---|---|---|---|---|
 | **Markkina-arvo** (perus) | Paljonko kaikki yhtiön osakkeet maksavat yhteensä? | Osakkeen hinta × osakkeiden määrä | ● Koko | Kertoo koon, ei sitä, onko osake halpa. Pienten yhtiöiden kurssit heiluvat usein enemmän. Ei huomioi velkoja. | "Iso markkina-arvo = turvallinen sijoitus" | Talon myyntihinta ilman tietoa asuntolainasta | EV (velat mukaan), Liikevaihto (→ P/S) |
-| **EV, yritysarvo** (syventävä) | Paljonko koko yhtiö maksaisi velkoineen? | Markkina-arvo + nettovelka (korolliset velat − kassa) | ● Koko | Velkainen yhtiö on kalliimpi kuin markkina-arvo antaa ymmärtää. Paljon käteistä omistava yhtiö on vastaavasti halvempi. EV on pohja EV/EBIT-luvulle. | Unohdetaan velat ja verrataan pelkkiä markkina-arvoja | Asunnon **velaton hinta** = myyntihinta + taloyhtiölainan osuus | Markkina-arvo, EV/EBIT, *Nettovelkaantumisaste (tulossa)* |
+| **EV, yritysarvo** (syventävä) | Paljonko koko yhtiö maksaisi velkoineen? | Markkina-arvo + nettovelka (korolliset velat − kassa) | ● Koko | Velkainen yhtiö on kalliimpi kuin markkina-arvo antaa ymmärtää. Paljon käteistä omistava yhtiö on vastaavasti halvempi. EV on pohja EV/EBIT-luvulle. | Unohdetaan velat ja verrataan pelkkiä markkina-arvoja | Asunnon **velaton hinta** = myyntihinta + taloyhtiölainan osuus | Markkina-arvo, EV/EBIT, Nettovelkaantumisaste |
 | **Liikevaihto** (perus) | Paljonko yhtiö myy vuodessa? | Kaikki myyntitulot tilikauden ajalta | ● Koko (kasvu ↑) | Kasvuvauhti kertoo enemmän kuin taso. Vertaa aiempiin vuosiin. Yritysostot voivat paisuttaa kasvua. | "Suuri myynti = suuri voitto". Kulut voivat viedä kaiken | Kaupan kassaan tuleva raha ennen kuin laskut on maksettu | EBIT, EBIT-%, P/S |
 
 ### 6.2 Kannattavuus: Tekeekö yhtiö hyvin rahaa?
@@ -318,7 +323,7 @@ Tämä on luonnos `metrics.ts`-tiedoston sisällöstä. Tekstit viimeistellään
 |---|---|---|---|---|---|---|---|
 | **EBIT, liikevoitto** (perus) | Paljonko varsinainen liiketoiminta tuottaa voittoa? | Liikevaihto − liiketoiminnan kulut (ennen korkoja ja veroja) | ↑ Suurempi = parempi | Suhteuta myyntiin (EBIT-%). Kertaerät vääristävät, joten katso "vertailukelpoinen EBIT". Velat ja verot eivät vaikuta lukuun, joten sen avulla on helppo verrata yhtiöitä. | Katsotaan euromäärää eikä suhdetta yhtiön kokoon | Kahvilan voitto, kun raaka-aineet, palkat ja vuokra on maksettu mutta lainan korkoa ja veroja ei vielä | Liikevaihto, EBIT-%, EV/EBIT |
 | **EBIT-%, liikevoittoprosentti** (perus) | Montako senttiä jokaisesta myydystä eurosta jää voitoksi? | EBIT ÷ liikevaihto × 100 % | ↑ Suurempi = parempi | Vertaa vain saman alan yhtiöihin. Kaupalla 3–5 % voi olla hyvä, ohjelmistoyhtiöllä 20 % tavallinen (suuntaa antava). Nouseva suunta on hyvä merkki. | Verrataan eri alojen yhtiöitä keskenään | Jos myyt 100 €:n tuotteen ja 10 € jää käteen, EBIT-% on 10 | EBIT, Liikevaihto, P/S, ROE |
-| **ROE, oman pääoman tuotto** (syventävä) | Kuinka hyvin yhtiö tekee tulosta omistajien sijoittamalla rahalla? | Nettotulos ÷ oma pääoma × 100 % | ↑ Suurempi = parempi | Yli 10–15 % on usein hyvä (nyrkkisääntö). Velka nostaa ROE:ta keinotekoisesti, joten tarkista velkaisuus. Vakaa taso usean vuoden ajan on arvokkaampi kuin yksi hyvä vuosi. | Korkea ROE tulkitaan laadukkuudeksi, vaikka taustalla on suuri velka | Säästötilin korko, mutta yhtiön omalle pääomalle | P/B, EPS, *Nettovelkaantumisaste (tulossa)* |
+| **ROE, oman pääoman tuotto** (syventävä) | Kuinka hyvin yhtiö tekee tulosta omistajien sijoittamalla rahalla? | Nettotulos ÷ oma pääoma × 100 % | ↑ Suurempi = parempi | Yli 10–15 % on usein hyvä (nyrkkisääntö). Velka nostaa ROE:ta keinotekoisesti, joten tarkista velkaisuus. Vakaa taso usean vuoden ajan on arvokkaampi kuin yksi hyvä vuosi. | Korkea ROE tulkitaan laadukkuudeksi, vaikka taustalla on suuri velka | Säästötilin korko, mutta yhtiön omalle pääomalle | P/B, Nettovelkaantumisaste, Omavaraisuusaste |
 
 ### 6.3 Per osake: Paljonko yhdelle osakkeelle kuuluu?
 
@@ -334,7 +339,14 @@ Tämä on luonnos `metrics.ts`-tiedoston sisällöstä. Tekstit viimeistellään
 | **Osinkotuotto** (perus) | Montako prosenttia osakkeen hinnasta saat vuodessa osinkona? | Osinko/osake ÷ osakkeen hinta × 100 % | ↔ Sopiva väli | Hyvin korkea tuotto voi olla "osinkoansa": kurssi on laskenut ongelmien vuoksi, ja osinkoa saatetaan leikata. Tarkista osinkosuhde. Kasvuyhtiöt jakavat usein vähän tarkoituksella. | "Korkein osinkotuotto = paras osake" | Vuokratuotto-%: vuokra suhteessa asunnon hintaan | Osinkosuhde, Osinko/osake, P/E |
 | **Osinkosuhde** (syventävä) | Kuinka suuren osan voitostaan yhtiö jakaa osinkoina? | Osinko/osake ÷ EPS × 100 % | ↔ Sopiva väli | Noin 30–70 % on usein kestävää (nyrkkisääntö). Yli 100 % tarkoittaa, että osinko maksetaan enemmän kuin tehtiin tulosta, mikä ei jatku pitkään. Kasvava yhtiö tarvitsee rahaa investointeihin, joten matala suhde voi olla järkevä. | Katsotaan vain osinkotuottoa eikä tarkisteta, onko osingolle katetta | Kuinka suuren osan palkastasi kulutat ja kuinka suuren säästät | Osinkotuotto, EPS, Osinko/osake |
 
-### 6.5 Hinta: Onko osake halpa vai kallis?
+### 6.5 Velka: Onko yhtiöllä liikaa velkaa?
+
+| Tunnusluku | Kysymys | Kaava sanoin | Suunta | Tärkeimmät säännöt | ⚠ Yleinen virhe | Vertaus | Katso rinnalla |
+|---|---|---|---|---|---|---|---|
+| **Omavaraisuusaste** (perus) | Kuinka suuri osa yhtiön omaisuudesta on hankittu omalla rahalla eikä velalla? | Oma pääoma ÷ (taseen loppusumma − saadut ennakot) × 100 % | ↑ Suurempi = yleensä vakaampi | Yli 40 % on usein vakaa ja alle 20 % heikko (nyrkkisääntö). Vaihtelee aloittain: pankeilla ja kiinteistöyhtiöillä taso on luonnostaan matalampi. Kehityssuunta kertoo, kasvaako velka. | "Mitä korkeampi, sen parempi". Hyvin korkea aste voi tarkoittaa, että yhtiö ei käytä velkaa kasvun rahoittamiseen silloinkaan, kun se olisi järkevää | Kuinka suuren osan asunnosta omistat itse ja kuinka suuren osan pankki | Nettovelkaantumisaste, ROE |
+| **Nettovelkaantumisaste** (syventävä) | Kuinka paljon yhtiöllä on velkaa suhteessa omistajien rahaan, kun käteinen vähennetään? | Nettovelka ÷ oma pääoma × 100 % | ↓ Pienempi = yleensä vähäriskisempi | Alle 50 % on usein maltillinen ja yli 100 % paljon (nyrkkisääntö). Negatiivinen luku tarkoittaa, että käteistä on enemmän kuin velkaa. Velka on riskialttiimpaa, kun tulos heiluu tai korot nousevat. | Velkaa pidetään aina pahana, vaikka vakaatuloksinen yhtiö voi kantaa sitä turvallisesti | Asuntolaina miinus säästötili suhteessa siihen, mitä asunnosta omistat itse | Omavaraisuusaste, EV, ROE |
+
+### 6.6 Hinta: Onko osake halpa vai kallis?
 
 | Tunnusluku | Kysymys | Kaava sanoin | Suunta | Tärkeimmät säännöt | ⚠ Yleinen virhe | Vertaus | Katso rinnalla |
 |---|---|---|---|---|---|---|---|
@@ -344,7 +356,7 @@ Tämä on luonnos `metrics.ts`-tiedoston sisällöstä. Tekstit viimeistellään
 | **PEG** (syventävä) | Onko P/E kohtuullinen, kun yhtiön kasvu otetaan huomioon? | P/E ÷ tuloksen vuotuinen kasvu-% | ↓ Pienempi = yleensä halvempi | Alle 1 on kasvuun nähden edullinen, noin 1 kohtuullinen ja yli 1 kallis (nyrkkisääntö). Luku on vain yhtä luotettava kuin kasvuennuste. Ei toimi, jos kasvu on nolla tai negatiivinen. | Kasvuennustetta pidetään varmana tietona | Kalliimpi omenapuu voi olla edullinen, jos se kasvaa nopeasti ja tuottaa enemmän | P/E, EPS |
 | **P/S** (syventävä) | Paljonko maksat yhtiön jokaisesta myyntieurosta? | Markkina-arvo ÷ liikevaihto | ↓ Pienempi = yleensä halvempi | Toimii myös tappiollisille yhtiöille. Tulkinta riippuu katteista: kaupan alalla P/S on luonnostaan matala. Vertaa vain saman alan yhtiöihin. | Verrataan eri alojen yhtiöitä P/S-luvulla | Kaupan hinta suhteessa sen vuotuiseen myyntiin, ei voittoon | EBIT-%, Liikevaihto, P/E |
 
-Kursivoitu *(tulossa)*-viittaus on seuraava ehdokas lisättäväksi: **Nettovelkaantumisaste** tai **Omavaraisuusaste**, joilla voi arvioida yhtiön velkaisuutta. Tämä on tärkeää EV:n ja ROE:n tulkinnassa.
+Kaikki `companions`-viittaukset osoittavat nyt olemassa oleviin tunnuslukuihin. Seuraavia ehdokkaita lisättäviksi ovat esimerkiksi **vapaa kassavirta**, **liikevaihdon kasvu-%** ja **ROI / ROCE**.
 
 ## 7. Toteutusvaiheet
 
@@ -352,7 +364,7 @@ Kursivoitu *(tulossa)*-viittaus on seuraava ehdokas lisättäväksi: **Nettovelk
 |---|---|---|
 | **1. Projektipohja** | `npm create vite@latest` (react-ts), ESLint, Prettier, Vitest ja kansiorakenne | `npm run dev` ja `npm test` toimivat |
 | **2. Datamalli** | `types.ts`, `schema.ts`, `categories.ts` ja `glossary.ts` sekä kaksi esimerkkitunnuslukua (P/E, PEG) | Skeema- ja sanastotestit menevät läpi |
-| **3. Sisältö** | Kaikki 15 tunnuslukua ja sanasto kirjoitetaan kohdan 2 periaatteiden mukaan | Validointitestit menevät läpi, ja jokainen teksti on tarkistettu kohdan 9 listalla |
+| **3. Sisältö** | Kaikki 17 tunnuslukua ja sanasto kirjoitetaan kohdan 2 periaatteiden mukaan | Validointitestit menevät läpi, ja jokainen teksti on tarkistettu kohdan 9 listalla |
 | **4. Kortti** | `MetricCard`, `DirectionBadge`, `FormulaBox`, `CompanionChips`, `RichText` ja `GlossaryTerm` | Yksi kortti näyttää kaikki kohdan 5.2 tiedot, ja sanastoikkuna toimii hiirellä, kosketuksella ja näppäimistöllä |
 | **5. Ruudukko ja navigointi** | `MetricGrid`, kysymysotsikot, rinnakkaislinkkien vieritys ja korostus | Linkki P/E → PEG toimii |
 | **6. Johdanto** | `IntroPanel` ja suositeltu lukujärjestys | Paneelin voi sulkea ja avata uudelleen, ja askeleet vievät oikeisiin kortteihin |
