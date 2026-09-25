@@ -1,0 +1,40 @@
+// Käyttöliittymän hakemistot: sisältö koottuna kerran, jotta komponentit löytävät
+// termit, tunnusluvut ja sivustot id:n perusteella.
+
+import { categories } from "./categories.ts";
+import { glossary } from "./glossary.ts";
+import { metrics } from "./metrics.ts";
+import { planned } from "./planned.ts";
+import { normalizeKey } from "./richText.ts";
+import { sources } from "./sources.ts";
+import { buildTermIndex, type TermTarget } from "./terms.ts";
+import type { GlossaryTerm, Metric, PlannedMetric, Source } from "./types.ts";
+
+export { categories, glossary, metrics, planned, sources };
+
+const byId = <T extends { id: string }>(items: readonly T[]) =>
+  new Map(items.map((item) => [item.id, item]));
+
+export const metricsById: ReadonlyMap<string, Metric> = byId(metrics);
+export const plannedById: ReadonlyMap<string, PlannedMetric> = byId(planned);
+export const glossaryById: ReadonlyMap<string, GlossaryTerm> = byId(glossary);
+export const sourcesById: ReadonlyMap<string, Source> = byId(sources);
+
+const { index: termIndex } = buildTermIndex(metrics, planned, glossary);
+
+/** Mihin [[termi]] osoittaa. Undefined, jos termiä ei tunneta (validointi estää tämän). */
+export function resolveTerm(key: string): TermTarget | undefined {
+  return termIndex.get(normalizeKey(key));
+}
+
+/** Tunnusluvun lyhyt nimi merkinnöissä: lyhenne, jos sellainen on, muuten nimi. */
+export function shortMetricName(m: { name: string; abbreviation?: string }): string {
+  return m.abbreviation ?? m.name;
+}
+
+/** "Yritysarvo (EV)", mutta "P/E-luku" eikä "P/E-luku (P/E)". */
+export function displayName(m: { name: string; abbreviation?: string }): string {
+  return m.abbreviation && !m.name.includes(m.abbreviation)
+    ? `${m.name} (${m.abbreviation})`
+    : m.name;
+}

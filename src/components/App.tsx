@@ -1,3 +1,5 @@
+import { metrics } from "../data/content.ts";
+import MetricCard from "./MetricCard.tsx";
 import styles from "./App.module.css";
 
 export default function App() {
@@ -10,7 +12,13 @@ export default function App() {
         </p>
       </header>
       <main>
-        <p>Sisältö on tulossa.</p>
+        {/* Kategoriaryhmät ja kysymysotsikot tulevat vaiheessa 5 (MetricGrid). */}
+        <h2 className="visually-hidden">Tunnusluvut</h2>
+        <div className={styles.cards}>
+          {metrics.map((m) => (
+            <MetricCard key={m.id} metric={m} />
+          ))}
+        </div>
       </main>
       <footer className={styles.footer}>
         Tämä on opas tunnuslukujen ymmärtämiseen, ei sijoitusneuvontaa. Sijoittamiseen liittyy aina

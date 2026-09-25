@@ -1,0 +1,32 @@
+.term {
+  display: inline;
+  padding: 0;
+  border: 0;
+  border-bottom: 1.5px dashed currentColor;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  cursor: help;
+}
+
+.term:hover,
+.term[aria-expanded="true"] {
+  color: var(--color-accent);
+}
+
+.title {
+  font-weight: 650;
+}
+
+.line {
+  display: block;
+}
+
+.cardLink {
+  align-self: flex-start;
+  margin-top: var(--space-1);
+  color: var(--color-accent);
+  font-weight: 600;
+}
