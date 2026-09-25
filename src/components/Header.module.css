@@ -1,0 +1,97 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.title {
+  margin: 0;
+}
+
+.lead {
+  max-width: 70ch;
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.search {
+  position: relative;
+  display: flex;
+  flex: 1 1 18rem;
+  max-width: 32rem;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 1.3rem;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 2.5rem 0 2.5rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input:focus-visible {
+  border-color: var(--color-accent);
+  outline-offset: 0;
+}
+
+.shortcut {
+  position: absolute;
+  right: var(--space-3);
+  padding: 0 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.3rem;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+/* Pikanäppäinvihje vain, kun kenttä on tyhjä ja kohdistamaton, eikä kosketusnäytöillä. */
+.input:focus ~ .shortcut,
+.input:not(:placeholder-shown) ~ .shortcut {
+  display: none;
+}
+
+@media (hover: none) {
+  .shortcut {
+    display: none;
+  }
+}
+
+.introLink {
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}

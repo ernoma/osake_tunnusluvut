@@ -317,12 +317,14 @@ src/
 │   ├── richText.ts         # [[termi]]-merkintöjen jäsennys
 │   ├── terms.ts            # termihakemisto: mihin [[termi]] osoittaa
 │   ├── validate.ts         # koko sisällön ristiintarkistus
+│   ├── intro.ts            # suositeltu lukujärjestys ja suuntamerkkien selite
 │   └── metrics.ts          # KAIKKI TUNNUSLUVUT
 ├── components/
 │   ├── App.tsx
 │   ├── Header.tsx          # otsikko, haku, teemavalitsin
 │   ├── IntroPanel.tsx      # "Aloita tästä" ja suositeltu lukujärjestys
 │   ├── FilterBar.tsx       # kategoriat ja syventävien näyttäminen
+│   ├── ResultStatus.tsx    # "ei löytynyt" ja suodattimen piilottamat osumat
 │   ├── MetricGrid.tsx      # kategoriaryhmät ja kortit
 │   ├── MetricCard.tsx      # yksi kortti (tiivis tai laajennettu)
 │   ├── DirectionBadge.tsx  # suuntamerkki
@@ -336,6 +338,7 @@ src/
 │   ├── usePopover.ts       # selitysikkunan avaus ja sulkeminen
 │   ├── useCardNavigation.ts # korttiin siirtyminen: vieritys, kohdistus ja korostus
 │   ├── useMetricFilter.ts  # haku- ja suodatuslogiikka (puhdas funktio, testattava)
+│   ├── useStoredBoolean.ts # selaimeen muistettava valinta (johdanto, syventävät)
 │   └── useUrlState.ts      # tilan synkronointi URL:iin
 └── styles/
     └── tokens.css          # värit, välit, tumma ja vaalea teema
@@ -446,8 +449,8 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **3b. Lisälukemista-linkit** ✅ | `ExternalLink`- ja `Source`-tyypit, skeema ja tarkistukset, `sources.ts`, 1–3 linkkiä jokaiselle tunnusluvulle kohdan 6.7 periaatteiden mukaan sekä `scripts/check-links.mjs` | Jokaisella tunnusluvulla on vähintään yksi linkki, testit ja `npm run check-links` menevät läpi, ja jokainen linkki on luettu käsin |
 | **4. Kortti** ✅ | `MetricCard`, `DirectionBadge`, `FormulaBox`, `CompanionChips`, `ExternalLinks`, `RichText` ja `GlossaryTerm` | Yksi kortti näyttää kaikki kohdan 5.2 tiedot, ja sanastoikkuna toimii hiirellä, kosketuksella ja näppäimistöllä |
 | **5. Ruudukko ja navigointi** ✅ | `MetricGrid`, kysymysotsikot, rinnakkaislinkkien vieritys ja korostus | Linkki P/E → PEG toimii |
-| **6. Johdanto** | `IntroPanel` ja suositeltu lukujärjestys | Paneelin voi sulkea ja avata uudelleen, ja askeleet vievät oikeisiin kortteihin |
-| **7. Haku ja suodatus** | `FilterBar`, "Näytä myös syventävät", `useMetricFilter`, `useUrlState` ja pikanäppäin `/` | "velaton" löytää EV:n, ja URL säilyttää tilan |
+| **6. Johdanto** ✅ | `IntroPanel` ja suositeltu lukujärjestys | Paneelin voi sulkea ja avata uudelleen, ja askeleet vievät oikeisiin kortteihin |
+| **7. Haku ja suodatus** ✅ | `FilterBar`, "Näytä myös syventävät", `useMetricFilter`, `useUrlState` ja pikanäppäin `/` | "velaton" löytää EV:n, ja URL säilyttää tilan |
 | **8. Ulkoasu** | Teemat, responsiivisuus ja saavutettavuustarkistus (axe tai Lighthouse) | Lighthouse-saavutettavuus ≥ 95, toimii 375 px leveydellä |
 | **9. Käyttäjätesti** | 3–5 osakesijoittamista tuntematonta testaajaa, esimerkiksi tuttavia (kohta 8) | Testaajat löytävät vastaukset tavoiteajassa, ja löydetyt ongelmat on korjattu |
 | **10. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Sivu on julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |

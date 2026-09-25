@@ -6,7 +6,8 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   background: var(--color-surface);
-  scroll-margin-top: var(--space-5);
+  /* Korttiin siirryttäessä kortti jää kategorianauhan alle näkyviin. */
+  scroll-margin-top: calc(var(--filter-bar-height) + var(--space-3));
 }
 
 /* Kortti, johon linkki juuri vei (useCardNavigation). Kesto on sama kuin HIGHLIGHT_MS. */
