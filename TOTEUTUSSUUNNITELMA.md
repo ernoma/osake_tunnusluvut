@@ -115,6 +115,27 @@ export interface Metric {
     id: string;               // viittaus toiseen tunnuslukuun
     reason: string;           // "Kertoo, onko matala P/E vain kasvun puutetta"
   }[];
+  links: ExternalLink[];      // lisälukemista muilla sivustoilla, 0–3 kpl (kohta 6.7)
+}
+
+export interface ExternalLink {
+  title: string;              // mitä sivulta löytyy: "Selitys ja laskuesimerkki"
+  url: string;                // vain https
+  sourceId: string;           // viittaus sources.ts:n sivustoon
+  language: "fi" | "en";
+  kind: "selitys" | "esimerkki" | "laskuri" | "video";
+  checkedAt: string;          // "2026-09-25", milloin sisältö viimeksi luettu käsin
+}
+```
+
+Linkkien sivustot ovat omassa tiedostossaan `src/data/sources.ts`, eikä sivuston nimeä kirjoiteta jokaiseen linkkiin erikseen:
+
+```ts
+export interface Source {
+  id: string;                 // "porssisaatio"
+  name: string;               // "Pörssisäätiö"
+  domain: string;             // "porssisaatio.fi". Linkin osoitteen pitää olla tässä verkkotunnuksessa
+  type: "neutraali" | "kaupallinen"; // kaupallinen = pankki, välittäjä, analyysitalo tms.
 }
 ```
 
@@ -167,9 +188,11 @@ Jokaisen tunnusluvun nimi on automaattisesti myös sanastotermi. Siksi esimerkik
   - pakolliset kentät
   - id:iden yksilöllisyyden
   - tekstien pituusrajat
-  - sen, että jokainen `[[termi]]` löytyy sanastosta tai tunnuslukujen nimistä.
+  - sen, että jokainen `[[termi]]` löytyy sanastosta tai tunnuslukujen nimistä
+  - linkkien muodon ja sivustot (kohta 6.7).
 
   Näin kortit pysyvät tiiviinä, eikä aloittelija törmää selittämättömään sanaan.
+- Uusi linkkisivusto lisätään yhdellä rivillä tiedostoon `sources.ts`. Jos sivusto vaihtaa verkkotunnusta, muutos tehdään yhteen paikkaan.
 
 ## 5. Käyttöliittymä
 
@@ -239,6 +262,26 @@ Sivun yläosassa on ensimmäisellä käynnillä lyhyt johdantopaneeli, jonka voi
 - Suuntaa antava asteikko värikoodattuna ja merkinnällä "nyrkkisääntö"
 - Kaava symboleina ja lyhenteen selitys
 - Rinnakkaistunnuslukujen perustelut kokonaisuudessaan
+- **"Lue lisää muualta"**: 1–3 linkkiä muille sivustoille (kohta 6.7)
+
+**"Lue lisää muualta" -osio:**
+
+```
+│ Lue lisää muualta                                     │
+│  ↗ Selitys ja laskuesimerkki                           │
+│    Pörssisäätiö · selitys                              │
+│  ↗ P/E ratio explained with examples           [EN]    │
+│    Investopedia · esimerkki                            │
+│  Ulkoiset sivut eivät ole tämän oppaan tekemiä.        │
+│  Niillä voi olla mainoksia tai tuotteiden markkinointia.│
+```
+
+- Linkkiteksti kertoo, mitä sivulta löytyy. Pelkkä sivuston nimi ei riitä.
+- Linkin alla näkyvät sivuston nimi ja sisällön tyyppi (selitys, esimerkki, laskuri tai video).
+- Suomenkieliset linkit ovat ensin. Englanninkielisessä linkissä on selvä **EN**-merkki, jotta aloittelija ei yllättyisi.
+- Linkki avautuu uuteen välilehteen (`target="_blank" rel="noopener noreferrer"`), jotta käyttäjän paikka oppaassa säilyy. Ruudunlukijalle kerrotaan "avautuu uuteen välilehteen", ja ↗-kuvake kertoo saman näkevälle käyttäjälle.
+- `noreferrer` estää kertomasta kohdesivustolle, mistä käyttäjä tuli. Sovellus ei seuraa linkkien klikkauksia.
+- Osio näkyy vain, jos tunnusluvulla on linkkejä.
 
 **Sanastotermit:** katkoviivalla alleviivattu sana avaa pienen selitysikkunan. Tietokoneella se aukeaa kohdistimen ollessa sanan päällä, mobiilissa napautuksella. Näppäimistöllä sen saa auki Enterillä ja kiinni Escillä. Jos sana on tunnusluku, ikkunassa on linkki "Siirry korttiin →".
 
@@ -269,6 +312,7 @@ src/
 │   ├── schema.ts           # Zod-skeemat
 │   ├── categories.ts       # kategoriat kysymyksinä
 │   ├── glossary.ts         # sanasto
+│   ├── sources.ts          # ulkoisten linkkien sivustot
 │   ├── planned.ts          # "tulossa"-tunnusluvut, joihin saa jo viitata
 │   ├── richText.ts         # [[termi]]-merkintöjen jäsennys
 │   ├── terms.ts            # termihakemisto: mihin [[termi]] osoittaa
@@ -284,6 +328,7 @@ src/
 │   ├── DirectionBadge.tsx  # suuntamerkki
 │   ├── FormulaBox.tsx      # kaava sanoin ja esimerkki
 │   ├── CompanionChips.tsx  # rinnakkaistunnusluvut ja "tulossa"-tila
+│   ├── ExternalLinks.tsx   # "Lue lisää muualta" -osio
 │   ├── RangeScale.tsx      # värikoodattu asteikko
 │   ├── RichText.tsx        # muuttaa [[termi]]-merkinnät GlossaryTerm-komponenteiksi
 │   └── GlossaryTerm.tsx    # selitettävä sana ja selitysikkuna
@@ -362,20 +407,48 @@ Tämä on luonnos `metrics.ts`-tiedoston sisällöstä. Tekstit viimeistellään
 
 Kaikki `companions`-viittaukset osoittavat nyt olemassa oleviin tunnuslukuihin. Seuraavia ehdokkaita lisättäviksi ovat esimerkiksi **vapaa kassavirta**, **liikevaihdon kasvu-%** ja **ROI / ROCE**.
 
+### 6.7 Lisälukemista: linkit muille sivustoille
+
+Jokaisella tunnusluvulla on 1–3 linkkiä sivuille, joilla sama tunnusluku on selitetty toisin sanoin tai jossa on lisää esimerkkejä. Aloittelijalle toinen selitys auttaa usein silloin, kun ensimmäinen ei aukea. Linkit ovat opasta täydentävää lisälukemista. Oppaan oman sisällön on oltava ymmärrettävä ilman niitä.
+
+**Lähteiden valintaperiaatteet**
+
+| Periaate | Käytännössä |
+|---|---|
+| **Neutraalit lähteet ensin** | Ensisijaisia ovat voittoa tavoittelemattomat tai opetukselliset sivustot, esimerkiksi Pörssisäätiö, Osakesäästäjien Keskusliitto, Wikipedia (fi/en) ja Investopedia (en). |
+| **Kaupallisista vain opetussivut** | Pankin, välittäjän tai analyysitalon (esim. Inderes, Nordnet) sivun voi valita, jos sivu on selittävä opas eikä markkinoi tuotetta tai suosittele tiettyä osaketta. Sivusto merkitään tiedostossa `sources.ts` kaupalliseksi. |
+| **Suomi ensin** | Vähintään yksi suomenkielinen linkki aina kun mahdollista. Englanninkielinen lähde valitaan, jos se tuo jotain lisää, kuten useamman laskuesimerkin. |
+| **Aloittelijan tasoinen** | Sivun pitää olla ymmärrettävä ilman ennakkotietoja. Akateemiset artikkelit ja ammattilaisille tarkoitetut sivut jätetään pois. |
+| **Vapaasti luettava** | Ei maksumuureja, kirjautumista vaativia sivuja, keskustelupalstoja eikä kumppanuuslinkkejä (affiliate). |
+| **Vain linkki, ei kopiointia** | Toisten sivustojen tekstejä ei kopioida oppaaseen. Linkkiteksti kirjoitetaan itse. |
+| **Tarkistettu sisältö** | Jokainen linkki avataan ja luetaan ennen lisäämistä. Sisällön pitää olla ristiriidaton oppaan kanssa. Jos lähde esimerkiksi laskee tunnusluvun eri tavalla, linkkiä ei lisätä tai ero kerrotaan linkkitekstissä. Lukupäivä kirjataan kenttään `checkedAt`. |
+
+Tarkat osoitteet haetaan ja tarkistetaan vaiheessa 3b. Tähän suunnitelmaan ei kirjata URL-osoitteita etukäteen, koska ne vanhenevat.
+
+**Linkkien ylläpito**
+
+Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi:
+
+1. Skripti `scripts/check-links.mjs` (`npm run check-links`) tarkistaa, että jokainen osoite vastaa ilman virhettä ja että uudelleenohjaukset eivät vie toiselle verkkotunnukselle. Se tulostaa ongelmalliset linkit.
+2. GitHub Actions ajaa tarkistuksen kerran viikossa ja avaa issuen, jos jokin linkki on rikki. Tarkistus on erillään tavallisista testeistä, koska yksittäinen hidas tai tilapäisesti alhaalla oleva sivusto ei saa kaataa buildia.
+3. Testit antavat varoituksen linkistä, jonka `checkedAt` on yli 12 kuukautta vanha. Linkin sisältö luetaan silloin uudelleen, koska sivu voi toimia teknisesti mutta sen sisältö on voinut muuttua.
+4. Rikkinäinen linkki korvataan toisella tai poistetaan. Kortti toimii myös ilman linkkejä.
+
 ## 7. Toteutusvaiheet
 
 | Vaihe | Sisältö | Valmis, kun |
 |---|---|---|
-| **1. Projektipohja** | `npm create vite@latest` (react-ts), ESLint, Prettier, Vitest ja kansiorakenne | `npm run dev` ja `npm test` toimivat |
-| **2. Datamalli** | `types.ts`, `schema.ts`, `categories.ts` ja `glossary.ts` sekä kaksi esimerkkitunnuslukua (P/E, PEG) | Skeema- ja sanastotestit menevät läpi |
-| **3. Sisältö** | Kaikki 17 tunnuslukua ja sanasto kirjoitetaan kohdan 2 periaatteiden mukaan | Validointitestit menevät läpi, ja jokainen teksti on tarkistettu kohdan 9 listalla |
-| **4. Kortti** | `MetricCard`, `DirectionBadge`, `FormulaBox`, `CompanionChips`, `RichText` ja `GlossaryTerm` | Yksi kortti näyttää kaikki kohdan 5.2 tiedot, ja sanastoikkuna toimii hiirellä, kosketuksella ja näppäimistöllä |
+| **1. Projektipohja** ✅ | `npm create vite@latest` (react-ts), ESLint, Prettier, Vitest ja kansiorakenne | `npm run dev` ja `npm test` toimivat |
+| **2. Datamalli** ✅ | `types.ts`, `schema.ts`, `categories.ts` ja `glossary.ts` sekä kaksi esimerkkitunnuslukua (P/E, PEG) | Skeema- ja sanastotestit menevät läpi |
+| **3. Sisältö** ✅ | Kaikki 17 tunnuslukua ja sanasto kirjoitetaan kohdan 2 periaatteiden mukaan | Validointitestit menevät läpi, ja jokainen teksti on tarkistettu kohdan 9 listalla |
+| **3b. Lisälukemista-linkit** | `ExternalLink`- ja `Source`-tyypit, skeema ja tarkistukset, `sources.ts`, 1–3 linkkiä jokaiselle tunnusluvulle kohdan 6.7 periaatteiden mukaan sekä `scripts/check-links.mjs` | Jokaisella tunnusluvulla on vähintään yksi linkki, testit ja `npm run check-links` menevät läpi, ja jokainen linkki on luettu käsin |
+| **4. Kortti** | `MetricCard`, `DirectionBadge`, `FormulaBox`, `CompanionChips`, `ExternalLinks`, `RichText` ja `GlossaryTerm` | Yksi kortti näyttää kaikki kohdan 5.2 tiedot, ja sanastoikkuna toimii hiirellä, kosketuksella ja näppäimistöllä |
 | **5. Ruudukko ja navigointi** | `MetricGrid`, kysymysotsikot, rinnakkaislinkkien vieritys ja korostus | Linkki P/E → PEG toimii |
 | **6. Johdanto** | `IntroPanel` ja suositeltu lukujärjestys | Paneelin voi sulkea ja avata uudelleen, ja askeleet vievät oikeisiin kortteihin |
 | **7. Haku ja suodatus** | `FilterBar`, "Näytä myös syventävät", `useMetricFilter`, `useUrlState` ja pikanäppäin `/` | "velaton" löytää EV:n, ja URL säilyttää tilan |
 | **8. Ulkoasu** | Teemat, responsiivisuus ja saavutettavuustarkistus (axe tai Lighthouse) | Lighthouse-saavutettavuus ≥ 95, toimii 375 px leveydellä |
 | **9. Käyttäjätesti** | 3–5 osakesijoittamista tuntematonta testaajaa, esimerkiksi tuttavia (kohta 8) | Testaajat löytävät vastaukset tavoiteajassa, ja löydetyt ongelmat on korjattu |
-| **10. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin | Sivu on julkisessa osoitteessa |
+| **10. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Sivu on julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 | **11. Ohje ylläpitäjälle** | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |
 
 ## 8. Testaus
@@ -389,12 +462,22 @@ Kaikki `companions`-viittaukset osoittavat nyt olemassa oleviin tunnuslukuihin. 
   - Tunnusluku ei viittaa itseensä.
   - Jokainen `[[termi]]` löytyy sanastosta tai tunnuslukujen nimistä.
   - Jokaisella tunnusluvulla on kysymys, vertaus, esimerkki ja yleinen virhe.
+  - **Linkit:**
+    - osoite on `https`
+    - osoitteen verkkotunnus vastaa `sources.ts`:n sivustoa
+    - sama osoite ei esiinny kahdesti saman tunnusluvun linkeissä
+    - linkkejä on enintään 3
+    - `checkedAt` on kelvollinen päivämäärä, joka ei ole tulevaisuudessa.
+
+    Varoitukset: tunnusluvulla ei ole yhtään linkkiä tai ei yhtään suomenkielistä linkkiä, tai `checkedAt` on yli 12 kuukautta vanha.
 - **Logiikkatestit:** haku (synonyymit, kysymykset, isot ja pienet kirjaimet, ä/ö) sekä kategoria- ja tasosuodatus.
 - **Komponenttitestit:**
   - kortin laajennus
   - rinnakkaislinkin klikkaus (vieritys ja suodattimen nollaus)
   - sanastoikkunan avaus ja sulkeminen näppäimistöllä
-  - johdannon sulkemisen muistaminen.
+  - johdannon sulkemisen muistaminen
+  - ulkoisten linkkien `target`- ja `rel`-attribuutit sekä EN-merkki.
+- **Linkkitarkistus** (`npm run check-links`, ei osa `npm test`:iä): osoitteet vastaavat, eivätkä uudelleenohjaukset vie toiselle verkkotunnukselle. Ajetaan viikoittain GitHub Actionsissa.
 
 ### 8.2 Käyttäjätesti aloittelijoilla
 
@@ -418,7 +501,8 @@ Mobiilinäkymä, tumma teema ja näppäimistökäyttö.
 3. Lisää `companions` ja päivitä samalla vastaavien tunnuslukujen `companions`-listat, jos yhteys toimii molempiin suuntiin.
 4. Merkitse vaikeat sanat muodossa `[[termi]]` ja lisää puuttuvat termit `glossary.ts`:ään.
 5. Jos jokin muu tunnusluku viittasi tähän "tulossa"-tilaisena, viittaus aktivoituu automaattisesti.
-6. Aja `npm test`.
+6. Etsi 1–3 lisälukemista-linkkiä kohdan 6.7 periaatteiden mukaan ja lue ne. Jos sivusto on uusi, lisää se `sources.ts`:ään.
+7. Aja `npm test` ja `npm run check-links`.
 
 **Sisällön tarkistuslista (aloittelijan näkökulma):**
 
@@ -431,10 +515,13 @@ Mobiilinäkymä, tumma teema ja näppäimistökäyttö.
 - [ ] Viitearvot on merkitty nyrkkisäännöiksi.
 - [ ] Yleinen virhe on muotoiltu niin, että aloittelija tunnistaa itsensä.
 - [ ] Mikään teksti ei kehota ostamaan tai myymään.
+- [ ] Linkit on luettu, ne ovat aloittelijan tasoisia, eivätkä ne ole ristiriidassa oppaan kanssa.
+- [ ] Linkkiteksti kertoo, mitä sivulta löytyy, ja mukana on suomenkielinen linkki, jos sellainen on saatavilla.
 
 ## 10. Avoimet kysymykset myöhemmin päätettäväksi
 
 - Tarvitaanko myöhemmin laskuri? Datamalliin voi lisätä valinnaisen `inputs`-kentän ilman nykyisen rakenteen muutoksia.
 - Toimialakohtaiset tyypilliset tasot (esim. EBIT-% tai P/E eri aloilla): lisätäänkö `ranges`-kenttään toimialatunniste?
 - Kuvitetaanko vertaukset pienillä kuvakkeilla?
+- Lisätäänkö lisälukemista-linkit myöhemmin myös sanastotermeille? Sama `ExternalLink`-rakenne sopii niihin sellaisenaan.
 - Tarvitaanko englanninkielinen versio?
