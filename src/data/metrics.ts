@@ -543,11 +543,19 @@ export const metrics: Metric[] = [
     ],
     links: [
       {
-        title: "Kassavirran kolme osaa: toiminta, investoinnit ja rahoitus",
-        url: "https://fi.wikipedia.org/wiki/Kassavirta",
-        sourceId: "wikipedia-fi",
+        title: "Aloittelijan kysymys: miten vapaa kassavirta lasketaan?",
+        url: "https://www.inderes.fi/questions-and-answers/vapaan-kassavirran-laskeminen",
+        sourceId: "inderes",
         language: "fi",
         kind: "selitys",
+        checkedAt: "2026-09-26",
+      },
+      {
+        title: "Rahavirtalaskelma: mistä rahavirta ja investoinnit löytyvät",
+        url: "https://www.inderes.fi/articles/rahavirtalaskelma",
+        sourceId: "inderes",
+        language: "fi",
+        kind: "esimerkki",
         checkedAt: "2026-09-26",
       },
       {
