@@ -9,6 +9,7 @@ import Header, { INTRO_LINK_ID } from "./Header.tsx";
 import IntroPanel, { INTRO_HEADING_ID } from "./IntroPanel.tsx";
 import MetricGrid from "./MetricGrid.tsx";
 import ResultStatus from "./ResultStatus.tsx";
+import TableOfContents from "./TableOfContents.tsx";
 import styles from "./App.module.css";
 
 /** localStorage-avaimet */
@@ -78,7 +79,8 @@ export default function App() {
         showIntroLink={introClosed}
         onOpenIntro={() => setIntroOpen(true)}
       />
-      {/* Haun aikana johdanto väistyy, jotta tulokset näkyvät heti hakukentän alla. */}
+      {/* Haun aikana sisällysluettelo ja johdanto väistyvät, jotta tulokset näkyvät heti hakukentän alla. */}
+      {!query && <TableOfContents />}
       {!introClosed && !query && <IntroPanel onClose={() => setIntroOpen(false)} />}
       <main>
         <FilterBar

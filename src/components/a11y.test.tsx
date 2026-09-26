@@ -16,7 +16,8 @@ async function violations(container: Element) {
   );
 }
 
-describe("saavutettavuus (axe)", () => {
+// axe käy koko sivun läpi, joten rinnakkain ajettuna oletusraja (5 s) voi ylittyä.
+describe("saavutettavuus (axe)", { timeout: 20_000 }, () => {
   it("ensimmäinen käynti johdannon kanssa", async () => {
     const { container } = render(<App />);
     expect(await violations(container)).toEqual([]);

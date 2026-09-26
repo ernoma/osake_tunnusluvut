@@ -229,6 +229,71 @@ describe("Haku ja suodatus", () => {
   });
 });
 
+describe("Sisällysluettelo", () => {
+  const toc = () => screen.getByRole("navigation", { name: "Tunnusluvut A–Ö" });
+
+  it("listaa kaikki tunnusluvut aakkosjärjestyksessä ennen johdantoa", () => {
+    render(<App />);
+    const links = within(toc()).getAllByRole("link");
+    expect(links).toHaveLength(metrics.length + 5);
+    expect(links[0]).toHaveTextContent("EBIT");
+    expect(links.at(-1)).toHaveTextContent("Yritysarvo");
+    for (const link of links) {
+      expect(metricsById.has(link.getAttribute("href")!.slice(1))).toBe(true);
+    }
+    const intro = screen.getByRole("region", { name: "Aloita tästä" });
+    expect(toc().compareDocumentPosition(intro) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("näyttää kaikki luvut suodattimesta riippumatta, ja linkki nollaa suodattimen", async () => {
+    const { user } = renderReturning();
+    await user.click(screen.getByRole("button", { name: "Velka" }));
+    await user.click(screen.getByRole("checkbox", { name: "Näytä myös syventävät" }));
+    expect(within(toc()).getAllByRole("link")).toHaveLength(metrics.length + 5);
+    expect(queryCard("peg")).not.toBeInTheDocument();
+
+    await user.click(within(toc()).getByRole("link", { name: "PEG-luku" }));
+    expect(card("peg")).toHaveFocus();
+    expect(window.location.hash).toBe("#peg");
+    expect(screen.getByRole("button", { name: "Kaikki" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("lyhennerivi vie samaan korttiin kuin nimi", async () => {
+    const { user } = renderReturning();
+    await user.click(within(toc()).getByRole("link", { name: "EPS, osakekohtainen tulos" }));
+    expect(card("eps")).toHaveFocus();
+  });
+
+  it("väistyy haun ajaksi", async () => {
+    const { user } = renderReturning();
+    await user.type(screen.getByRole("searchbox"), "velka");
+    expect(screen.queryByRole("navigation", { name: "Tunnusluvut A–Ö" })).not.toBeInTheDocument();
+  });
+
+  describe("kapealla näytöllä", () => {
+    afterEach(() => {
+      // @ts-expect-error jsdom:ssa ei ole matchMediaa
+      delete window.matchMedia;
+    });
+
+    it("on suljettu rivi, jonka voi avata", async () => {
+      window.matchMedia = vi.fn().mockReturnValue({
+        matches: false,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      });
+      const { user } = renderReturning();
+      const nav = screen.getByRole("navigation", { name: "Kaikki tunnusluvut A–Ö" });
+      const details = nav.querySelector("details")!;
+      expect(details.open).toBe(false);
+
+      await user.click(within(nav).getByText(/Kaikki tunnusluvut A–Ö/));
+      expect(details.open).toBe(true);
+      expect(within(nav).getByRole("link", { name: "P/E-luku" })).toBeVisible();
+    });
+  });
+});
+
 describe("Siirtyminen korttiin", () => {
   afterEach(() => {
     vi.useRealTimers();
