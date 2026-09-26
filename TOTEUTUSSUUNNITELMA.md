@@ -635,16 +635,16 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **8e. Kassavirta, velan kantokyky ja ROI** ✅ | Vapaa kassavirta ja ROI (Kannattavuus), Kassavirtatuotto ja EV/EBITDA (Hinta) sekä Nettovelka/EBITDA (Velka) kohdan 6.6b mukaan, sanastoon kolme uutta termiä, rinnakkaisviittaukset ja lyhennerivit FCF ja ROI | Validointitestit menevät läpi, kortit löytyvät haulla ("fcf", "roce", "ev/ebitda") ja sisällysluettelosta, EBITDA-kortti viittaa uusiin kortteihin, ja linkit ja nyrkkisäännöt on tarkistettu lähteistä |
 | **8f. P/FCF** ✅ | P/FCF (Hinta) syventävänä tunnuslukuna kohdan 6.6c mukaan, tekoälyinvestoinnit (AI capex) tulkintaesimerkkinä ja rinnakkaisviittaus Kassavirtatuotosta | Validointitestit menevät läpi, kortti löytyy haulla ("p/fcf", "ai capex") ja sisällysluettelosta, ja linkit on luettu |
 | **8g. Liiketoiminnan kassavirta** ✅ | Liiketoiminnan kassavirta (Kannattavuus) syventävänä tunnuslukuna kohdan 6.6d mukaan, sanastotermin korvaaminen kortilla, sanastoon käyttöpääoma, rinnakkaisviittaus vapaaseen kassavirtaan ja lyhennerivi OCF | Validointitestit menevät läpi, kortti löytyy haulla ("operating cash flow", "kassavirta") ja sisällysluettelosta, vapaan kassavirran kaava viittaa korttiin, ja linkit on luettu |
-| **9. Käyttäjätesti** | 3–5 osakesijoittamista tuntematonta testaajaa, esimerkiksi tuttavia (kohta 8) | Testaajat löytävät vastaukset tavoiteajassa, ja löydetyt ongelmat on korjattu |
-| **10. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Sivu on julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
-| **11. Ohje ylläpitäjälle** | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |
+| **9. Käyttäjätesti** ✅ | 3–5 osakesijoittamista tuntematonta testaajaa, esimerkiksi tuttavia (kohta 8) | Testaajat löytävät vastaukset tavoiteajassa, ja löydetyt ongelmat on korjattu |
+| **11. Ohje ylläpitäjälle** ✅ | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |
 | **12a. Lähtötiedot, kaavat ja numeeriset välit** | `inputs.ts`, `formulas.ts` ja `numberFormat.ts` kohdan 11.4 mukaan sekä `ranges`-rivien `min`/`max` kaikkiin tunnuslukuihin ja niiden skeematarkistus (kohta 11.5) | Jokainen kaava tuottaa kortin tasalukuesimerkin tuloksen, ja jokaisella `ranges`-rivillä on rajat, jotka vastaavat tekstiä |
 | **12b. Sivu ja käsin syöttö** | `?sivu=tutki`, otsikon sivulinkit, lukutaulukko, "Lisää luku", analyysi osoitteessa ja viisi viimeisintä analyysiä (kohdat 11.1, 11.6 ja 11.7) | Luvut voi syöttää ja korjata käsin, osoite palauttaa saman analyysin, ja viimeisimmät-lista toimii |
 | **12c. Analyysinäkymä** | Tunnusluvut kategorioittain, osuvan välin korostus, lasketut arvot kaavoineen, sivun ja laskun erot sekä puuttuvien lista (kohdat 11.4 ja 11.5) | P/FCF lasketaan markkina-arvosta ja vapaasta kassavirrasta, osuva väli erottuu muullakin kuin värillä, ja puuttuvasta luvusta kerrotaan, mitä pitää syöttää |
 | **12d. Tekoälyhaku** | SDK, API-avaimen tallennus ja poisto, datasta koottu kehote, skeema, lainaustarkistus, virheilmoitukset, keskeytys ja CSP (kohdat 11.2 ja 11.3) | Viiden eri sivuston tekstistä poimitaan oikeat luvut, eikä yksikään tekstistä puuttuva luku pääse analyysiin ilman käyttäjän hyväksyntää |
 | **12e. Viimeistely** | Saavutettavuus, mobiili, käsin testaus oikeilla sivuilla ja README:n ohje API-avaimesta | axe-tarkistus menee läpi kaikissa vaiheissa, Lighthouse-saavutettavuus ≥ 95, ja sivu toimii 375 px leveydellä |
+| **13. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Molemmat sivut ovat julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 
-Vaihe 12 voidaan tehdä ennen vaiheita 9–11. Silloin käyttäjätestiin lisätään tehtävä 5 (kohta 8.2), ja julkaisu kattaa molemmat sivut.
+Julkaisu oli aiemmin vaihe 10. Se siirrettiin viimeiseksi, jotta julkaistu versio sisältää myös Tutki osaketta -sivun. Käyttäjätesti (vaihe 9) tehtiin ensimmäiselle sivulle, joten sen tehtävä 5 (kohta 8.2) testataan erikseen vaiheen 12 jälkeen.
 
 ## 8. Testaus
 
@@ -699,6 +699,8 @@ Testaajiksi valitaan 3–5 henkilöä, jotka eivät sijoita osakkeisiin. Tehtäv
 Mobiilinäkymä, tumma teema ja näppäimistökäyttö.
 
 ## 9. Uuden tunnusluvun lisääminen (ylläpitäjän näkökulma)
+
+Yksityiskohtainen ohje mallitietueineen ja virheilmoitusten korjauksineen on tiedostossa `README.md` (vaihe 11).
 
 1. Kopioi olemassa oleva tietue `src/data/metrics.ts`-tiedostossa ja muokkaa kentät.
 2. Valitse `category`, `level` ja `direction`. Jos tarvitset uuden kategorian, lisää se `categories.ts`:ään kysymyksenä.
