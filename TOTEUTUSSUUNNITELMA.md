@@ -961,6 +961,6 @@ src/
   - osoitteen koodaus ja purku edestakaisin
   - `ranges`-rajojen skeema.
 - **Tekoälyhaku:** testeissä API-kutsu korvataan valmiilla vastauksilla, eivätkä testit kutsu oikeaa rajapintaa. Testiaineisto (`src/ai/fixtures/`) kirjoitetaan itse eri sivustojen rakennetta mukaillen: Nordnet, Inderes, Kauppalehti, Yahoo Finance ja tilinpäätöksen taulukko. Sivustojen tekstiä ei kopioida repoon sellaisenaan.
-- **Poiminnan laatu:** käsin ajettava skripti `npm run eval-extract` (vaatii ympäristömuuttujan `ANTHROPIC_API_KEY`) ajaa testitekstit oikeaa mallia vasten ja vertaa tuloksia odotettuihin lukuihin. Skripti ajetaan, kun kehotetta tai mallia muutetaan. Se ei ole osa `npm test`:iä.
+- **Poiminnan laatu:** käsin ajettava skripti `npm run eval-extract` (vaatii ympäristömuuttujan `ANTHROPIC_API_KEY`) ajaa testitekstit oikeaa mallia vasten ja vertaa tuloksia odotettuihin lukuihin. Skripti ajetaan, kun kehotetta tai mallia muutetaan. Se ei ole osa `npm test`:iä. Tulokset kirjataan tiedostoon `docs/eval-extract-tulokset.md`.
 - **Komponentit:** avaimen tallennus ja poisto, virheilmoitukset, korjaus päivittää analyysin, ⚠-rivi ei ole valittuna oletuksena ja viimeisimmät-lista.
 - **Saavutettavuus:** axe-tarkistus sivun jokaisessa vaiheessa. Haun tila ja virheet ilmoitetaan ruudunlukijalle (`aria-live`), ja osuva väli ja lähdemerkinnät ovat tekstinä eivätkä pelkkinä väreinä.
