@@ -19,6 +19,7 @@ import {
   useRecentAnalyses,
   type RecentAnalysis,
 } from "../hooks/useRecentAnalyses.ts";
+import AnalysisView from "./AnalysisView.tsx";
 import Footer from "./Footer.tsx";
 import FiguresTable from "./FiguresTable.tsx";
 import Header from "./Header.tsx";
@@ -114,6 +115,14 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
               calculated={calculated}
               onChange={(figures) => setAnalysis({ ...analysis, figures })}
               initiallyAdding={startedFresh && analysis.figures.length === 0}
+            />
+            <AnalysisView
+              result={result}
+              figures={analysis.figures}
+              currency={analysis.currency}
+              onAdd={(added) =>
+                setAnalysis({ ...analysis, figures: [...analysis.figures, ...added] })
+              }
             />
           </div>
         ) : (

@@ -639,7 +639,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **10. Ohje ylläpitäjälle** ✅ | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |
 | **11a. Lähtötiedot, kaavat ja numeeriset välit** ✅ | `inputs.ts`, `formulas.ts` ja `numberFormat.ts` kohdan 11.4 mukaan sekä `ranges`-rivien `min`/`max` kaikkiin tunnuslukuihin ja niiden skeematarkistus (kohta 11.5) | Jokainen kaava tuottaa kortin tasalukuesimerkin tuloksen, ja jokaisella `ranges`-rivillä on rajat, jotka vastaavat tekstiä |
 | **11b. Sivu ja käsin syöttö** ✅ | `?sivu=tutki`, otsikon sivulinkit, lukutaulukko, "Lisää luku", analyysi osoitteessa ja viisi viimeisintä analyysiä (kohdat 11.1, 11.6 ja 11.7) | Luvut voi syöttää ja korjata käsin, osoite palauttaa saman analyysin, ja viimeisimmät-lista toimii |
-| **11c. Analyysinäkymä** | Tunnusluvut kategorioittain, osuvan välin korostus, lasketut arvot kaavoineen, sivun ja laskun erot sekä puuttuvien lista (kohdat 11.4 ja 11.5) | P/FCF lasketaan markkina-arvosta ja vapaasta kassavirrasta, osuva väli erottuu muullakin kuin värillä, ja puuttuvasta luvusta kerrotaan, mitä pitää syöttää |
+| **11c. Analyysinäkymä** ✅ | Tunnusluvut kategorioittain, osuvan välin korostus, lasketut arvot kaavoineen, sivun ja laskun erot sekä puuttuvien lista (kohdat 11.4 ja 11.5) | P/FCF lasketaan markkina-arvosta ja vapaasta kassavirrasta, osuva väli erottuu muullakin kuin värillä, ja puuttuvasta luvusta kerrotaan, mitä pitää syöttää |
 | **11d. Tekoälyhaku** | SDK, API-avaimen tallennus ja poisto, datasta koottu kehote, skeema, lainaustarkistus, virheilmoitukset, keskeytys ja CSP (kohdat 11.2 ja 11.3) | Viiden eri sivuston tekstistä poimitaan oikeat luvut, eikä yksikään tekstistä puuttuva luku pääse analyysiin ilman käyttäjän hyväksyntää |
 | **11e. Viimeistely** | Saavutettavuus, mobiili, käsin testaus oikeilla sivuilla ja README:n ohje API-avaimesta | axe-tarkistus menee läpi kaikissa vaiheissa, Lighthouse-saavutettavuus ≥ 95, ja sivu toimii 375 px leveydellä |
 | **12. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Molemmat sivut ovat julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
@@ -899,7 +899,7 @@ Monen tunnusluvun voi laskea muista luvuista. Osa laskun osista on itse tunnuslu
 - Jos arvo osuu välien väliin (esim. EBIT-% on 7 %, ja välit ovat 3–5 % ja 10–15 %), näytetään "välien 3–5 % ja 10–15 % välissä" ilman sävyä.
 - Korostuksen vieressä on aina tunnusluvun `rangesNote` ("Nyrkkisääntö, vaihtelee toimialoittain"). Tunnusluvulle, jolla ei ole välejä, näytetään arvo, suuntamerkki ja tulkintasäännöt.
 - Jokaisella rivillä ovat myös suuntamerkki, yleinen virhe ja linkki "Avaa kortti", joka vie päänäkymän korttiin (`?#pe`).
-- **Puuttuvat:** jokaisesta tunnusluvusta, jota ei ole eikä voi laskea, kerrotaan, mitkä lähtötiedot puuttuvat. "Lisää"-painike avaa niiden syötön.
+- **Puuttuvat:** jokaisesta tunnusluvusta, jota ei ole eikä voi laskea, kerrotaan, mitkä lähtötiedot puuttuvat. "Lisää"-painike avaa niiden syötön. Vaihtoehtoisista kaavoista valitaan se, jossa syötettävää on vähiten. Välivaiheen luvun voi syöttää suoraan, joten EV/EBIT:iin pyydetään nettovelkaa eikä korollisia velkoja ja kassaa, ellei nettovelka synny jo syötetyistä luvuista (`missingInputs` tiedostossa `src/data/analysis.ts`).
 - Vastuuvapauslauseke näkyy sivun yläosassa.
 
 ### 11.6 Käsin syöttö ja korjaus

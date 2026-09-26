@@ -37,6 +37,30 @@
   --tone-color: var(--color-range);
 }
 
+/* Osuva väli (Tutki osaketta -sivu): paksu reunus ja ▲ värin lisäksi. */
+.hit {
+  border: 2px solid var(--tone-color);
+  border-left-width: 6px;
+  background: color-mix(in srgb, var(--tone-color) 18%, transparent);
+}
+
+.hitText {
+  grid-column: 2 / -1;
+  font-size: 0.95rem;
+}
+
+/* Arvo, joka ei osu mihinkään väliin: ei sävyä. */
+.marker {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr;
+  gap: var(--space-2);
+  align-items: baseline;
+  padding: var(--space-2) var(--space-3);
+  border: 2px dashed var(--color-text-muted);
+  border-radius: 0.25rem;
+  font-weight: 700;
+}
+
 .note {
   margin: var(--space-2) 0 0;
   color: var(--color-text-muted);
@@ -47,7 +71,8 @@
   .step {
     grid-template-columns: 1.25rem 1fr;
   }
-  .meaning {
+  .meaning,
+  .hitText {
     grid-column: 2;
   }
 }

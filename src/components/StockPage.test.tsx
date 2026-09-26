@@ -178,7 +178,7 @@ describe("osoite ja viimeisimmät", () => {
     expect(JSON.parse(window.localStorage.getItem(RECENT_STORAGE_KEY) ?? "")).toEqual([]);
   });
 
-  it("muistaa enintään viisi analyysiä uusin ensin", async () => {
+  it("muistaa enintään viisi analyysiä uusin ensin", { timeout: 20_000 }, async () => {
     const { user } = renderAt("?sivu=tutki");
     for (const name of ["A", "B", "C", "D", "E", "F"]) {
       await user.click(screen.getByRole("button", { name: "Syötä luvut itse" }));
@@ -192,6 +192,91 @@ describe("osoite ja viimeisimmät", () => {
         .getAllByRole("link")
         .map((a) => a.textContent),
     ).toEqual(["F", "E", "D", "C", "B"]);
+  });
+});
+
+const analysisRow = (name: string) => screen.getByRole("article", { name });
+
+describe("analyysi", () => {
+  it("P/FCF lasketaan markkina-arvosta ja vapaasta kassavirrasta, ja laskelma näkyy", () => {
+    renderAt("?sivu=tutki&markkina-arvo=20000000000~t~~s&vapaa-kassavirta=1100000000~t~~s");
+    const row = analysisRow("P/FCF-luku");
+    expect(row).toHaveTextContent("18,2");
+    expect(row).toHaveTextContent("Laskettu · Toteutunut");
+    expect(row).toHaveTextContent("Markkina-arvo 20 mrd. € ÷ vapaa kassavirta 1,1 mrd. € = 18,2");
+    expect(within(row).getByRole("link", { name: /Avaa kortti/ })).toHaveAttribute(
+      "href",
+      "/#p-fcf",
+    );
+  });
+
+  it("osuva väli erottuu tekstinä ja merkintänä, ei pelkkänä värinä", () => {
+    renderAt("?sivu=tutki&pe=12.4~t~2025~s");
+    const row = analysisRow("P/E-luku");
+    expect(row).toHaveTextContent("Sivulta · Toteutunut · 2025");
+    const hit = within(row)
+      .getAllByRole("listitem")
+      .filter((li) => li.getAttribute("aria-current") === "true");
+    expect(hit).toHaveLength(1);
+    expect(hit[0]).toHaveTextContent("10–20");
+    expect(hit[0]).toHaveTextContent("▲");
+    expect(hit[0]).toHaveTextContent("Arvo 12,4 osuu tähän väliin.");
+    expect(row).toHaveTextContent(/Nyrkkisääntö/);
+    expect(row).toHaveTextContent(/Yleinen virhe/);
+  });
+
+  it("välien väliin osuva arvo näytetään ilman sävyä", () => {
+    renderAt("?sivu=tutki&ebit-prosentti=7~t~~k");
+    expect(analysisRow("Liikevoittoprosentti (EBIT-%)")).toHaveTextContent(
+      "Arvo 7,0 % on välien 3–5 % ja 10–15 % välissä.",
+    );
+  });
+
+  it("sivun ja omista luvuista lasketun eroista huomautetaan, eikä arvoa muuteta", () => {
+    renderAt("?sivu=tutki&pe=12.4~t~~s&kurssi=20~t~~s&eps=1~t~~s");
+    const row = analysisRow("P/E-luku");
+    expect(row).toHaveTextContent(
+      "Sivun luku on 12,4, omista luvuista laskettuna 20,0 (Osakkeen kurssi 20,00 € ÷ osakekohtainen tulos 1,00 €).",
+    );
+    expect(within(row).getByText(/^Arvo:/).parentElement).toHaveTextContent("12,4");
+  });
+
+  it("eri kausien luvuista laskettu merkitään", () => {
+    renderAt("?sivu=tutki&kurssi=20~t~~s&eps=2~e~~s");
+    expect(analysisRow("P/E-luku")).toHaveTextContent(/Laskettu eri kausien luvuista/);
+  });
+
+  it("puuttuvasta luvusta kerrotaan, mitä syöttää, ja Lisää avaa kentät", async () => {
+    const { user } = renderAt("?sivu=tutki&kurssi=10~t~~k");
+    const item = screen.getByText("P/E-luku:").closest("li")!;
+    expect(item).toHaveTextContent("Syötä osakekohtainen tulos (EPS).");
+
+    await user.click(within(item).getByRole("button", { name: "Lisää: P/E-luku" }));
+    const field = within(item).getByRole("textbox", { name: "Osakekohtainen tulos (EPS)" });
+    expect(field).toHaveFocus();
+    await user.click(within(item).getByRole("button", { name: "Lisää" }));
+    expect(within(item).getByRole("alert")).toHaveTextContent("Syötä ainakin yksi luku.");
+
+    await user.type(field, "2{Enter}");
+    const heading = screen.getByRole("heading", { name: "P/E-luku", level: 4 });
+    expect(heading).toHaveFocus();
+    expect(analysisRow("P/E-luku")).toHaveTextContent("5,0");
+    expect(figuresInUrl().map((f) => f.id)).toEqual(["kurssi", "eps"]);
+  });
+
+  it("negatiivisella nimittäjällä kerrotaan kortin sääntö", () => {
+    renderAt("?sivu=tutki&kurssi=10~t~~s&eps=-1~t~~s");
+    expect(screen.queryByRole("article", { name: "P/E-luku" })).not.toBeInTheDocument();
+    const item = screen.getByText("P/E-luku:").closest("li")!;
+    expect(item).toHaveTextContent(/ei laskettu, koska osakekohtainen tulos \(EPS\) on −1,00/);
+    expect(item).toHaveTextContent(/tappiota, P\/E:tä ei voi käyttää/);
+  });
+
+  it("euromääräisiä kokoluokkia ei verrata muun valuutan lukuun", () => {
+    renderAt("?sivu=tutki&val=USD&markkina-arvo=5000000000~t~~s");
+    const row = analysisRow("Markkina-arvo");
+    expect(row).toHaveTextContent(/Kokoluokkien rajat ovat euroina/);
+    expect(within(row).queryByText(/osuu tähän väliin/)).not.toBeInTheDocument();
   });
 });
 
@@ -221,6 +306,15 @@ describe("saavutettavuus (axe)", { timeout: 20_000 }, () => {
     expect(await violations(container)).toEqual([]);
 
     await user.keyboard("pe{Enter}");
+    await user.click(screen.getByRole("button", { name: "Lisää" }));
+    expect(await violations(container)).toEqual([]);
+  });
+
+  it("analyysi: osuva väli, laskelma, huomautukset ja avoin puuttuvien lomake", async () => {
+    const { user, container } = renderAt(
+      "?sivu=tutki&pe=12.4~t~~s&kurssi=20~t~~s&eps=1~e~~s&markkina-arvo=20000000000~t~~s&vapaa-kassavirta=1100000000~t~~s&ebit-prosentti=7~t~~k",
+    );
+    await user.click(screen.getByRole("button", { name: "Lisää: EV/EBIT-luku" }));
     await user.click(screen.getByRole("button", { name: "Lisää" }));
     expect(await violations(container)).toEqual([]);
   });

@@ -4,18 +4,12 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { displayName, figuresById, type FigureInfo } from "../data/content.ts";
 import { parseFigureValue, searchFigures } from "../data/figureEntry.ts";
-import { PERIODS, type Period } from "../data/formulas.ts";
+import { PERIOD_LABELS, PERIODS, type Period } from "../data/formulas.ts";
 import { formatForInput, formatNumber, unitLabel } from "../data/numberFormat.ts";
 import type { AnalysisFigure } from "../hooks/useAnalysisUrl.ts";
 import styles from "./FiguresTable.module.css";
 
 export const ADD_FIGURE_SEARCH_ID = "lisaa-luku-haku";
-
-const PERIOD_LABELS: Record<Period, string> = {
-  toteutunut: "Toteutunut",
-  ttm: "12 kk (TTM)",
-  ennuste: "Ennuste",
-};
 
 const ORIGIN_LABELS: Record<AnalysisFigure["origin"], string> = {
   sivu: "Sivulta",
@@ -289,7 +283,7 @@ function FigureRow({ figure, currency, onChange, onRemove }: RowProps) {
   );
 }
 
-function PeriodSelect({
+export function PeriodSelect({
   label,
   id,
   value,

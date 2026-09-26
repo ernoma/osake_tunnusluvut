@@ -1,0 +1,116 @@
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.row p {
+  margin: 0;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+}
+
+.name {
+  flex: 1 1 12rem;
+  min-width: 0;
+  margin: 0;
+  font-size: 1.2rem;
+  overflow-wrap: anywhere;
+}
+
+.name:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Lähde erottuu tekstinä, ei pelkkänä värinä. */
+.source {
+  padding: 0.1rem var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.laskettu {
+  border-style: dashed;
+}
+
+.calculation {
+  max-width: 70ch;
+  padding: var(--space-2) var(--space-3);
+  border-radius: 0.25rem;
+  background: var(--color-inset);
+  font-variant-numeric: tabular-nums;
+}
+
+.smallLabel {
+  font-weight: 600;
+}
+
+.formulaNote {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.warning {
+  max-width: 70ch;
+  padding: var(--space-2) var(--space-3);
+  border: 1.5px solid var(--color-range);
+  border-radius: 0.25rem;
+}
+
+.note {
+  max-width: 70ch;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.rules {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rules li {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.check {
+  color: var(--color-higher);
+  font-weight: 700;
+}
+
+.mistake {
+  max-width: 70ch;
+  padding: var(--space-2) var(--space-3);
+  border-left: 4px solid var(--color-range);
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--color-range) 10%, transparent);
+}
+
+.cardLink {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--color-accent);
+  font-weight: 600;
+  text-underline-offset: 0.2em;
+}

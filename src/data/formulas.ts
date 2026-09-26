@@ -213,6 +213,12 @@ export function describeFormula(formula: Formula, label: (id: string) => string)
 export const PERIODS = ["toteutunut", "ttm", "ennuste"] as const;
 export type Period = (typeof PERIODS)[number];
 
+export const PERIOD_LABELS: Record<Period, string> = {
+  toteutunut: "Toteutunut",
+  ttm: "12 kk (TTM)",
+  ennuste: "Ennuste",
+};
+
 /** Käyttäjän syöttämä tai sivulta poimittu luku. */
 export interface KnownFigure {
   value: number;
