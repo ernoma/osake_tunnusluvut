@@ -18,7 +18,7 @@ function mockSystemDark(dark: boolean) {
 
 function renderHeader() {
   const user = userEvent.setup();
-  render(<Header query="" onQueryChange={() => {}} showIntroLink={false} onOpenIntro={() => {}} />);
+  render(<Header page="tunnusluvut" onNavigate={() => {}} />);
   return { user, toggle: screen.getByRole("button", { name: "Tumma teema" }) };
 }
 

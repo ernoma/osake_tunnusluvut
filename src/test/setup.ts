@@ -4,6 +4,7 @@ import { cleanup } from "@testing-library/react";
 
 // jsdom ei toteuta vieritystä.
 Element.prototype.scrollIntoView = vi.fn();
+window.scrollTo = vi.fn() as typeof window.scrollTo;
 
 beforeEach(() => {
   // Jokainen testi alkaa ensimmäisenä käyntinä tyhjästä osoitteesta.

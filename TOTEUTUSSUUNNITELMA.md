@@ -638,7 +638,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **9. Käyttäjätesti** ✅ | 3–5 osakesijoittamista tuntematonta testaajaa, esimerkiksi tuttavia (kohta 8) | Testaajat löytävät vastaukset tavoiteajassa, ja löydetyt ongelmat on korjattu |
 | **10. Ohje ylläpitäjälle** ✅ | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |
 | **11a. Lähtötiedot, kaavat ja numeeriset välit** ✅ | `inputs.ts`, `formulas.ts` ja `numberFormat.ts` kohdan 11.4 mukaan sekä `ranges`-rivien `min`/`max` kaikkiin tunnuslukuihin ja niiden skeematarkistus (kohta 11.5) | Jokainen kaava tuottaa kortin tasalukuesimerkin tuloksen, ja jokaisella `ranges`-rivillä on rajat, jotka vastaavat tekstiä |
-| **11b. Sivu ja käsin syöttö** | `?sivu=tutki`, otsikon sivulinkit, lukutaulukko, "Lisää luku", analyysi osoitteessa ja viisi viimeisintä analyysiä (kohdat 11.1, 11.6 ja 11.7) | Luvut voi syöttää ja korjata käsin, osoite palauttaa saman analyysin, ja viimeisimmät-lista toimii |
+| **11b. Sivu ja käsin syöttö** ✅ | `?sivu=tutki`, otsikon sivulinkit, lukutaulukko, "Lisää luku", analyysi osoitteessa ja viisi viimeisintä analyysiä (kohdat 11.1, 11.6 ja 11.7) | Luvut voi syöttää ja korjata käsin, osoite palauttaa saman analyysin, ja viimeisimmät-lista toimii |
 | **11c. Analyysinäkymä** | Tunnusluvut kategorioittain, osuvan välin korostus, lasketut arvot kaavoineen, sivun ja laskun erot sekä puuttuvien lista (kohdat 11.4 ja 11.5) | P/FCF lasketaan markkina-arvosta ja vapaasta kassavirrasta, osuva väli erottuu muullakin kuin värillä, ja puuttuvasta luvusta kerrotaan, mitä pitää syöttää |
 | **11d. Tekoälyhaku** | SDK, API-avaimen tallennus ja poisto, datasta koottu kehote, skeema, lainaustarkistus, virheilmoitukset, keskeytys ja CSP (kohdat 11.2 ja 11.3) | Viiden eri sivuston tekstistä poimitaan oikeat luvut, eikä yksikään tekstistä puuttuva luku pääse analyysiin ilman käyttäjän hyväksyntää |
 | **11e. Viimeistely** | Saavutettavuus, mobiili, käsin testaus oikeilla sivuilla ja README:n ohje API-avaimesta | axe-tarkistus menee läpi kaikissa vaiheissa, Lighthouse-saavutettavuus ≥ 95, ja sivu toimii 375 px leveydellä |
@@ -927,6 +927,7 @@ src/
 ├── data/
 │   ├── inputs.ts           # lähtötiedot
 │   ├── formulas.ts         # kaavat ja laskenta (puhdas funktio)
+│   ├── figureEntry.ts      # "Lisää luku" -haku ja syötetyn arvon tarkistus
 │   └── numberFormat.ts     # lukujen jäsennys ja muotoilu
 ├── components/
 │   ├── StockPage.tsx       # Tutki osaketta -sivu
@@ -936,7 +937,8 @@ src/
 │   ├── AnalysisView.tsx    # tunnusluvut kategorioittain
 │   ├── AnalysisRow.tsx     # yksi tunnusluku: arvo, lähde, osuva väli, kaava
 │   ├── MissingList.tsx     # puuttuvat luvut ja niiden lähtötiedot
-│   └── RecentAnalyses.tsx  # viisi viimeisintä
+│   ├── RecentAnalyses.tsx  # viisi viimeisintä
+│   └── Footer.tsx          # vastuuvapauslauseke molemmille sivuille
 └── hooks/
     ├── usePage.ts          # sivun valinta (?sivu=tutki)
     ├── useAnalysisUrl.ts   # analyysin luvut osoitteessa

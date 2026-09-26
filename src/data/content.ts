@@ -13,9 +13,11 @@ import type {
   Category,
   GlossaryTerm,
   InputFigure,
+  InputUnit,
   Metric,
   PlannedMetric,
   Source,
+  Unit,
 } from "./types.ts";
 
 export { categories, glossary, inputs, metrics, planned, sources };
@@ -72,3 +74,36 @@ export function groupByCategory(items: readonly Metric[]): CategoryGroup[] {
     })
     .filter((group) => group.metrics.length > 0);
 }
+
+/** Luku, jonka voi syöttää Tutki osaketta -sivulla: tunnusluku tai lähtötieto. */
+export interface FigureInfo {
+  id: string;
+  name: string;
+  abbreviation?: string;
+  aliases: readonly string[];
+  unit: Unit | InputUnit;
+  kind: "tunnusluku" | "lahtotieto";
+}
+
+const collator = new Intl.Collator("fi");
+
+/** Tunnusluvut ja lähtötiedot suomen aakkosjärjestyksessä. */
+export const figureCatalog: readonly FigureInfo[] = [
+  ...metrics.map((m): FigureInfo => ({
+    id: m.id,
+    name: m.name,
+    abbreviation: m.abbreviation,
+    aliases: m.aliases,
+    unit: m.unit,
+    kind: "tunnusluku",
+  })),
+  ...inputs.map((i): FigureInfo => ({
+    id: i.id,
+    name: i.name,
+    aliases: i.aliases,
+    unit: i.unit,
+    kind: "lahtotieto",
+  })),
+].sort((a, b) => collator.compare(a.name, b.name));
+
+export const figuresById: ReadonlyMap<string, FigureInfo> = byId(figureCatalog);

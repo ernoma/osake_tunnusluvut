@@ -2,10 +2,13 @@ import { useLayoutEffect, useRef } from "react";
 import { metrics, metricsById } from "../data/content.ts";
 import { useCardNavigation } from "../hooks/useCardNavigation.ts";
 import { revealMetric, useMetricFilter, type Filters } from "../hooks/useMetricFilter.ts";
+import { usePage, type Page } from "../hooks/usePage.ts";
 import { useStoredBoolean } from "../hooks/useStoredBoolean.ts";
 import { forgetCardInUrl, useUrlState } from "../hooks/useUrlState.ts";
 import FilterBar from "./FilterBar.tsx";
-import Header, { INTRO_LINK_ID } from "./Header.tsx";
+import Footer from "./Footer.tsx";
+import Header, { INTRO_LINK_ID, PAGE_HEADING_ID } from "./Header.tsx";
+import StockPage from "./StockPage.tsx";
 import IntroPanel, { INTRO_HEADING_ID } from "./IntroPanel.tsx";
 import MetricGrid from "./MetricGrid.tsx";
 import ResultStatus from "./ResultStatus.tsx";
@@ -19,7 +22,27 @@ export const STORAGE_KEYS = {
   tocOpen: TOC_STORAGE_KEY,
 } as const;
 
+/** Sivu valitaan osoitteen parametrilla ?sivu=tutki (suunnitelman kohta 11.1). */
 export default function App() {
+  const [page, navigate] = usePage();
+
+  // Sivun vaihdon jälkeen kohdistus siirtyy uuden sivun otsikkoon, mutta ei ensimmäisellä latauksella.
+  const shownPage = useRef(page);
+  useLayoutEffect(() => {
+    if (shownPage.current === page) return;
+    shownPage.current = page;
+    document.getElementById(PAGE_HEADING_ID)?.focus();
+  }, [page]);
+
+  return page === "tutki" ? (
+    <StockPage onNavigate={navigate} />
+  ) : (
+    <GuidePage onNavigate={navigate} />
+  );
+}
+
+/** Tunnusluvut-sivu: haku, sisällysluettelo, johdanto ja kortit. */
+function GuidePage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [{ query, category }, setUrlState] = useUrlState();
   const [showAdvanced, setShowAdvanced] = useStoredBoolean(STORAGE_KEYS.showAdvanced, true);
   const [introClosed, setIntroClosed] = useStoredBoolean(STORAGE_KEYS.introClosed, false);
@@ -75,10 +98,14 @@ export default function App() {
   return (
     <div className={styles.page}>
       <Header
-        query={query}
-        onQueryChange={(q) => changeFilters({ query: q })}
-        showIntroLink={introClosed}
-        onOpenIntro={() => setIntroOpen(true)}
+        page="tunnusluvut"
+        onNavigate={onNavigate}
+        search={{
+          query,
+          onQueryChange: (q) => changeFilters({ query: q }),
+          showIntroLink: introClosed,
+          onOpenIntro: () => setIntroOpen(true),
+        }}
       />
       {/* Haun aikana sisällysluettelo ja johdanto väistyvät, jotta tulokset näkyvät heti hakukentän alla. */}
       {!query && <TableOfContents />}
@@ -102,10 +129,7 @@ export default function App() {
           <MetricGrid metrics={visible} />
         </div>
       </main>
-      <footer className={styles.footer}>
-        Tämä on opas tunnuslukujen ymmärtämiseen, ei sijoitusneuvontaa. Sijoittamiseen liittyy aina
-        riski.
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -112,22 +112,58 @@ function formatAmount(value: number): string {
   return plain.format(value);
 }
 
+/** Valuutan merkki: euro on €, muut valuutat koodina ("USD"). */
+function currencySymbol(currency: string): string {
+  return currency === "EUR" ? "€" : currency;
+}
+
 /**
  * Muotoilee luvun suomalaisittain yksikön mukaan:
  * € → "1,1 mrd. €", % → "12,3 %", x → "18,0", €/osake → "2,50 €", kpl → "5 milj. kpl".
  * Kertoimelle ei lisätä yksikköä, koska kortitkin kirjoittavat "P/E = 10".
+ * Rahamäärät näytetään annetussa valuutassa, esimerkiksi "1,1 mrd. USD".
  */
-export function formatNumber(value: number, unit: NumberUnit): string {
+export function formatNumber(value: number, unit: NumberUnit, currency = "EUR"): string {
+  const symbol = currencySymbol(currency);
   switch (unit) {
     case "€":
-      return `${formatAmount(value)}${NBSP}€`;
+      return `${formatAmount(value)}${NBSP}${symbol}`;
     case "kpl":
       return `${formatAmount(value)}${NBSP}kpl`;
     case "€/osake":
-      return `${twoDecimals.format(value)}${NBSP}€`;
+      return `${twoDecimals.format(value)}${NBSP}${symbol}`;
     case "%":
       return `${oneDecimal.format(value)}${NBSP}%`;
     case "x":
       return oneDecimal.format(value);
   }
+}
+
+/** Yksikön nimi syöttökentän vieressä: "€", "USD", "€/osake", "%", "kpl" tai "kerroin". */
+export function unitLabel(unit: NumberUnit, currency = "EUR"): string {
+  const symbol = currencySymbol(currency);
+  switch (unit) {
+    case "€":
+      return symbol;
+    case "€/osake":
+      return `${symbol}/osake`;
+    case "x":
+      return "kerroin";
+    default:
+      return unit;
+  }
+}
+
+const exact = fi({ maximumFractionDigits: 10, useGrouping: true });
+
+/**
+ * Luku muokattavaksi kenttään tarkkana ja ilman kerroinsanoja: 1 234 567 890 eikä "1,23 mrd.".
+ * parseNumber lukee tuloksen takaisin samaksi luvuksi. Intl:n sitovat välilyönnit ja
+ * miinusmerkki (−) vaihdetaan tavallisiksi, jotta niitä on helppo muokata.
+ */
+export function formatForInput(value: number): string {
+  return exact
+    .format(value)
+    .replace(/\s/g, " ")
+    .replace(/^\p{Sm}/u, "-");
 }

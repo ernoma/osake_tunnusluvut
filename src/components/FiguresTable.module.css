@@ -1,0 +1,285 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.content[hidden] {
+  display: none;
+}
+
+.content:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.heading {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.subheading {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.toggle {
+  composes: linkButton from "./forms.module.css";
+}
+
+.empty {
+  max-width: 70ch;
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+/* Varmistus: leveä taulukko vierii omassa laatikossaan eikä levennä sivua. */
+.tableWrap {
+  align-self: stretch;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table thead th {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Nimi samalle korkeudelle kentän tekstin kanssa. */
+.table th.name {
+  padding-top: calc(var(--space-2) + 0.6rem);
+}
+
+.valueField {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.input {
+  composes: input from "./forms.module.css";
+  width: 9.5rem;
+  max-width: 100%;
+}
+
+.yearInput {
+  width: 7rem;
+}
+
+.select {
+  composes: input from "./forms.module.css";
+}
+
+.unit {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.hint {
+  composes: hint from "./forms.module.css";
+  display: block;
+}
+
+.error {
+  composes: error from "./forms.module.css";
+  display: block;
+}
+
+.removeButton {
+  composes: linkButton from "./forms.module.css";
+}
+
+.addButton {
+  composes: secondaryButton from "./forms.module.css";
+}
+
+.primaryButton {
+  composes: primaryButton from "./forms.module.css";
+}
+
+.secondaryButton {
+  composes: secondaryButton from "./forms.module.css";
+  align-self: flex-start;
+}
+
+.linkButton {
+  composes: linkButton from "./forms.module.css";
+}
+
+.fields {
+  composes: fields from "./forms.module.css";
+}
+
+.field {
+  composes: field from "./forms.module.css";
+}
+
+.addPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-self: stretch;
+  padding: var(--space-4);
+  border-left: 5px solid var(--color-accent);
+  border-radius: 0.5rem;
+  background: var(--color-inset);
+}
+
+.addPanel > .input {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.searchLabel {
+  font-weight: 600;
+}
+
+.addForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.chosen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-3);
+  margin: 0;
+}
+
+.options {
+  max-height: 18rem;
+  max-width: 28rem;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  list-style: none;
+}
+
+.option {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.option:hover {
+  background: var(--color-inset);
+}
+
+.kind {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.calculated {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.calculatedList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.calculatedList li {
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  background: var(--color-inset);
+}
+
+/* Kapealla näytöllä jokainen rivi on oma korttinsa, ja sarakkeen nimi näkyy arvon edessä. */
+@media (max-width: 50rem) {
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .table th,
+  .table td {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+
+  /* Nimi ja arvo omille riveilleen, kausi, vuosi, lähde ja poisto rinnakkain. */
+  .table th.name,
+  .table td:nth-child(2) {
+    flex-basis: 100%;
+  }
+
+  .table td:last-child {
+    margin-left: auto;
+  }
+
+  .table th.name {
+    padding-top: 0;
+  }
+
+  .table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+}

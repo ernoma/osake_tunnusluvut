@@ -5,6 +5,35 @@
   margin-bottom: var(--space-5);
 }
 
+.pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+}
+
+.pageLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  border-bottom: 3px solid transparent;
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* Nykyinen sivu erottuu alleviivauksen puuttumisen ja paksun alareunan perusteella. */
+.pageLink[aria-current="page"] {
+  border-bottom-color: currentColor;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+/* Otsikko saa kohdistuksen sivun vaihtuessa, mutta ei kehystä hiirellä. */
+.title:focus:not(:focus-visible) {
+  outline: none;
+}
+
 .titleRow {
   display: flex;
   align-items: flex-start;
