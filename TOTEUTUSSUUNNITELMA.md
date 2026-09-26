@@ -496,7 +496,7 @@ TTM-kasvu, EBITDA ja EV/Sales lisättiin vaiheessa 8d (kohta 7).
 | **P/S** (syventävä) | Paljonko maksat yhtiön jokaisesta myyntieurosta? | Markkina-arvo ÷ liikevaihto | ↓ Pienempi = yleensä halvempi | Toimii myös tappiollisille yhtiöille. Tulkinta riippuu katteista: kaupan alalla P/S on luonnostaan matala. Vertaa vain saman alan yhtiöihin. | Verrataan eri alojen yhtiöitä P/S-luvulla | Kaupan hinta suhteessa sen vuotuiseen myyntiin, ei voittoon | EBIT-%, Liikevaihto, P/E, EV/Sales |
 | **EV/Sales** (syventävä) | Paljonko maksat koko yhtiöstä velkoineen jokaista myyntieuroa kohden? | EV ÷ liikevaihto | ↓ Pienempi = yleensä halvempi | Parempi kuin P/S, kun yhtiöillä on eri määrä velkaa. Toimii myös tappiollisille yhtiöille. Vertaa vain saman alan yhtiöihin. Alle 1 halpa, 1–3 tavallinen, yli 5 kallis (nyrkkisääntö). | Verrataan eri alojen yhtiöitä | P/S asunnon velattomalla hinnalla | P/S, EV, EBIT-%, TTM-kasvu |
 
-Kaikki `companions`-viittaukset osoittavat nyt olemassa oleviin tunnuslukuihin. Seuraavia ehdokkaita lisättäviksi ovat esimerkiksi **vapaa kassavirta**, **EV/EBITDA** ja **ROI / ROCE**.
+Kaikki `companions`-viittaukset osoittavat nyt olemassa oleviin tunnuslukuihin. Seuraavaksi lisättävät tunnusluvut ovat kohdassa 6.6b (vaihe 8e).
 
 **Lisäyksen vaatimat muut muutokset (vaihe 8d)**
 
@@ -506,6 +506,36 @@ Kaikki `companions`-viittaukset osoittavat nyt olemassa oleviin tunnuslukuihin. 
 - Sisällysluetteloon tulee lyhennerivi EBITDA (nimi "Käyttökate" ei sisällä lyhennettä). TTM-kasvun ja EV/Sales-luvun nimissä lyhenne on jo mukana.
 - TTM-kasvulle ei löytynyt aloittelijan tasoista suomenkielistä lähdettä, joten sillä on vain englanninkielinen linkki (testi antaa varoituksen).
 - Sisällysluettelon testit eivät enää kovakoodaa lyhennerivien määrää, vaan laskevat sen `tocEntries`-funktiolla.
+
+### 6.6b Seuraavat tunnusluvut (vaihe 8e)
+
+Viisi syventävää tunnuslukua, jotka paikkaavat oppaan selvimmät aukot:
+
+- **Kassavirta:** Tähän asti opas on kertonut vain kirjanpidon voitosta. Aloittelijan pitää nähdä, että voitto ja käteen jäävä raha ovat eri asioita. Käyttökatteen kortti jo varoittaa, ettei EBITDA kerro jäävää rahaa.
+- **Velan kantokyky:** Nettovelkaantumisaste ja omavaraisuusaste vertaavat velkaa omaan pääomaan. Kumpikaan ei kerro, pystyykö yhtiö maksamaan velkansa tuloksellaan.
+- **Velan vaikutus kannattavuuteen:** ROE:n kortti varoittaa, että velka nostaa lukua. ROI ottaa velan mukaan ja vastaa tähän varoitukseen.
+- **Luonteva jatko:** EV ja EBITDA ovat jo mukana, joten niistä laskettava EV/EBITDA on helppo lisätä.
+
+Kaikki viisi mahtuvat nykyisiin kategorioihin, joten lisäys onnistuu pelkällä datalla ilman koodimuutoksia (onnistumisen mittari 3).
+
+| Tunnusluku | Kategoria | Kysymys | Kaava sanoin | Suunta | Tärkeimmät säännöt | ⚠ Yleinen virhe | Vertaus | Katso rinnalla |
+|---|---|---|---|---|---|---|---|---|
+| **Vapaa kassavirta, FCF** (syventävä) | Kannattavuus | Paljonko rahaa yhtiölle jää, kun investoinnit on maksettu? | Liiketoiminnan kassavirta − investoinnit | ↑ Suurempi = yleensä parempi | Vaihtelee paljon vuodesta toiseen, joten katso usean vuoden keskiarvoa. Jos kassavirta jää vuosia tulosta pienemmäksi, se on varoitusmerkki. Kasvuyhtiöllä negatiivinen luku voi johtua suurista investoinneista. | "Hyvä tulos = yhtiölle tulee rahaa." Myyntisaamiset ja varastot voivat sitoa rahan | Palkka, josta on vähennetty pakolliset menot ja auton korjaukset: summa, joka jää oikeasti säästöön | EBITDA, Osinkosuhde, Kassavirtatuotto |
+| **Kassavirtatuotto, FCF-tuotto** (syventävä) | Hinta | Montako prosenttia osakkeen hinnasta yhtiö tuottaa vuodessa vapaata rahaa? | Vapaa kassavirta ÷ markkina-arvo × 100 % | ↑ Suurempi = yleensä halvempi | P/E:n kassavirtaversio käänteisenä, eli suuri luku tarkoittaa halpaa. Laske usean vuoden keskimääräisestä kassavirrasta. Vertaa osinkotuottoon: jos osinko on suurempi kuin kassavirta, osinkoa ei voi jatkaa pitkään. | Yhden hyvän vuoden kassavirran perusteella osake näyttää halvalta | Vuokratuotto-%, mutta kun vuokrasta on vähennetty remontit | Vapaa kassavirta, P/E, Osinkotuotto |
+| **Nettovelka/EBITDA** (syventävä) | Velka | Montako vuotta yhtiöltä kuluisi velkojen maksamiseen käyttökatteellaan? | Nettovelka ÷ käyttökate | ↓ Pienempi = yleensä vähäriskisempi | Alle 1 on vähän, 1–3 tavallinen ja yli 3 paljon (nyrkkisääntö). Vakaat alat, kuten kiinteistöt, teleoperaattorit ja sähköyhtiöt, kantavat enemmän. Negatiivinen luku tarkoittaa, että kassassa on enemmän rahaa kuin velkaa. Lainaehdoissa on usein tälle luvulle yläraja. | Negatiivinen luku tulkitaan huonoksi, vaikka se tarkoittaa nettokassaa | Asuntolaina (säästöt vähennettynä) jaettuna vuoden tuloilla ennen asumiskuluja | Nettovelkaantumisaste, EBITDA, Omavaraisuusaste |
+| **ROI, sijoitetun pääoman tuotto** (syventävä) | Kannattavuus | Kuinka hyvin yhtiö tekee tulosta kaikella rahalla, joka siihen on sijoitettu, myös lainarahalla? | (Tulos ennen veroja + rahoituskulut) ÷ (oma pääoma + korolliset velat) × 100 % | ↑ Suurempi = yleensä parempi | Velka ei nosta lukua samalla tavalla kuin ROE:ta. Jos ROE on paljon ROI:ta korkeampi, ero johtuu velasta. Luvun pitäisi ylittää lainojen korko. Alle 5 % on heikko ja yli 15 % hyvä (nyrkkisääntö). ROCE lasketaan liikevoitosta, mutta tulkitaan samoin; tämä kerrotaan kaavan huomautuksessa. | Katsotaan vain ROE:ta, eikä huomata, että korkea tuotto johtuu velasta | Vuokranantajan tuotto koko asunnon hinnasta, ei vain omasta käsirahasta | ROE, EBIT-%, Nettovelkaantumisaste |
+| **EV/EBITDA** (syventävä) | Hinta | Montako vuoden käyttökatetta maksat koko yhtiöstä velkoineen? | Yritysarvo ÷ käyttökate | ↓ Pienempi = yleensä halvempi | Kuten EV/EBIT, mutta ennen poistoja. Sopii vertailuun, kun yhtiöt tekevät poistoja eri tavoin. Paljon koneita ja laitteita tarvitsevilla aloilla EV/EBIT on luotettavampi. Ei toimi, jos käyttökate on negatiivinen. | Matalaa lukua pidetään halpana, vaikka suuret poistot syövät liikevoiton | EV/EBIT ennen koneiden kulumista | EV/EBIT, EBITDA, EV |
+
+**Lisäyksen vaatimat muut muutokset**
+
+- Sanastoon termit **liiketoiminnan kassavirta**, **investointi** (muodot "investoinnit", "investoida") ja **sijoitettu pääoma**. Olemassa olevat termit nettovelka, oma pääoma ja korollinen velka käyvät sellaisinaan.
+- Rinnakkaisviittaukset molempiin suuntiin: EBITDA → Vapaa kassavirta ja EV/EBITDA, Osinkosuhde ja Osinkotuotto → Kassavirtatuotto, Nettovelkaantumisaste → Nettovelka/EBITDA, ROE → ROI ja EV/EBIT → EV/EBITDA.
+- EBITDA-kortin tekstit, joissa nettovelka ÷ EBITDA ja investoinnit mainitaan pelkkänä tekstinä, muutetaan viittauksiksi uusiin kortteihin (`[[Nettovelka/EBITDA]]`, `[[Vapaa kassavirta]]`).
+- Aliakset: "fcf", "free cash flow", "fcf yield", "roce", "sijoitetun pääoman tuottoprosentti", "ev/ebitda", "velkaantuneisuus", "leverage".
+- Sisällysluetteloon tulee lyhennerivit **FCF** ja **ROI**, koska nimet "Vapaa kassavirta" ja "Sijoitetun pääoman tuotto" eivät sisällä lyhennettä. Sisällysluettelon testin lyhennelista päivitetään.
+- Tunnuslukuja on tämän jälkeen 25. Päivitä lukumäärät kohtiin 5.1b ja 6.
+- Lisälukemista-linkit haetaan ja luetaan kohdan 6.7 periaatteiden mukaan. Ensin kannattaa katsoa suomenkieliset lähteet: Wikipedia (Vapaa kassavirta, Sijoitetun pääoman tuottoprosentti) ja Inderesin EV/EBITDA-artikkeli.
+- Nyrkkisääntövälit tarkistetaan lähteistä ennen julkaisua, koska tämän taulukon arvot ovat luonnoksia.
 
 ### 6.7 Lisälukemista: linkit muille sivustoille
 
@@ -550,6 +580,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **8b. Sisällysluettelo** ✅ | `tocEntries` (`src/data/toc.ts`), `TableOfContents` ja sen tyylit kohdan 5.1b mukaan | Luettelo on aakkosjärjestyksessä, jokainen linkki vie oikeaan korttiin myös suodattimen ollessa päällä, ja luettelo vie tietokoneella enintään noin 5 riviä ja 375 px leveydellä suljettuna yhden rivin |
 | **8c. Sisällysluettelon pienennys ja kiinnitys** ✅ | Pienennä/Näytä-otsikkorivi ja muistettu valinta, kiinnitys sivun yläreunaan, `--toc-height` suodatinpalkille ja vieritykselle sekä palstojen pystyviivat kohdan 5.1b mukaan | Luettelon voi pienentää ja palauttaa, valinta säilyy uudelleenlatauksessa, luettelo ja suodatinpalkki pysyvät näkyvissä päällekkäin vieritettäessä, eikä korttiin siirtyminen jätä kortin otsikkoa niiden alle |
 | **8d. Lisätunnusluvut** ✅ | TTM-kasvu (Koko), EBITDA eli käyttökate (Kannattavuus) ja EV/Sales (Hinta) syventävinä tunnuslukuina kohdan 6 mukaan, sanastoon poisto ja vuosineljännes sekä rinnakkaisviittaukset olemassa oleviin kortteihin | Validointitestit menevät läpi, kortit löytyvät haulla ("ev/s", "käyttökate", "ttm") ja sisällysluettelosta, ja linkit on luettu |
+| **8e. Kassavirta, velan kantokyky ja ROI** | Vapaa kassavirta ja ROI (Kannattavuus), Kassavirtatuotto ja EV/EBITDA (Hinta) sekä Nettovelka/EBITDA (Velka) kohdan 6.6b mukaan, sanastoon kolme uutta termiä, rinnakkaisviittaukset ja lyhennerivit FCF ja ROI | Validointitestit menevät läpi, kortit löytyvät haulla ("fcf", "roce", "ev/ebitda") ja sisällysluettelosta, EBITDA-kortti viittaa uusiin kortteihin, ja linkit ja nyrkkisäännöt on tarkistettu lähteistä |
 | **9. Käyttäjätesti** | 3–5 osakesijoittamista tuntematonta testaajaa, esimerkiksi tuttavia (kohta 8) | Testaajat löytävät vastaukset tavoiteajassa, ja löydetyt ongelmat on korjattu |
 | **10. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Sivu on julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 | **11. Ohje ylläpitäjälle** | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |
