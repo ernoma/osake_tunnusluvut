@@ -18,6 +18,7 @@ describe("tocEntries", () => {
       "EPS",
       "EV",
       "FCF",
+      "OCF",
       "ROE",
       "ROI",
     ]);
@@ -50,7 +51,7 @@ describe("tocEntries", () => {
       "FCF",
       "Kassavirtatuotto",
       "Käyttökate",
-      "Liikevaihto",
+      "Liiketoiminnan kassavirta",
     ]);
     expect(labels.at(-1)).toBe("Yritysarvo");
 

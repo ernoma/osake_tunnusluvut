@@ -154,12 +154,12 @@ export const glossary: GlossaryTerm[] = [
       "Kirjanpidon kulu, jolla koneen, rakennuksen tai muun hankinnan hinta jaetaan sen käyttövuosille. Raha on maksettu jo ostohetkellä.",
   },
   {
-    id: "liiketoiminnan-kassavirta",
-    term: "liiketoiminnan kassavirta",
-    forms: ["liiketoiminnan rahavirta", "kassavirta"],
+    id: "kayttopaaoma",
+    term: "käyttöpääoma",
+    forms: ["käyttöpääomaan", "käyttöpääoman"],
     definition:
-      "Raha, joka yhtiön tilille todella tulee liiketoiminnasta vuoden aikana. Eroaa tuloksesta, koska myynnistä voi olla rahat vielä saamatta.",
-    relatedMetricId: "vapaa-kassavirta",
+      "Raha, joka on sidottu varastoihin ja asiakkaiden maksamattomiin laskuihin, kun yhtiön omat maksamattomat laskut on vähennetty. Kasvu vie rahaa kassasta.",
+    relatedMetricId: "liiketoiminnan-kassavirta",
   },
   {
     id: "investointi",

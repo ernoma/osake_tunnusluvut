@@ -39,6 +39,7 @@ describe("haku", () => {
     expect(ids("gearing")).toEqual(["nettovelkaantumisaste"]);
     expect(ids("p/fcf")).toEqual(["p-fcf"]);
     expect(ids("ai capex")).toEqual(["p-fcf"]);
+    expect(ids("operating cash flow")).toEqual(["liiketoiminnan-kassavirta"]);
   });
 
   it("löytää kortin kysymyksestä", () => {

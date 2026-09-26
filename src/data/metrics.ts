@@ -496,11 +496,89 @@ export const metrics: Metric[] = [
     ],
   },
   {
+    id: "liiketoiminnan-kassavirta",
+    name: "Liiketoiminnan kassavirta",
+    abbreviation: "OCF",
+    abbreviationExpanded: "Operating Cash Flow = liiketoiminnan kassavirta",
+    aliases: [
+      "ocf",
+      "cfo",
+      "operating cash flow",
+      "cash flow from operations",
+      "liiketoiminnan rahavirta",
+      "juokseva kassavirta",
+      "kassavirta",
+      "rahavirta",
+    ],
+    category: "kannattavuus",
+    level: "syventava",
+    question: "Paljonko rahaa yhtiön liiketoiminnasta oikeasti tulee tilille vuodessa?",
+    summary:
+      "Raha, joka liiketoiminnasta tulee vuoden aikana oikeasti tilille. Kun siitä vähennetään [[investointi|investoinnit]], saadaan [[vapaa kassavirta]].",
+    analogy:
+      "Palkka, joka tilillesi jää, kun ruoka, vuokra ja muut arjen menot on maksettu. Auton korjauksia ei ole vielä vähennetty. Ne vähentämällä saat vapaan kassavirran.",
+    formula: {
+      words: "Nettotulos + poistot ± käyttöpääoman muutos",
+      note: "Luku löytyy valmiina yhtiön rahavirtalaskelmasta, jossa sitä kutsutaan usein liiketoiminnan rahavirraksi. [[poisto|Poistot]] lisätään, koska niistä ei lähde rahaa.",
+    },
+    example:
+      "Nettotulos on 30 milj. €, poistot 25 milj. € ja varastoihin sitoutuu 5 milj. €. Liiketoiminnan kassavirta = 30 + 25 − 5 = 50 milj. €.",
+    unit: "€",
+    direction: "higher",
+    directionLabel: "Suurempi = yleensä parempi",
+    rules: [
+      "Usean vuoden aikana kassavirran pitäisi olla vähintään [[nettotulos|nettotuloksen]] suuruinen.",
+      "Investoinnit eivät ole vielä mukana. Vähennä ne, niin näet, paljonko rahaa jää.",
+      "Katso usean vuoden kehitystä, koska varastot ja laskut heiluttavat yksittäistä vuotta.",
+    ],
+    commonMistake:
+      "Liiketoiminnan kassavirtaa pidetään rahana, jonka yhtiö voi jakaa osinkoina. Siitä on vielä maksettava investoinnit.",
+    factors: [
+      "Kun myynti kasvaa, rahaa sitoutuu [[käyttöpääoma|käyttöpääomaan]]: varastoihin ja asiakkaiden maksamattomiin laskuihin. Kassavirta jää silloin tulosta pienemmäksi.",
+      "Yhtiöillä, joilla on paljon poistoja, kuten teleoperaattoreilla ja sähköyhtiöillä, kassavirta on usein selvästi tulosta suurempi.",
+      "Kassavirtaa on vaikeampi kaunistella kirjanpidon keinoin kuin tulosta, joten se on hyvä tuloksen laadun tarkistus.",
+    ],
+    pitfalls: [
+      "Yhtiö voi kasvattaa yhden vuoden lukua venyttämällä omien laskujensa maksua tai myymällä asiakkaiden laskut rahoitusyhtiölle.",
+      "Yhtiöt voivat esittää maksetut korot eri kohdissa rahavirtalaskelmaa, joten eri yhtiöiden luvut eivät aina ole täysin vertailukelpoisia.",
+    ],
+    companions: [
+      {
+        id: "vapaa-kassavirta",
+        reason: "Kun investoinnit vähennetään, näet paljonko rahaa yhtiölle oikeasti jää.",
+      },
+      {
+        id: "ebitda",
+        reason:
+          "Käyttökate ennen korkoja, veroja ja käyttöpääomaa: ero kertoo, paljonko niihin kuluu.",
+      },
+      { id: "eps", reason: "Tulos osaketta kohden. Muuttuuko tulos rahaksi?" },
+    ],
+    links: [
+      {
+        title: "Kassavirtalaskelman kolme osaa: juokseva, investoinnit ja rahoitus",
+        url: "https://fi.wikipedia.org/wiki/Kassavirta",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
+      },
+      {
+        title: "Operating cash flow: formula and an example cash flow statement",
+        url: "https://www.investopedia.com/terms/o/operatingcashflow.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "esimerkki",
+        checkedAt: "2026-09-26",
+      },
+    ],
+  },
+  {
     id: "vapaa-kassavirta",
     name: "Vapaa kassavirta",
     abbreviation: "FCF",
     abbreviationExpanded: "Free Cash Flow = vapaa kassavirta",
-    aliases: ["fcf", "free cash flow", "vapaa rahavirta", "kassavirta", "rahavirta"],
+    aliases: ["fcf", "free cash flow", "vapaa rahavirta"],
     category: "kannattavuus",
     level: "syventava",
     question: "Paljonko rahaa yhtiölle jää, kun investoinnit on maksettu?",
@@ -534,6 +612,10 @@ export const metrics: Metric[] = [
       "Yritysostoja ei yleensä vähennetä vapaasta kassavirrasta, vaikka ne vievät rahaa.",
     ],
     companions: [
+      {
+        id: "liiketoiminnan-kassavirta",
+        reason: "Luvun lähtökohta: raha, joka tulee liiketoiminnasta ennen investointeja.",
+      },
       {
         id: "ebitda",
         reason: "Käyttökate ennen investointeja: ero kertoo, paljonko investoinnit vievät.",
