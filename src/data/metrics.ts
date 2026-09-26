@@ -1735,13 +1735,7 @@ export const metrics: Metric[] = [
   {
     id: "kassavirtatuotto",
     name: "Kassavirtatuotto",
-    aliases: [
-      "fcf-tuotto",
-      "fcf yield",
-      "free cash flow yield",
-      "p/fcf",
-      "kassavirtatuottoprosentti",
-    ],
+    aliases: ["fcf-tuotto", "fcf yield", "free cash flow yield", "kassavirtatuottoprosentti"],
     category: "arvostus",
     level: "syventava",
     question: "Montako prosenttia osakkeen hinnasta yhtiö tuottaa vuodessa vapaata rahaa?",
@@ -1751,7 +1745,7 @@ export const metrics: Metric[] = [
       "Sijoitusasunnon vuokratuotto-%, kun vuokrasta on ensin vähennetty remontit ja muut pakolliset menot.",
     formula: {
       words: "Vapaa kassavirta ÷ markkina-arvo × 100 %",
-      note: "Käänteisluku markkina-arvo ÷ vapaa kassavirta tunnetaan nimellä P/FCF, ja sitä tulkitaan kuten P/E:tä.",
+      note: "Käänteisluku markkina-arvo ÷ vapaa kassavirta on [[P/FCF]]-luku, jota tulkitaan kuten P/E:tä.",
     },
     example:
       "Vapaa kassavirta on 15 milj. € ja markkina-arvo 300 milj. €. Kassavirtatuotto = 15 ÷ 300 × 100 % = 5 %.",
@@ -1789,11 +1783,101 @@ export const metrics: Metric[] = [
         reason: "Sama hinnan vertailu tulokseen. Suuri ero kertoo, ettei tulos muutu rahaksi.",
       },
       { id: "osinkotuotto", reason: "Osinko maksetaan kassavirrasta. Riittääkö se?" },
+      { id: "p-fcf", reason: "Sama luku käänteisenä: montako vuoden kassavirtaa hinnassa on." },
     ],
     links: [
       {
         title: "Free cash flow yield: formula and what a high yield means",
         url: "https://www.investopedia.com/terms/f/freecashflowyield.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
+      },
+    ],
+  },
+  {
+    id: "p-fcf",
+    name: "P/FCF-luku",
+    abbreviation: "P/FCF",
+    abbreviationExpanded: "Price / Free Cash Flow = hinta suhteessa vapaaseen kassavirtaan",
+    aliases: [
+      "p/fcf",
+      "pfcf",
+      "price to free cash flow",
+      "hinta-kassavirtasuhde",
+      "ai capex",
+      "capex",
+    ],
+    category: "arvostus",
+    level: "syventava",
+    question: "Montako vuoden vapaata kassavirtaa maksat osakkeen hinnassa?",
+    summary:
+      "[[Markkina-arvo]] jaettuna [[vapaa kassavirta|vapaalla kassavirralla]]. Kuin P/E, mutta tuloksen sijaan lasketaan rahasta, joka yhtiölle oikeasti jää.",
+    analogy:
+      "Kioski maksaa 100 000 €, ja kun korjaukset ja uudet laitteet on maksettu, käteen jää 5 000 € vuodessa. Rahalla kestäisi 20 vuotta maksaa kioskin hinta.",
+    formula: {
+      words: "Markkina-arvo ÷ vapaa kassavirta",
+      note: "Käänteisluku vapaa kassavirta ÷ markkina-arvo on [[kassavirtatuotto]]. P/FCF 20 on sama kuin kassavirtatuotto 5 %.",
+    },
+    example:
+      "Markkina-arvo on 2 000 milj. € ja vapaa kassavirta 100 milj. €. P/FCF = 2 000 ÷ 100 = 20.",
+    unit: "x",
+    direction: "lower",
+    directionLabel: "Pienempi = yleensä halvempi",
+    rules: [
+      "Vertaa yhtiön omaan historiaan ja saman [[toimiala|alan]] yhtiöihin.",
+      "Laske usean vuoden keskimääräisestä kassavirrasta, koska [[investointi|investoinnit]] heiluvat.",
+      "Jos P/FCF on paljon P/E:tä korkeampi, yhtiö investoi paljon tai tulos ei muutu rahaksi.",
+    ],
+    commonMistake:
+      "Korkea P/FCF tulkitaan aina kalliiksi, vaikka syynä voivat olla suuret investoinnit, jotka tuottavat vasta myöhemmin.",
+    factors: [
+      "Tekoälyinvestoinnit (AI capex): kun teknologiayhtiö rakentaa datakeskuksia, vapaa kassavirta voi puolittua ja P/FCF tuplaantua, vaikka P/E ei juuri muutu.",
+      "Silloin olennaista on, tuottavatko investoinnit myöhemmin enemmän rahaa kuin ne nyt vievät. P/FCF ei vastaa tähän, vaan näyttää hinnan tämän päivän rahavirtaan.",
+      "Yhtiöille, joiden kassavirta on vakaa ja investoinnit tasaisia, P/FCF sopii hyvin.",
+    ],
+    pitfalls: [
+      "Yhtiö voi kaunistella yhden vuoden lukua lykkäämällä investointeja tai laskujen maksua. Liian pienet investoinnit heikentävät kilpailukykyä myöhemmin.",
+      "Jos vapaa kassavirta on negatiivinen, P/FCF:ää ei voi käyttää.",
+      "P/FCF ei huomioi velkoja. Velkaisen yhtiön kassavirrasta osa menee lainojen hoitoon.",
+    ],
+    ranges: [
+      {
+        label: "Negatiivinen",
+        meaning: "Yhtiö kuluttaa enemmän rahaa kuin tuottaa, eikä luku kerro mitään.",
+        tone: "warning",
+      },
+      {
+        label: "Alle 12",
+        meaning: "Halpa, tai markkinat odottavat kassavirran heikkenevän.",
+        tone: "neutral",
+      },
+      { label: "20–50", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+    ],
+    rangesNote:
+      "Nyrkkisääntö, joka vastaa kassavirtatuoton välejä käänteisenä (yli 8 % ja 2–5 %). Vertaa saman alan yhtiöihin.",
+    companions: [
+      { id: "kassavirtatuotto", reason: "Sama luku käänteisenä prosentteina." },
+      {
+        id: "pe",
+        reason:
+          "Hinta suhteessa tulokseen. Suuri ero kertoo investoinneista tai siitä, ettei tulos muutu rahaksi.",
+      },
+      { id: "vapaa-kassavirta", reason: "Luvun pohja euroina: kuinka tasainen kassavirta on?" },
+    ],
+    links: [
+      {
+        title: "Miksi P/FCF-lukua on vaikea tulkita, kun investoinnit heiluvat",
+        url: "https://www.inderes.fi/questions-and-answers/vapaa-kassavirta-voisiko-esittaa-yhtiosivuilla",
+        sourceId: "inderes",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
+      },
+      {
+        title: "P/FCF ratio: formula, example and comparing within an industry",
+        url: "https://www.investopedia.com/terms/p/pricetofreecashflow.asp",
         sourceId: "investopedia",
         language: "en",
         kind: "selitys",

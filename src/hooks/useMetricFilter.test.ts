@@ -37,6 +37,8 @@ describe("haku", () => {
     expect(ids("osakekohtainen tulos")).toContain("eps");
     expect(ids("payout ratio")).toEqual(["osinkosuhde"]);
     expect(ids("gearing")).toEqual(["nettovelkaantumisaste"]);
+    expect(ids("p/fcf")).toEqual(["p-fcf"]);
+    expect(ids("ai capex")).toEqual(["p-fcf"]);
   });
 
   it("löytää kortin kysymyksestä", () => {
