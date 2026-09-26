@@ -69,7 +69,7 @@ describe("haku", () => {
 describe("suodatus", () => {
   it("kategoria rajaa tulokset", () => {
     const result = ids("", { category: "velka" });
-    expect(result).toEqual(["omavaraisuusaste", "nettovelkaantumisaste"]);
+    expect(result).toEqual(["omavaraisuusaste", "nettovelkaantumisaste", "nettovelka-ebitda"]);
   });
 
   it("syventävät voi piilottaa", () => {

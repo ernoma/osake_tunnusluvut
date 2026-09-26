@@ -453,19 +453,27 @@ export const metrics: Metric[] = [
       "”Käyttökate on voittoa.” Siitä puuttuvat vielä poistot, korot ja verot, joten omistajalle jää paljon vähemmän.",
     factors: [
       "Aloilla, jotka tarvitsevat paljon koneita, kiinteistöjä tai laitteita, EBITDA ja EBIT eroavat paljon. Kevyillä palvelualoilla ero on pieni.",
-      "Lainanantajat vertaavat usein nettovelkaa käyttökatteeseen: nettovelka ÷ EBITDA kertoo, montako vuoden käyttökatteella velat voisi maksaa.",
+      "Lainanantajat vertaavat usein nettovelkaa käyttökatteeseen: [[Nettovelka/EBITDA]] kertoo, montako vuoden käyttökatteella velat voisi maksaa.",
       "[[kertaerä|Kertaerät]] vääristävät. Katso myös vertailukelpoista käyttökatetta.",
     ],
     pitfalls: [
       "Yhtiöt korostavat joskus käyttökatetta, koska se on suurempi kuin liikevoitto. Katso aina myös EBIT ja nettotulos.",
-      "Käyttökate ei kerro, paljonko rahaa yhtiölle jää: siitä puuttuvat vielä investoinnit, korot ja verot.",
+      "Käyttökate ei kerro, paljonko rahaa yhtiölle jää: siitä puuttuvat vielä [[investointi|investoinnit]], korot ja verot. Sen kertoo [[Vapaa kassavirta]].",
     ],
     companions: [
       { id: "ebit", reason: "Kertoo, paljonko jää, kun koneiden kuluminen on vähennetty." },
       { id: "ebit-prosentti", reason: "Suhteuttaa voiton myyntiin, jolloin yhtiöitä voi verrata." },
       {
-        id: "nettovelkaantumisaste",
-        reason: "Kertoo, paljonko velkaa on. Käyttökatteella velkaa maksetaan.",
+        id: "vapaa-kassavirta",
+        reason: "Kertoo, paljonko rahaa oikeasti jää, kun investoinnit on maksettu.",
+      },
+      {
+        id: "nettovelka-ebitda",
+        reason: "Suhteuttaa velan käyttökatteeseen: montako vuotta velan maksu veisi.",
+      },
+      {
+        id: "ev-ebitda",
+        reason: "Kertoo, paljonko maksat koko yhtiöstä suhteessa käyttökatteeseen.",
       },
     ],
     links: [
@@ -480,6 +488,71 @@ export const metrics: Metric[] = [
       {
         title: "EBITDA: formulas and why it can overstate profitability",
         url: "https://www.investopedia.com/terms/e/ebitda.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
+      },
+    ],
+  },
+  {
+    id: "vapaa-kassavirta",
+    name: "Vapaa kassavirta",
+    abbreviation: "FCF",
+    abbreviationExpanded: "Free Cash Flow = vapaa kassavirta",
+    aliases: ["fcf", "free cash flow", "vapaa rahavirta", "kassavirta", "rahavirta"],
+    category: "kannattavuus",
+    level: "syventava",
+    question: "Paljonko rahaa yhtiölle jää, kun investoinnit on maksettu?",
+    summary:
+      "Raha, joka liiketoiminnasta jää käteen, kun [[investointi|investoinnit]] on maksettu. Sillä yhtiö voi maksaa osinkoja ja lyhentää velkaa.",
+    analogy:
+      "Palkka, josta on vähennetty pakolliset menot ja auton korjaukset. Jäljelle jäävä summa on se, jonka voit oikeasti säästää.",
+    formula: {
+      words: "Liiketoiminnan kassavirta − investoinnit",
+      note: "[[liiketoiminnan kassavirta|Liiketoiminnan kassavirta]] ja investoinnit löytyvät yhtiön rahavirtalaskelmasta. Palvelut laskevat luvun hieman eri tavoin.",
+    },
+    example:
+      "Liiketoiminnasta tulee rahaa 50 milj. € ja investoinnit ovat 20 milj. €. Vapaa kassavirta = 50 − 20 = 30 milj. €.",
+    unit: "€",
+    direction: "higher",
+    directionLabel: "Suurempi = yleensä parempi",
+    rules: [
+      "Vaihtelee paljon vuodesta toiseen, joten katso usean vuoden keskiarvoa.",
+      "Jos kassavirta jää vuosi toisensa jälkeen tulosta pienemmäksi, se on varoitusmerkki.",
+      "Kasvuyhtiöllä negatiivinen luku voi johtua suurista investoinneista.",
+    ],
+    commonMistake:
+      "”Hyvä tulos = yhtiölle tulee rahaa.” Maksamattomat laskut ja varastot voivat sitoa rahan, vaikka tulos näyttää hyvältä.",
+    factors: [
+      "Investoinnit ajoittuvat epätasaisesti: suuri tehdashanke voi painaa yhden vuoden kassavirran pakkaselle.",
+      "Kun myynti kasvaa, rahaa sitoutuu usein varastoihin ja asiakkaiden maksamattomiin laskuihin.",
+      "Kassavirtaa on vaikeampi kaunistella kirjanpidon keinoin kuin tulosta.",
+    ],
+    pitfalls: [
+      "Yhtiö voi parantaa yhden vuoden kassavirtaa lykkäämällä välttämättömiä investointeja. Se kostautuu myöhemmin.",
+      "Yritysostoja ei yleensä vähennetä vapaasta kassavirrasta, vaikka ne vievät rahaa.",
+    ],
+    companions: [
+      {
+        id: "ebitda",
+        reason: "Käyttökate ennen investointeja: ero kertoo, paljonko investoinnit vievät.",
+      },
+      { id: "osinkosuhde", reason: "Osinko maksetaan rahasta. Riittääkö kassavirta osinkoon?" },
+      { id: "kassavirtatuotto", reason: "Suhteuttaa kassavirran osakkeen hintaan." },
+    ],
+    links: [
+      {
+        title: "Kassavirran kolme osaa: toiminta, investoinnit ja rahoitus",
+        url: "https://fi.wikipedia.org/wiki/Kassavirta",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
+      },
+      {
+        title: "Free cash flow: how to calculate and interpret it",
+        url: "https://www.investopedia.com/terms/f/freecashflow.asp",
         sourceId: "investopedia",
         language: "en",
         kind: "selitys",
@@ -540,6 +613,10 @@ export const metrics: Metric[] = [
         id: "omavaraisuusaste",
         reason: "Näyttää, kuinka suuri osa yhtiöstä on rahoitettu omalla rahalla.",
       },
+      {
+        id: "roi",
+        reason: "Tuotto koko sijoitetulle pääomalle. Suuri ero ROE:hen kertoo velasta.",
+      },
     ],
     links: [
       {
@@ -557,6 +634,85 @@ export const metrics: Metric[] = [
         language: "en",
         kind: "selitys",
         checkedAt: "2026-09-25",
+      },
+    ],
+  },
+  {
+    id: "roi",
+    name: "Sijoitetun pääoman tuotto",
+    abbreviation: "ROI",
+    abbreviationExpanded: "Return On Investment = sijoitetun pääoman tuotto",
+    aliases: [
+      "roce",
+      "return on investment",
+      "return on capital employed",
+      "sijoitetun pääoman tuottoprosentti",
+      "sijoitetun pääoman tuottoaste",
+      "pääoman tuotto",
+    ],
+    category: "kannattavuus",
+    level: "syventava",
+    question:
+      "Kuinka hyvin yhtiö tekee tulosta kaikella siihen sijoitetulla rahalla, myös lainarahalla?",
+    summary:
+      "Kuin [[ROE]], mutta mukana on myös lainaraha: tulos suhteessa [[sijoitettu pääoma|sijoitettuun pääomaan]]. Velka ei nosta lukua samalla tavalla kuin ROE:ta.",
+    analogy:
+      "Vuokranantajan tuotto koko asunnon hinnasta eikä vain omasta käsirahasta. Lainalla ostettu asunto voi näyttää hyvältä sijoitukselta, jos katsoo vain käsirahaa.",
+    formula: {
+      words: "(Tulos ennen veroja + rahoituskulut) ÷ (oma pääoma + korolliset velat) × 100 %",
+      note: "ROCE lasketaan liikevoitosta, mutta tulkitaan samoin. Sijoitettuna pääomana käytetään yleensä vuoden alun ja lopun keskiarvoa.",
+    },
+    example:
+      "Tulos ennen veroja on 8 milj. € ja rahoituskulut 2 milj. €. Omaa pääomaa on 60 milj. € ja velkaa 40 milj. €. ROI = 10 ÷ 100 × 100 % = 10 %.",
+    unit: "%",
+    direction: "higher",
+    directionLabel: "Suurempi = yleensä parempi",
+    rules: [
+      "Alle 5 % on heikko ja vähintään 15 % hyvä (nyrkkisääntö).",
+      "Jos ROE on paljon ROI:ta korkeampi, ero johtuu velasta.",
+      "Luvun pitäisi selvästi ylittää lainojen korko.",
+    ],
+    commonMistake:
+      "Katsotaan vain ROE:ta, eikä huomata, että korkea tuotto johtuu velasta. ROI paljastaa eron.",
+    factors: [
+      "Suuret investoinnit, jotka eivät vielä tuota, painavat lukua alas muutaman vuoden ajan.",
+      "Pääomavaltaisilla aloilla, kuten teollisuudessa, tasot ovat luonnostaan matalampia kuin palvelualoilla.",
+      "[[kertaerä|Kertaerät]] voivat nostaa tai laskea yhden vuoden lukua.",
+    ],
+    pitfalls: [
+      "Eri palvelut käyttävät nimeä ROI, ROCE tai ROIC hieman eri kaavoilla. Vertaa vain samalla tavalla laskettuja lukuja.",
+    ],
+    ranges: [
+      { label: "Negatiivinen", meaning: "Yhtiö tekee tappiota.", tone: "warning" },
+      { label: "Alle 5 %", meaning: "Heikko tuotto.", tone: "neutral" },
+      { label: "5–14 %", meaning: "Tyydyttävä.", tone: "neutral" },
+      { label: "Vähintään 15 %", meaning: "Hyvä.", tone: "good" },
+    ],
+    rangesNote: "Nyrkkisääntö. Pääomavaltaisilla aloilla tasot ovat matalampia.",
+    companions: [
+      { id: "roe", reason: "Tuotto pelkälle omalle pääomalle. Suuri ero ROI:hin kertoo velasta." },
+      { id: "ebit-prosentti", reason: "Kertoo, johtuuko tuotto hyvistä katteista." },
+      {
+        id: "nettovelkaantumisaste",
+        reason: "Kertoo, kuinka paljon velkaa sijoitetussa pääomassa on.",
+      },
+    ],
+    links: [
+      {
+        title: "Sijoitetun pääoman tuottoaste: kaava ja ohjearvot",
+        url: "https://fi.wikipedia.org/wiki/Sijoitetun_pääoman_tuottoaste",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
+      },
+      {
+        title: "ROE, ROI ja ROIC: miten velka vaikuttaa pääoman tuottoon",
+        url: "https://www.inderes.fi/articles/kuinka-paaoman-tuotto-maaritellaan-esittelyssa-roe-roi-roic-ja-ronic",
+        sourceId: "inderes",
+        language: "fi",
+        kind: "esimerkki",
+        checkedAt: "2026-09-26",
       },
     ],
   },
@@ -747,6 +903,10 @@ export const metrics: Metric[] = [
         id: "pe",
         reason: "Matala P/E ja korkea osinkotuotto voivat kertoa markkinoiden epäluottamuksesta.",
       },
+      {
+        id: "kassavirtatuotto",
+        reason: "Jos osinkotuotto on kassavirtatuottoa suurempi, osinkoa ei voi jatkaa pitkään.",
+      },
     ],
     links: [
       {
@@ -825,6 +985,10 @@ export const metrics: Metric[] = [
       { id: "osinkotuotto", reason: "Kertoo, paljonko osinkoa saat suhteessa hintaan." },
       { id: "eps", reason: "Osinkosuhteen pohja: kasvaako tulos, josta osinko maksetaan?" },
       { id: "osinko-per-osake", reason: "Osingon euromäärä ja sen kehitys." },
+      {
+        id: "vapaa-kassavirta",
+        reason: "Osinko maksetaan rahasta. Riittääkö kassavirta osinkoon?",
+      },
     ],
     links: [
       {
@@ -951,6 +1115,10 @@ export const metrics: Metric[] = [
       { id: "omavaraisuusaste", reason: "Toinen näkökulma velkaisuuteen, koko taseen kautta." },
       { id: "ev", reason: "Nettovelka on se osa, jolla EV eroaa markkina-arvosta." },
       { id: "roe", reason: "Paljastaa, onko korkea ROE saavutettu velalla." },
+      {
+        id: "nettovelka-ebitda",
+        reason: "Kertoo, pystyykö yhtiö maksamaan velkansa tuloksellaan.",
+      },
     ],
     links: [
       {
@@ -960,6 +1128,78 @@ export const metrics: Metric[] = [
         language: "fi",
         kind: "selitys",
         checkedAt: "2026-09-25",
+      },
+    ],
+  },
+
+  {
+    id: "nettovelka-ebitda",
+    name: "Nettovelka/EBITDA",
+    aliases: [
+      "nettovelka/käyttökate",
+      "net debt to ebitda",
+      "velkaantuneisuus",
+      "leverage",
+      "velan takaisinmaksuaika",
+    ],
+    category: "velka",
+    level: "syventava",
+    question: "Montako vuotta yhtiöltä kuluisi velkojen maksamiseen käyttökatteellaan?",
+    summary:
+      "[[nettovelka|Nettovelka]] jaettuna [[EBITDA|käyttökatteella]]. Kertoo, pystyykö yhtiö maksamaan velkansa tuloksellaan, eikä vain sitä, paljonko velkaa on.",
+    analogy:
+      "Asuntolaina, josta on vähennetty säästöt, jaettuna vuoden tuloilla ennen asumiskuluja. Mitä pienempi luku, sitä nopeammin laina olisi maksettu.",
+    formula: {
+      words: "Nettovelka ÷ käyttökate",
+      symbols: "(Korolliset velat − kassa) ÷ EBITDA",
+    },
+    example: "Nettovelka on 60 milj. € ja käyttökate 30 milj. €. Nettovelka/EBITDA = 60 ÷ 30 = 2.",
+    unit: "x",
+    direction: "lower",
+    directionLabel: "Pienempi = yleensä vähäriskisempi",
+    rules: [
+      "Alle 1 on vähän, 1–3 tavallinen ja yli 3 paljon (nyrkkisääntö).",
+      "Vakaat alat, kuten kiinteistöt ja sähköyhtiöt, kantavat enemmän velkaa.",
+      "Negatiivinen luku tarkoittaa, että [[kassa|rahaa]] on enemmän kuin velkaa.",
+    ],
+    commonMistake:
+      "Negatiivinen luku tulkitaan huonoksi, vaikka se tarkoittaa, että yhtiöllä on enemmän rahaa kuin velkaa.",
+    factors: [
+      "Lainaehdoissa on usein tälle luvulle yläraja. Jos se ylittyy, pankki voi vaatia korkeampaa korkoa tai lainan takaisinmaksua.",
+      "Suhdanneherkällä yhtiöllä käyttökate voi pudota nopeasti, jolloin luku nousee, vaikka velka ei kasva.",
+      "Käyttökatteesta puuttuvat investoinnit, korot ja verot, joten velan maksu kestää todellisuudessa kauemmin.",
+    ],
+    pitfalls: [
+      "Jos käyttökate on negatiivinen, lukua ei voi tulkita.",
+      "Yritysoston jälkeen velka näkyy heti, mutta ostetun yhtiön käyttökate vasta vähitellen. Luku voi näyttää hetken liian korkealta.",
+    ],
+    ranges: [
+      { label: "Negatiivinen", meaning: "Rahaa on enemmän kuin velkaa.", tone: "good" },
+      { label: "Alle 1", meaning: "Vähän velkaa.", tone: "good" },
+      { label: "1–3", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+      {
+        label: "Yli 3",
+        meaning: "Paljon velkaa. Huonona vuonna velan hoito voi käydä raskaaksi.",
+        tone: "warning",
+      },
+    ],
+    rangesNote: "Nyrkkisääntö. Vakailla aloilla velkaa on luonnostaan enemmän.",
+    companions: [
+      {
+        id: "nettovelkaantumisaste",
+        reason: "Vertaa samaa nettovelkaa omistajien rahaan eikä tulokseen.",
+      },
+      { id: "ebitda", reason: "Luvun jakaja: kuinka vakaa käyttökate on?" },
+      { id: "omavaraisuusaste", reason: "Toinen näkökulma velkaisuuteen, koko taseen kautta." },
+    ],
+    links: [
+      {
+        title: "Net debt to EBITDA: formula, typical levels and examples",
+        url: "https://www.investopedia.com/terms/n/net-debt-to-ebitda-ratio.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "esimerkki",
+        checkedAt: "2026-09-26",
       },
     ],
   },
@@ -1177,6 +1417,7 @@ export const metrics: Metric[] = [
       },
       { id: "ev", reason: "Luvun pohja: mitä koko yhtiö maksaa velkoineen." },
       { id: "ebit-prosentti", reason: "Korkea kannattavuus voi oikeuttaa korkeamman luvun." },
+      { id: "ev-ebitda", reason: "Sama vertailu ennen poistoja." },
     ],
     links: [
       {
@@ -1267,6 +1508,83 @@ export const metrics: Metric[] = [
       {
         title: "EV/Sales: formula, typical levels and comparison to P/S",
         url: "https://www.investopedia.com/terms/e/enterprisevaluesales.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
+      },
+    ],
+  },
+  {
+    id: "ev-ebitda",
+    name: "EV/EBITDA-luku",
+    abbreviation: "EV/EBITDA",
+    abbreviationExpanded: "Yritysarvo suhteessa käyttökatteeseen",
+    aliases: ["ev/ebitda", "ev ebitda", "enterprise multiple", "yritysarvo per käyttökate"],
+    category: "arvostus",
+    level: "syventava",
+    question: "Montako vuoden käyttökatetta maksat koko yhtiöstä velkoineen?",
+    summary:
+      "Kuin [[EV/EBIT]], mutta ennen [[poisto|poistoja]]: [[EV|yritysarvo]] jaettuna [[EBITDA|käyttökatteella]]. Yleinen vertailuluku yritysostoissa.",
+    analogy: "EV/EBIT, kun koneiden ja laitteiden kulumista ei vielä ole vähennetty.",
+    formula: {
+      words: "Yritysarvo ÷ käyttökate",
+      symbols: "EV ÷ EBITDA",
+    },
+    example: "EV on 240 milj. € ja käyttökate 30 milj. €. EV/EBITDA = 240 ÷ 30 = 8.",
+    unit: "x",
+    direction: "lower",
+    directionLabel: "Pienempi = yleensä halvempi",
+    rules: [
+      "Sopii vertailuun, kun yhtiöt tekevät poistoja eri tavoin.",
+      "Paljon koneita ja laitteita tarvitsevilla aloilla EV/EBIT on luotettavampi.",
+      "Ei toimi, jos käyttökate on negatiivinen.",
+    ],
+    commonMistake:
+      "Matalaa lukua pidetään halpana, vaikka suuret poistot syövät liikevoiton. Katso aina myös EV/EBIT.",
+    factors: [
+      "Vertaa saman [[toimiala|alan]] yhtiöihin ja yhtiön omaan historiaan.",
+      "Nopeasti kasvavalla yhtiöllä luku on usein korkea, kuten P/E:kin.",
+      "[[kertaerä|Kertaerät]] käyttökatteessa vääristävät lukua.",
+    ],
+    pitfalls: [
+      "Matala luku voi olla arvoansa: osake näyttää halvalta, koska liiketoiminnan näkymät ovat heikot.",
+      "Eri palvelut laskevat EV:n hieman eri tavoin, joten lähteiden luvut voivat poiketa toisistaan.",
+    ],
+    ranges: [
+      {
+        label: "Alle 6",
+        meaning: "Halpa, tai markkinat odottavat käyttökatteen laskevan.",
+        tone: "neutral",
+      },
+      { label: "6–12", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+      {
+        label: "Yli 15",
+        meaning: "Kallis, tai markkinat odottavat nopeaa kasvua.",
+        tone: "warning",
+      },
+    ],
+    rangesNote: "Nyrkkisääntö. Tasot vaihtelevat toimialoittain ja ajan mukaan.",
+    companions: [
+      {
+        id: "ev-ebit",
+        reason: "Sama poistojen jälkeen. Suuri ero kertoo raskaista investoinneista.",
+      },
+      { id: "ebitda", reason: "Luvun jakaja: mistä käyttökate koostuu?" },
+      { id: "ev", reason: "Luvun pohja: mitä koko yhtiö maksaa velkoineen." },
+    ],
+    links: [
+      {
+        title: "Yritysarvo, EV/EBIT ja EV/EBITDA",
+        url: "https://www.inderes.fi/articles/mika-enterprise-value-eli-ev-enta-evebit-ja-evebitda",
+        sourceId: "inderes",
+        language: "fi",
+        kind: "esimerkki",
+        checkedAt: "2026-09-26",
+      },
+      {
+        title: "EV/EBITDA (enterprise multiple) and the value trap",
+        url: "https://www.investopedia.com/terms/e/ev-ebitda.asp",
         sourceId: "investopedia",
         language: "en",
         kind: "selitys",
@@ -1403,6 +1721,75 @@ export const metrics: Metric[] = [
         language: "en",
         kind: "selitys",
         checkedAt: "2026-09-25",
+      },
+    ],
+  },
+  {
+    id: "kassavirtatuotto",
+    name: "Kassavirtatuotto",
+    aliases: [
+      "fcf-tuotto",
+      "fcf yield",
+      "free cash flow yield",
+      "p/fcf",
+      "kassavirtatuottoprosentti",
+    ],
+    category: "arvostus",
+    level: "syventava",
+    question: "Montako prosenttia osakkeen hinnasta yhtiö tuottaa vuodessa vapaata rahaa?",
+    summary:
+      "[[Vapaa kassavirta]] suhteessa [[markkina-arvo|markkina-arvoon]]. Kuin P/E käänteisenä, mutta tuloksen sijaan lasketaan rahasta, joka yhtiölle oikeasti jää.",
+    analogy:
+      "Sijoitusasunnon vuokratuotto-%, kun vuokrasta on ensin vähennetty remontit ja muut pakolliset menot.",
+    formula: {
+      words: "Vapaa kassavirta ÷ markkina-arvo × 100 %",
+      note: "Käänteisluku markkina-arvo ÷ vapaa kassavirta tunnetaan nimellä P/FCF, ja sitä tulkitaan kuten P/E:tä.",
+    },
+    example:
+      "Vapaa kassavirta on 15 milj. € ja markkina-arvo 300 milj. €. Kassavirtatuotto = 15 ÷ 300 × 100 % = 5 %.",
+    unit: "%",
+    direction: "higher",
+    directionLabel: "Suurempi = yleensä halvempi",
+    rules: [
+      "Suuri luku tarkoittaa, että osake on kassavirtaan nähden halpa.",
+      "Laske usean vuoden keskimääräisestä kassavirrasta, koska yksi vuosi voi heilahtaa.",
+      "Jos [[osinkotuotto]] on tätä suurempi, osinkoa ei voi jatkaa pitkään ilman velkaa.",
+    ],
+    commonMistake:
+      "Yhden hyvän vuoden kassavirran perusteella osake näyttää halvalta, vaikka seuraavana vuonna investoinnit vievät rahan.",
+    factors: [
+      "Kasvuyhtiö investoi paljon, joten sen kassavirtatuotto on usein matala tai negatiivinen tarkoituksella.",
+      "Kassavirtatuotto ei huomioi velkoja. Velkaisen yhtiön kassavirrasta osa menee lainojen hoitoon.",
+    ],
+    pitfalls: [
+      "Kassavirtaa voi kaunistella lykkäämällä investointeja tai venyttämällä laskujen maksua. Katso usean vuoden kehitystä.",
+    ],
+    ranges: [
+      { label: "Alle 0 %", meaning: "Yhtiö kuluttaa enemmän rahaa kuin tuottaa.", tone: "warning" },
+      { label: "2–5 %", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+      {
+        label: "Yli 8 %",
+        meaning: "Halpa, tai markkinat odottavat kassavirran heikkenevän.",
+        tone: "neutral",
+      },
+    ],
+    rangesNote: "Nyrkkisääntö. Vertaa saman alan yhtiöihin ja korkotasoon.",
+    companions: [
+      { id: "vapaa-kassavirta", reason: "Luvun pohja euroina: kuinka tasainen kassavirta on?" },
+      {
+        id: "pe",
+        reason: "Sama hinnan vertailu tulokseen. Suuri ero kertoo, ettei tulos muutu rahaksi.",
+      },
+      { id: "osinkotuotto", reason: "Osinko maksetaan kassavirrasta. Riittääkö se?" },
+    ],
+    links: [
+      {
+        title: "Free cash flow yield: formula and what a high yield means",
+        url: "https://www.investopedia.com/terms/f/freecashflowyield.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
       },
     ],
   },

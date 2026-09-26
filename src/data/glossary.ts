@@ -154,6 +154,29 @@ export const glossary: GlossaryTerm[] = [
       "Kirjanpidon kulu, jolla koneen, rakennuksen tai muun hankinnan hinta jaetaan sen käyttövuosille. Raha on maksettu jo ostohetkellä.",
   },
   {
+    id: "liiketoiminnan-kassavirta",
+    term: "liiketoiminnan kassavirta",
+    forms: ["liiketoiminnan rahavirta", "kassavirta"],
+    definition:
+      "Raha, joka yhtiön tilille todella tulee liiketoiminnasta vuoden aikana. Eroaa tuloksesta, koska myynnistä voi olla rahat vielä saamatta.",
+    relatedMetricId: "vapaa-kassavirta",
+  },
+  {
+    id: "investointi",
+    term: "investointi",
+    forms: ["investoinnit", "investoida"],
+    definition:
+      "Raha, jonka yhtiö käyttää koneisiin, rakennuksiin tai muuhun, joka tuottaa vuosien ajan. Investoinnit vähennetään vapaasta kassavirrasta.",
+  },
+  {
+    id: "sijoitettu-paaoma",
+    term: "sijoitettu pääoma",
+    forms: [],
+    definition:
+      "[[oma pääoma|Oma pääoma]] ja [[korollinen velka|korolliset velat]] yhteensä, eli kaikki raha, jonka omistajat ja lainanantajat ovat antaneet yhtiön käyttöön.",
+    relatedMetricId: "roi",
+  },
+  {
     id: "vuosineljannes",
     term: "vuosineljännes",
     forms: ["vuosineljännekset", "neljännes", "kvartaali"],

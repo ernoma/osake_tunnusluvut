@@ -192,7 +192,11 @@ describe("Haku ja suodatus", () => {
     );
 
     await user.click(within(filters).getByRole("button", { name: "Velka" }));
-    expect(visibleCardIds()).toEqual(["omavaraisuusaste", "nettovelkaantumisaste"]);
+    expect(visibleCardIds()).toEqual([
+      "omavaraisuusaste",
+      "nettovelkaantumisaste",
+      "nettovelka-ebitda",
+    ]);
     expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual([
       "Onko yhtiöllä liikaa velkaa?",
     ]);

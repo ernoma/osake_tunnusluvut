@@ -17,7 +17,7 @@ Aikuinen, joka on nähnyt tunnuslukuja esimerkiksi pankin sovelluksessa, osakeve
    - mitä muita tunnuslukuja kannattaa katsoa rinnalla
 2. **Aloittelija ymmärtää kortin ilman muita lähteitä.** Jokainen vaikea sana on selitetty samassa näkymässä. Tätä mitataan käyttäjätestillä (kohta 7).
 3. Uuden tunnusluvun lisääminen onnistuu **lisäämällä yksi tietue datatiedostoon**, eikä koodia tarvitse muuttaa.
-4. Käyttöliittymä pysyy selkeänä, vaikka tunnuslukuja olisi 20 sijaan 50.
+4. Käyttöliittymä pysyy selkeänä, vaikka tunnuslukuja olisi 25 sijaan 50.
 
 **Rajaukset (ei kuulu versioon 1)**
 
@@ -215,7 +215,7 @@ Sivun alussa, heti otsikon ja haun alla ja ennen johdantopaneelia, on sisällysl
 ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
 │  Osakkeen tunnusluvut – selkokielellä                                 [🔍 Hae...]  [☾]       │
 ├──────────────────────────────────────────────────────────────────────────────────────────────┤
-│ ▾ TUNNUSLUVUT A–Ö (20)  Pienennä                                                             │
+│ ▾ TUNNUSLUVUT A–Ö (25)  Pienennä                                                             │
 │ EBIT          │ Liikevaihto           │ Oman pääoman tuotto  │ Osinkotuotto  │ ROE           │
 │ EBIT-%        │ Liikevoitto           │ Omavaraisuusaste     │ P/B-luku      │ Yritysarvo    │
 │ EPS           │ Liikevoittoprosentti  │ Osakekohtainen tulos │ P/E-luku      │               │
@@ -229,7 +229,7 @@ Pienennettynä (oletus mobiilissa) luettelo on yksi rivi, joka pysyy sivun ylär
 
 ```
 ┌─────────────────────────────────────┐
-│ ▸ TUNNUSLUVUT A–Ö (20)  Näytä       │
+│ ▸ TUNNUSLUVUT A–Ö (25)  Näytä       │
 ├─────────────────────────────────────┤
 │ [Kaikki] [Koko] [Kannattavuus] …    │  ← suodatinpalkki kiinnittyy luettelon alle
 └─────────────────────────────────────┘
@@ -238,7 +238,7 @@ Pienennettynä (oletus mobiilissa) luettelo on yksi rivi, joka pysyy sivun ylär
 **Sisältö ja järjestys**
 
 - Luettelossa ovat **aina kaikki tunnusluvut**, riippumatta hausta, kategoriasuodattimesta tai "Näytä myös syventävät" -valinnasta. Näin luettelo toimii koko oppaan hakemistona.
-- Nimenä näytetään tunnusluvun `name` (esim. "Osakekohtainen tulos"). Kun nimessä ei ole lyhennettä, lyhenteelle tehdään **oma rivi**, joka vie samaan korttiin (EBIT, EBIT-%, EBITDA, EPS, EV, ROE). Aloittelija näkee pankin sovelluksessa usein vain lyhenteen, joten hänen pitää löytää "EPS" E-kirjaimen kohdalta. Lyhennerivin saavutettava nimi on esimerkiksi "EPS, osakekohtainen tulos", jotta ruudunlukija ei lue kahta samannäköistä linkkiä ilman eroa.
+- Nimenä näytetään tunnusluvun `name` (esim. "Osakekohtainen tulos"). Kun nimessä ei ole lyhennettä, lyhenteelle tehdään **oma rivi**, joka vie samaan korttiin (EBIT, EBIT-%, EBITDA, EPS, EV, FCF, ROE, ROI). Aloittelija näkee pankin sovelluksessa usein vain lyhenteen, joten hänen pitää löytää "EPS" E-kirjaimen kohdalta. Lyhennerivin saavutettava nimi on esimerkiksi "EPS, osakekohtainen tulos", jotta ruudunlukija ei lue kahta samannäköistä linkkiä ilman eroa.
 - Järjestys lasketaan koodissa `Intl.Collator("fi")`-vertailulla, joten Å, Ä ja Ö tulevat aakkosten loppuun oikein, eikä järjestystä ylläpidetä käsin. Uusi tunnusluku ilmestyy luetteloon automaattisesti oikealle paikalleen (onnistumisen mittari 3).
 - Luettelon data tuotetaan puhtaalla funktiolla `tocEntries(metrics)` tiedostossa `src/data/toc.ts`, jotta sen voi testata ilman käyttöliittymää.
 
@@ -247,7 +247,7 @@ Pienennettynä (oletus mobiilissa) luettelo on yksi rivi, joka pysyy sivun ylär
 - **Palstat CSS:n `columns`-ominaisuudella** (`columns: 9.25rem`): selain päättää palstojen määrän leveyden mukaan, eikä palstamäärää kirjoiteta koodiin. Palstat täyttyvät ylhäältä alas, joten aakkosjärjestys luetaan palsta kerrallaan, ja DOM-järjestys on sama kuin lukujärjestys ruudunlukijalle.
 - 22 riviä mahtuu tietokoneen näytöllä (1280 px) kuuteen palstaan ja **neljään riviin**, ja 800 px leveydellä neljään palstaan ja kuuteen riviin. 50 tunnusluvullakin rivejä on noin 10–12.
 - Tiivis typografia: fonttikoko noin 0,9 × perusfontti, riviväli noin 1,5 eikä ylimääräisiä välejä rivien välissä. Palstan leveys valitaan niin, että pisinkin nimi ("Nettovelkaantumisaste") mahtuu yhdelle riville. Jos nimi kapealla näytöllä kuitenkin rivittyy, `break-inside: avoid` estää sitä jakautumasta kahdelle palstalle.
-- Otsikkorivi "Tunnusluvut A–Ö (20)" on pieni ja heti luettelon yläpuolella. Ei kehystä eikä korttimaista taustaa, jotka lisäisivät pystysuuntaista täytettä.
+- Otsikkorivi "Tunnusluvut A–Ö (25)" on pieni ja heti luettelon yläpuolella. Ei kehystä eikä korttimaista taustaa, jotka lisäisivät pystysuuntaista täytettä.
 - Palstojen välissä on **kevyt pystyviiva** (`column-rule: 1px solid var(--color-border)`), joka erottaa palstat toisistaan viemättä yhtään riviä lisää.
 - Ei kirjainväliotsikoita (A, E, L …), koska ne lisäisivät rivejä. Alkukirjaimet erottuvat riittävästi ilman niitä.
 - **Mobiilissa** (alle noin 600 px) luettelo on kahdessa palstassa.
@@ -435,16 +435,16 @@ src/
 - **Kosketus:** painikkeiden kosketusalue on vähintään 44 × 44 px.
 - **Vastuuvapauslauseke:** näkyy sivun alareunassa ja johdannossa ystävällisellä sävyllä: *"Tämä on opas tunnuslukujen ymmärtämiseen, ei sijoitusneuvontaa. Sijoittamiseen liittyy aina riski."*
 
-## 6. Sisältö: 20 tunnuslukua
+## 6. Sisältö: 25 tunnuslukua
 
 Tämä on luonnos `metrics.ts`-tiedoston sisällöstä. Tekstit viimeistellään vaiheessa 3 kohdan 2 periaatteiden mukaisiksi.
 
 **Tasot**
 
 - **Perus:** Markkina-arvo, Liikevaihto, EBIT, EBIT-%, EPS, Osinko/osake, Osinkotuotto, Omavaraisuusaste, P/E
-- **Syventävä:** EV, TTM-kasvu, EBITDA, ROE, Osinkosuhde, Nettovelkaantumisaste, P/B, PEG, P/S, EV/EBIT, EV/Sales
+- **Syventävä:** EV, TTM-kasvu, EBITDA, Vapaa kassavirta, ROE, ROI, Osinkosuhde, Nettovelkaantumisaste, Nettovelka/EBITDA, P/B, PEG, P/S, EV/EBIT, EV/EBITDA, EV/Sales, Kassavirtatuotto
 
-TTM-kasvu, EBITDA ja EV/Sales lisättiin vaiheessa 8d (kohta 7).
+TTM-kasvu, EBITDA ja EV/Sales lisättiin vaiheessa 8d ja kohdan 6.6b luvut vaiheessa 8e (kohta 7).
 
 ### 6.1 Koko: Kuinka iso yhtiö on?
 
@@ -496,7 +496,7 @@ TTM-kasvu, EBITDA ja EV/Sales lisättiin vaiheessa 8d (kohta 7).
 | **P/S** (syventävä) | Paljonko maksat yhtiön jokaisesta myyntieurosta? | Markkina-arvo ÷ liikevaihto | ↓ Pienempi = yleensä halvempi | Toimii myös tappiollisille yhtiöille. Tulkinta riippuu katteista: kaupan alalla P/S on luonnostaan matala. Vertaa vain saman alan yhtiöihin. | Verrataan eri alojen yhtiöitä P/S-luvulla | Kaupan hinta suhteessa sen vuotuiseen myyntiin, ei voittoon | EBIT-%, Liikevaihto, P/E, EV/Sales |
 | **EV/Sales** (syventävä) | Paljonko maksat koko yhtiöstä velkoineen jokaista myyntieuroa kohden? | EV ÷ liikevaihto | ↓ Pienempi = yleensä halvempi | Parempi kuin P/S, kun yhtiöillä on eri määrä velkaa. Toimii myös tappiollisille yhtiöille. Vertaa vain saman alan yhtiöihin. Alle 1 halpa, 1–3 tavallinen, yli 5 kallis (nyrkkisääntö). | Verrataan eri alojen yhtiöitä | P/S asunnon velattomalla hinnalla | P/S, EV, EBIT-%, TTM-kasvu |
 
-Kaikki `companions`-viittaukset osoittavat nyt olemassa oleviin tunnuslukuihin. Seuraavaksi lisättävät tunnusluvut ovat kohdassa 6.6b (vaihe 8e).
+Kaikki `companions`-viittaukset osoittavat nyt olemassa oleviin tunnuslukuihin. Vaiheessa 8e lisätyt tunnusluvut ovat kohdassa 6.6b. Seuraavia ehdokkaita ovat esimerkiksi **tuloksen kasvu (EPS-kasvu)**, **oma pääoma per osake** ja **beta / volatiliteetti** (vaatisi uuden kategorian).
 
 **Lisäyksen vaatimat muut muutokset (vaihe 8d)**
 
@@ -507,7 +507,7 @@ Kaikki `companions`-viittaukset osoittavat nyt olemassa oleviin tunnuslukuihin. 
 - TTM-kasvulle ei löytynyt aloittelijan tasoista suomenkielistä lähdettä, joten sillä on vain englanninkielinen linkki (testi antaa varoituksen).
 - Sisällysluettelon testit eivät enää kovakoodaa lyhennerivien määrää, vaan laskevat sen `tocEntries`-funktiolla.
 
-### 6.6b Seuraavat tunnusluvut (vaihe 8e)
+### 6.6b Kassavirta, velan kantokyky ja ROI (vaihe 8e)
 
 Viisi syventävää tunnuslukua, jotka paikkaavat oppaan selvimmät aukot:
 
@@ -533,9 +533,16 @@ Kaikki viisi mahtuvat nykyisiin kategorioihin, joten lisäys onnistuu pelkällä
 - EBITDA-kortin tekstit, joissa nettovelka ÷ EBITDA ja investoinnit mainitaan pelkkänä tekstinä, muutetaan viittauksiksi uusiin kortteihin (`[[Nettovelka/EBITDA]]`, `[[Vapaa kassavirta]]`).
 - Aliakset: "fcf", "free cash flow", "fcf yield", "roce", "sijoitetun pääoman tuottoprosentti", "ev/ebitda", "velkaantuneisuus", "leverage".
 - Sisällysluetteloon tulee lyhennerivit **FCF** ja **ROI**, koska nimet "Vapaa kassavirta" ja "Sijoitetun pääoman tuotto" eivät sisällä lyhennettä. Sisällysluettelon testin lyhennelista päivitetään.
-- Tunnuslukuja on tämän jälkeen 25. Päivitä lukumäärät kohtiin 5.1b ja 6.
-- Lisälukemista-linkit haetaan ja luetaan kohdan 6.7 periaatteiden mukaan. Ensin kannattaa katsoa suomenkieliset lähteet: Wikipedia (Vapaa kassavirta, Sijoitetun pääoman tuottoprosentti) ja Inderesin EV/EBITDA-artikkeli.
-- Nyrkkisääntövälit tarkistetaan lähteistä ennen julkaisua, koska tämän taulukon arvot ovat luonnoksia.
+- Tunnuslukuja on tämän jälkeen 25. Lukumäärät on päivitetty kohtiin 1, 5.1b ja 6.
+- EBITDA-kortin rinnakkaisluku Nettovelkaantumisaste korvautui Nettovelka/EBITDA:lla, joka liittää velan käyttökatteeseen.
+- Komponenttitesti, joka tarvitsee "tulossa"-tunnusluvun, käyttää nyt keksittyä lukua (Osakekohtainen kassavirta), koska vapaa kassavirta on kirjoitettu.
+
+**Toteutuksessa tarkistettua (vaihe 8e)**
+
+- **ROI:n kaava:** Wikipedian muoto (liiketulos + rahoitustuotot) ÷ sijoitettu pääoma on sama kuin kortin (tulos ennen veroja + rahoituskulut) ÷ sijoitettu pääoma. Ohjearvot alle 5 % heikko, 5–14 % tyydyttävä ja vähintään 15 % hyvä ovat Wikipediasta.
+- **Nettovelka/EBITDA:** välit alle 1, 1–3 ja yli 3 sekä negatiivisen luvun tulkinta vastaavat Investopediaa.
+- **EV/EBITDA ja kassavirtatuotto:** välit ovat edelleen omia nyrkkisääntöarvioita (EV/EBITDA alle 6, 6–12 ja yli 15; kassavirtatuotto alle 0 %, 2–5 % ja yli 8 %). Ne kannattaa tarkistaa ennen julkaisua.
+- **Linkit:** Suomen Wikipediassa ei ole artikkeleita "Vapaa kassavirta" eikä "Sijoitetun pääoman tuottoprosentti". Tilalla ovat artikkelit "Kassavirta" ja "Sijoitetun pääoman tuottoaste". Nettovelka/EBITDA:lle ja kassavirtatuotolle ei löytynyt aloittelijan tasoista suomenkielistä lähdettä, joten niillä on vain englanninkielinen linkki (testi antaa varoituksen). Inderesin vapaan kassavirran sivut eivät latautuneet tarkistettaessa, joten niitä ei lisätty.
 
 ### 6.7 Lisälukemista: linkit muille sivustoille
 
@@ -580,7 +587,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **8b. Sisällysluettelo** ✅ | `tocEntries` (`src/data/toc.ts`), `TableOfContents` ja sen tyylit kohdan 5.1b mukaan | Luettelo on aakkosjärjestyksessä, jokainen linkki vie oikeaan korttiin myös suodattimen ollessa päällä, ja luettelo vie tietokoneella enintään noin 5 riviä ja 375 px leveydellä suljettuna yhden rivin |
 | **8c. Sisällysluettelon pienennys ja kiinnitys** ✅ | Pienennä/Näytä-otsikkorivi ja muistettu valinta, kiinnitys sivun yläreunaan, `--toc-height` suodatinpalkille ja vieritykselle sekä palstojen pystyviivat kohdan 5.1b mukaan | Luettelon voi pienentää ja palauttaa, valinta säilyy uudelleenlatauksessa, luettelo ja suodatinpalkki pysyvät näkyvissä päällekkäin vieritettäessä, eikä korttiin siirtyminen jätä kortin otsikkoa niiden alle |
 | **8d. Lisätunnusluvut** ✅ | TTM-kasvu (Koko), EBITDA eli käyttökate (Kannattavuus) ja EV/Sales (Hinta) syventävinä tunnuslukuina kohdan 6 mukaan, sanastoon poisto ja vuosineljännes sekä rinnakkaisviittaukset olemassa oleviin kortteihin | Validointitestit menevät läpi, kortit löytyvät haulla ("ev/s", "käyttökate", "ttm") ja sisällysluettelosta, ja linkit on luettu |
-| **8e. Kassavirta, velan kantokyky ja ROI** | Vapaa kassavirta ja ROI (Kannattavuus), Kassavirtatuotto ja EV/EBITDA (Hinta) sekä Nettovelka/EBITDA (Velka) kohdan 6.6b mukaan, sanastoon kolme uutta termiä, rinnakkaisviittaukset ja lyhennerivit FCF ja ROI | Validointitestit menevät läpi, kortit löytyvät haulla ("fcf", "roce", "ev/ebitda") ja sisällysluettelosta, EBITDA-kortti viittaa uusiin kortteihin, ja linkit ja nyrkkisäännöt on tarkistettu lähteistä |
+| **8e. Kassavirta, velan kantokyky ja ROI** ✅ | Vapaa kassavirta ja ROI (Kannattavuus), Kassavirtatuotto ja EV/EBITDA (Hinta) sekä Nettovelka/EBITDA (Velka) kohdan 6.6b mukaan, sanastoon kolme uutta termiä, rinnakkaisviittaukset ja lyhennerivit FCF ja ROI | Validointitestit menevät läpi, kortit löytyvät haulla ("fcf", "roce", "ev/ebitda") ja sisällysluettelosta, EBITDA-kortti viittaa uusiin kortteihin, ja linkit ja nyrkkisäännöt on tarkistettu lähteistä |
 | **9. Käyttäjätesti** | 3–5 osakesijoittamista tuntematonta testaajaa, esimerkiksi tuttavia (kohta 8) | Testaajat löytävät vastaukset tavoiteajassa, ja löydetyt ongelmat on korjattu |
 | **10. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Sivu on julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 | **11. Ohje ylläpitäjälle** | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |
