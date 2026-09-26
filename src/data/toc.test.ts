@@ -11,7 +11,7 @@ describe("tocEntries", () => {
       expect(entries).toContainEqual({ id: m.id, label: m.name });
     }
     const abbreviations = entries.filter((e) => e.accessibleName).map((e) => e.label);
-    expect(abbreviations.sort()).toEqual(["EBIT", "EBIT-%", "EPS", "EV", "ROE"]);
+    expect(abbreviations.sort()).toEqual(["EBIT", "EBIT-%", "EBITDA", "EPS", "EV", "ROE"]);
     expect(abbreviations).not.toContain("P/E");
   });
 
@@ -29,12 +29,15 @@ describe("tocEntries", () => {
 
   it("järjestää suomen aakkosten mukaan", () => {
     const labels = entries.map((e) => e.label);
-    expect(labels.slice(0, 6)).toEqual([
+    expect(labels.slice(0, 9)).toEqual([
       "EBIT",
       "EBIT-%",
+      "EBITDA",
       "EPS",
       "EV",
       "EV/EBIT-luku",
+      "EV/Sales-luku",
+      "Käyttökate",
       "Liikevaihto",
     ]);
     expect(labels.at(-1)).toBe("Yritysarvo");

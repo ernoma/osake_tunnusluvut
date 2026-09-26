@@ -17,7 +17,7 @@ Aikuinen, joka on nähnyt tunnuslukuja esimerkiksi pankin sovelluksessa, osakeve
    - mitä muita tunnuslukuja kannattaa katsoa rinnalla
 2. **Aloittelija ymmärtää kortin ilman muita lähteitä.** Jokainen vaikea sana on selitetty samassa näkymässä. Tätä mitataan käyttäjätestillä (kohta 7).
 3. Uuden tunnusluvun lisääminen onnistuu **lisäämällä yksi tietue datatiedostoon**, eikä koodia tarvitse muuttaa.
-4. Käyttöliittymä pysyy selkeänä, vaikka tunnuslukuja olisi 17 sijaan 50.
+4. Käyttöliittymä pysyy selkeänä, vaikka tunnuslukuja olisi 20 sijaan 50.
 
 **Rajaukset (ei kuulu versioon 1)**
 
@@ -215,7 +215,7 @@ Sivun alussa, heti otsikon ja haun alla ja ennen johdantopaneelia, on sisällysl
 ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
 │  Osakkeen tunnusluvut – selkokielellä                                 [🔍 Hae...]  [☾]       │
 ├──────────────────────────────────────────────────────────────────────────────────────────────┤
-│ ▾ TUNNUSLUVUT A–Ö (17)  Pienennä                                                             │
+│ ▾ TUNNUSLUVUT A–Ö (20)  Pienennä                                                             │
 │ EBIT          │ Liikevaihto           │ Oman pääoman tuotto  │ Osinkotuotto  │ ROE           │
 │ EBIT-%        │ Liikevoitto           │ Omavaraisuusaste     │ P/B-luku      │ Yritysarvo    │
 │ EPS           │ Liikevoittoprosentti  │ Osakekohtainen tulos │ P/E-luku      │               │
@@ -229,7 +229,7 @@ Pienennettynä (oletus mobiilissa) luettelo on yksi rivi, joka pysyy sivun ylär
 
 ```
 ┌─────────────────────────────────────┐
-│ ▸ TUNNUSLUVUT A–Ö (17)  Näytä       │
+│ ▸ TUNNUSLUVUT A–Ö (20)  Näytä       │
 ├─────────────────────────────────────┤
 │ [Kaikki] [Koko] [Kannattavuus] …    │  ← suodatinpalkki kiinnittyy luettelon alle
 └─────────────────────────────────────┘
@@ -238,7 +238,7 @@ Pienennettynä (oletus mobiilissa) luettelo on yksi rivi, joka pysyy sivun ylär
 **Sisältö ja järjestys**
 
 - Luettelossa ovat **aina kaikki tunnusluvut**, riippumatta hausta, kategoriasuodattimesta tai "Näytä myös syventävät" -valinnasta. Näin luettelo toimii koko oppaan hakemistona.
-- Nimenä näytetään tunnusluvun `name` (esim. "Osakekohtainen tulos"). Kun nimessä ei ole lyhennettä, lyhenteelle tehdään **oma rivi**, joka vie samaan korttiin (EBIT, EBIT-%, EPS, EV, ROE). Aloittelija näkee pankin sovelluksessa usein vain lyhenteen, joten hänen pitää löytää "EPS" E-kirjaimen kohdalta. Lyhennerivin saavutettava nimi on esimerkiksi "EPS, osakekohtainen tulos", jotta ruudunlukija ei lue kahta samannäköistä linkkiä ilman eroa.
+- Nimenä näytetään tunnusluvun `name` (esim. "Osakekohtainen tulos"). Kun nimessä ei ole lyhennettä, lyhenteelle tehdään **oma rivi**, joka vie samaan korttiin (EBIT, EBIT-%, EBITDA, EPS, EV, ROE). Aloittelija näkee pankin sovelluksessa usein vain lyhenteen, joten hänen pitää löytää "EPS" E-kirjaimen kohdalta. Lyhennerivin saavutettava nimi on esimerkiksi "EPS, osakekohtainen tulos", jotta ruudunlukija ei lue kahta samannäköistä linkkiä ilman eroa.
 - Järjestys lasketaan koodissa `Intl.Collator("fi")`-vertailulla, joten Å, Ä ja Ö tulevat aakkosten loppuun oikein, eikä järjestystä ylläpidetä käsin. Uusi tunnusluku ilmestyy luetteloon automaattisesti oikealle paikalleen (onnistumisen mittari 3).
 - Luettelon data tuotetaan puhtaalla funktiolla `tocEntries(metrics)` tiedostossa `src/data/toc.ts`, jotta sen voi testata ilman käyttöliittymää.
 
@@ -247,7 +247,7 @@ Pienennettynä (oletus mobiilissa) luettelo on yksi rivi, joka pysyy sivun ylär
 - **Palstat CSS:n `columns`-ominaisuudella** (`columns: 9.25rem`): selain päättää palstojen määrän leveyden mukaan, eikä palstamäärää kirjoiteta koodiin. Palstat täyttyvät ylhäältä alas, joten aakkosjärjestys luetaan palsta kerrallaan, ja DOM-järjestys on sama kuin lukujärjestys ruudunlukijalle.
 - 22 riviä mahtuu tietokoneen näytöllä (1280 px) kuuteen palstaan ja **neljään riviin**, ja 800 px leveydellä neljään palstaan ja kuuteen riviin. 50 tunnusluvullakin rivejä on noin 10–12.
 - Tiivis typografia: fonttikoko noin 0,9 × perusfontti, riviväli noin 1,5 eikä ylimääräisiä välejä rivien välissä. Palstan leveys valitaan niin, että pisinkin nimi ("Nettovelkaantumisaste") mahtuu yhdelle riville. Jos nimi kapealla näytöllä kuitenkin rivittyy, `break-inside: avoid` estää sitä jakautumasta kahdelle palstalle.
-- Otsikkorivi "Tunnusluvut A–Ö (17)" on pieni ja heti luettelon yläpuolella. Ei kehystä eikä korttimaista taustaa, jotka lisäisivät pystysuuntaista täytettä.
+- Otsikkorivi "Tunnusluvut A–Ö (20)" on pieni ja heti luettelon yläpuolella. Ei kehystä eikä korttimaista taustaa, jotka lisäisivät pystysuuntaista täytettä.
 - Palstojen välissä on **kevyt pystyviiva** (`column-rule: 1px solid var(--color-border)`), joka erottaa palstat toisistaan viemättä yhtään riviä lisää.
 - Ei kirjainväliotsikoita (A, E, L …), koska ne lisäisivät rivejä. Alkukirjaimet erottuvat riittävästi ilman niitä.
 - **Mobiilissa** (alle noin 600 px) luettelo on kahdessa palstassa.
@@ -435,14 +435,16 @@ src/
 - **Kosketus:** painikkeiden kosketusalue on vähintään 44 × 44 px.
 - **Vastuuvapauslauseke:** näkyy sivun alareunassa ja johdannossa ystävällisellä sävyllä: *"Tämä on opas tunnuslukujen ymmärtämiseen, ei sijoitusneuvontaa. Sijoittamiseen liittyy aina riski."*
 
-## 6. Sisältö: 17 tunnuslukua
+## 6. Sisältö: 20 tunnuslukua
 
 Tämä on luonnos `metrics.ts`-tiedoston sisällöstä. Tekstit viimeistellään vaiheessa 3 kohdan 2 periaatteiden mukaisiksi.
 
 **Tasot**
 
 - **Perus:** Markkina-arvo, Liikevaihto, EBIT, EBIT-%, EPS, Osinko/osake, Osinkotuotto, Omavaraisuusaste, P/E
-- **Syventävä:** EV, ROE, Osinkosuhde, Nettovelkaantumisaste, P/B, PEG, P/S, EV/EBIT
+- **Syventävä:** EV, TTM-kasvu, EBITDA, ROE, Osinkosuhde, Nettovelkaantumisaste, P/B, PEG, P/S, EV/EBIT, EV/Sales
+
+TTM-kasvu, EBITDA ja EV/Sales lisättiin vaiheessa 8d (kohta 7).
 
 ### 6.1 Koko: Kuinka iso yhtiö on?
 
@@ -450,7 +452,8 @@ Tämä on luonnos `metrics.ts`-tiedoston sisällöstä. Tekstit viimeistellään
 |---|---|---|---|---|---|---|---|
 | **Markkina-arvo** (perus) | Paljonko kaikki yhtiön osakkeet maksavat yhteensä? | Osakkeen hinta × osakkeiden määrä | ● Koko | Kertoo koon, ei sitä, onko osake halpa. Pienten yhtiöiden kurssit heiluvat usein enemmän. Ei huomioi velkoja. | "Iso markkina-arvo = turvallinen sijoitus" | Talon myyntihinta ilman tietoa asuntolainasta | EV (velat mukaan), Liikevaihto (→ P/S) |
 | **EV, yritysarvo** (syventävä) | Paljonko koko yhtiö maksaisi velkoineen? | Markkina-arvo + nettovelka (korolliset velat − kassa) | ● Koko | Velkainen yhtiö on kalliimpi kuin markkina-arvo antaa ymmärtää. Paljon käteistä omistava yhtiö on vastaavasti halvempi. EV on pohja EV/EBIT-luvulle. | Unohdetaan velat ja verrataan pelkkiä markkina-arvoja | Asunnon **velaton hinta** = myyntihinta + taloyhtiölainan osuus | Markkina-arvo, EV/EBIT, Nettovelkaantumisaste |
-| **Liikevaihto** (perus) | Paljonko yhtiö myy vuodessa? | Kaikki myyntitulot tilikauden ajalta | ● Koko (kasvu ↑) | Kasvuvauhti kertoo enemmän kuin taso. Vertaa aiempiin vuosiin. Yritysostot voivat paisuttaa kasvua. | "Suuri myynti = suuri voitto". Kulut voivat viedä kaiken | Kaupan kassaan tuleva raha ennen kuin laskut on maksettu | EBIT, EBIT-%, P/S |
+| **Liikevaihto** (perus) | Paljonko yhtiö myy vuodessa? | Kaikki myyntitulot tilikauden ajalta | ● Koko (kasvu ↑) | Kasvuvauhti kertoo enemmän kuin taso. Vertaa aiempiin vuosiin. Yritysostot voivat paisuttaa kasvua. | "Suuri myynti = suuri voitto". Kulut voivat viedä kaiken | Kaupan kassaan tuleva raha ennen kuin laskut on maksettu | EBIT, EBIT-%, P/S, TTM-kasvu |
+| **TTM-kasvu** (syventävä) | Kasvaako yhtiön myynti, kun katsotaan viimeistä 12 kuukautta? | (Viimeisten 12 kk liikevaihto ÷ edellisten 12 kk liikevaihto − 1) × 100 %. TTM = neljän viimeisimmän vuosineljänneksen summa | ↑ Suurempi = yleensä parempi | Kasvu on arvokasta vain, jos myös voitto kasvaa. Katso usean vuoden kehitystä. Yritysostot kasvattavat lukua, vaikka oma myynti ei kasva. Palvelut laskevat kasvun eri tavoin (TTM vai yksi neljännes). | "Nopea kasvu = hyvä sijoitus". Kasvu voi olla jo hinnassa | Vertaat viimeisen vuoden tuloja edelliseen vuoteen etkä pelkkää joulukuuta | Liikevaihto, EBIT-%, P/S, PEG |
 
 ### 6.2 Kannattavuus: Tekeekö yhtiö hyvin rahaa?
 
@@ -458,6 +461,7 @@ Tämä on luonnos `metrics.ts`-tiedoston sisällöstä. Tekstit viimeistellään
 |---|---|---|---|---|---|---|---|
 | **EBIT, liikevoitto** (perus) | Paljonko varsinainen liiketoiminta tuottaa voittoa? | Liikevaihto − liiketoiminnan kulut (ennen korkoja ja veroja) | ↑ Suurempi = parempi | Suhteuta myyntiin (EBIT-%). Kertaerät vääristävät, joten katso "vertailukelpoinen EBIT". Velat ja verot eivät vaikuta lukuun, joten sen avulla on helppo verrata yhtiöitä. | Katsotaan euromäärää eikä suhdetta yhtiön kokoon | Kahvilan voitto, kun raaka-aineet, palkat ja vuokra on maksettu mutta lainan korkoa ja veroja ei vielä | Liikevaihto, EBIT-%, EV/EBIT |
 | **EBIT-%, liikevoittoprosentti** (perus) | Montako senttiä jokaisesta myydystä eurosta jää voitoksi? | EBIT ÷ liikevaihto × 100 % | ↑ Suurempi = parempi | Vertaa vain saman alan yhtiöihin. Kaupalla 3–5 % voi olla hyvä, ohjelmistoyhtiöllä 20 % tavallinen (suuntaa antava). Nouseva suunta on hyvä merkki. | Verrataan eri alojen yhtiöitä keskenään | Jos myyt 100 €:n tuotteen ja 10 € jää käteen, EBIT-% on 10 | EBIT, Liikevaihto, P/S, ROE |
+| **EBITDA, käyttökate** (syventävä) | Paljonko liiketoiminta tuottaa, ennen kuin koneiden kuluminen vähennetään? | Liikevoitto + poistot | ↑ Suurempi = parempi | Poistot ovat todellinen kulu, joten katso myös EBIT. Sopii vertailuun, kun yhtiöt tekevät poistoja eri tavoin. Suhteuta myyntiin tai nettovelkaan. | "Käyttökate on voittoa". Siitä puuttuvat poistot, korot ja verot | Taksiyrittäjän tulot ennen auton arvon laskua | EBIT, EBIT-%, Nettovelkaantumisaste |
 | **ROE, oman pääoman tuotto** (syventävä) | Kuinka hyvin yhtiö tekee tulosta omistajien sijoittamalla rahalla? | Nettotulos ÷ oma pääoma × 100 % | ↑ Suurempi = parempi | Yli 10–15 % on usein hyvä (nyrkkisääntö). Velka nostaa ROE:ta keinotekoisesti, joten tarkista velkaisuus. Vakaa taso usean vuoden ajan on arvokkaampi kuin yksi hyvä vuosi. | Korkea ROE tulkitaan laadukkuudeksi, vaikka taustalla on suuri velka | Säästötilin korko, mutta yhtiön omalle pääomalle | P/B, Nettovelkaantumisaste, Omavaraisuusaste |
 
 ### 6.3 Per osake: Paljonko yhdelle osakkeelle kuuluu?
@@ -489,9 +493,19 @@ Tämä on luonnos `metrics.ts`-tiedoston sisällöstä. Tekstit viimeistellään
 | **EV/EBIT** (syventävä) | Montako vuoden liikevoittoa maksat koko yhtiöstä velkoineen? | EV ÷ EBIT | ↓ Pienempi = yleensä halvempi | Soveltuu P/E:tä paremmin, kun yhtiöillä on eri määrä velkaa. Vertaa saman alan yhtiöihin. Ei toimi, jos EBIT on negatiivinen. | Verrataan velattomia ja velkaisia yhtiöitä P/E:llä, vaikka EV/EBIT sopisi paremmin | P/E, mutta asunnon velattomalla hinnalla | P/E, EV, EBIT-% |
 | **P/B** (syventävä) | Paljonko maksat suhteessa siihen, mitä yhtiön kirjanpidossa on omaisuutta velkojen jälkeen? | Osakkeen hinta ÷ oma pääoma per osake | ↓ Pienempi = yleensä halvempi | Alle 1 tarkoittaa, että osake maksaa vähemmän kuin kirjanpidollinen oma pääoma. Hyödyllisin pankeille, kiinteistö- ja teollisuusyhtiöille. Heikko ohjelmisto- ja palveluyhtiöille, joiden arvo ei näy taseessa. | "P/B alle 1 = varmasti alihinnoiteltu". Syynä voi olla huono kannattavuus | Maksaisitko talosta enemmän vai vähemmän kuin sen rakennusmateriaalit ja tontti ovat kirjanpidossa? | ROE, P/E |
 | **PEG** (syventävä) | Onko P/E kohtuullinen, kun yhtiön kasvu otetaan huomioon? | P/E ÷ tuloksen vuotuinen kasvu-% | ↓ Pienempi = yleensä halvempi | Alle 1 on kasvuun nähden edullinen, noin 1 kohtuullinen ja yli 1 kallis (nyrkkisääntö). Luku on vain yhtä luotettava kuin kasvuennuste. Ei toimi, jos kasvu on nolla tai negatiivinen. | Kasvuennustetta pidetään varmana tietona | Kalliimpi omenapuu voi olla edullinen, jos se kasvaa nopeasti ja tuottaa enemmän | P/E, EPS |
-| **P/S** (syventävä) | Paljonko maksat yhtiön jokaisesta myyntieurosta? | Markkina-arvo ÷ liikevaihto | ↓ Pienempi = yleensä halvempi | Toimii myös tappiollisille yhtiöille. Tulkinta riippuu katteista: kaupan alalla P/S on luonnostaan matala. Vertaa vain saman alan yhtiöihin. | Verrataan eri alojen yhtiöitä P/S-luvulla | Kaupan hinta suhteessa sen vuotuiseen myyntiin, ei voittoon | EBIT-%, Liikevaihto, P/E |
+| **P/S** (syventävä) | Paljonko maksat yhtiön jokaisesta myyntieurosta? | Markkina-arvo ÷ liikevaihto | ↓ Pienempi = yleensä halvempi | Toimii myös tappiollisille yhtiöille. Tulkinta riippuu katteista: kaupan alalla P/S on luonnostaan matala. Vertaa vain saman alan yhtiöihin. | Verrataan eri alojen yhtiöitä P/S-luvulla | Kaupan hinta suhteessa sen vuotuiseen myyntiin, ei voittoon | EBIT-%, Liikevaihto, P/E, EV/Sales |
+| **EV/Sales** (syventävä) | Paljonko maksat koko yhtiöstä velkoineen jokaista myyntieuroa kohden? | EV ÷ liikevaihto | ↓ Pienempi = yleensä halvempi | Parempi kuin P/S, kun yhtiöillä on eri määrä velkaa. Toimii myös tappiollisille yhtiöille. Vertaa vain saman alan yhtiöihin. Alle 1 halpa, 1–3 tavallinen, yli 5 kallis (nyrkkisääntö). | Verrataan eri alojen yhtiöitä | P/S asunnon velattomalla hinnalla | P/S, EV, EBIT-%, TTM-kasvu |
 
-Kaikki `companions`-viittaukset osoittavat nyt olemassa oleviin tunnuslukuihin. Seuraavia ehdokkaita lisättäviksi ovat esimerkiksi **vapaa kassavirta**, **liikevaihdon kasvu-%** ja **ROI / ROCE**.
+Kaikki `companions`-viittaukset osoittavat nyt olemassa oleviin tunnuslukuihin. Seuraavia ehdokkaita lisättäviksi ovat esimerkiksi **vapaa kassavirta**, **EV/EBITDA** ja **ROI / ROCE**.
+
+**Lisäyksen vaatimat muut muutokset (vaihe 8d)**
+
+- Sanastoon termit **poisto** (EBITDA) ja **vuosineljännes** (TTM-kasvu). EBIT-kortin kaavahuomautus viittaa poistoihin sanastotermillä.
+- P/S-kortin alias "ev/s" siirtyy EV/Sales-kortille, ja P/S:n velkaa koskeva huomio linkittää EV/Sales-korttiin.
+- Rinnakkaisviittaukset molempiin suuntiin: Liikevaihto → TTM-kasvu, EBIT → EBITDA, EV ja P/S → EV/Sales.
+- Sisällysluetteloon tulee lyhennerivi EBITDA (nimi "Käyttökate" ei sisällä lyhennettä). TTM-kasvun ja EV/Sales-luvun nimissä lyhenne on jo mukana.
+- TTM-kasvulle ei löytynyt aloittelijan tasoista suomenkielistä lähdettä, joten sillä on vain englanninkielinen linkki (testi antaa varoituksen).
+- Sisällysluettelon testit eivät enää kovakoodaa lyhennerivien määrää, vaan laskevat sen `tocEntries`-funktiolla.
 
 ### 6.7 Lisälukemista: linkit muille sivustoille
 
@@ -535,6 +549,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **8. Ulkoasu** ✅ | Teemat, responsiivisuus ja saavutettavuustarkistus (axe tai Lighthouse) | Lighthouse-saavutettavuus ≥ 95, toimii 375 px leveydellä |
 | **8b. Sisällysluettelo** ✅ | `tocEntries` (`src/data/toc.ts`), `TableOfContents` ja sen tyylit kohdan 5.1b mukaan | Luettelo on aakkosjärjestyksessä, jokainen linkki vie oikeaan korttiin myös suodattimen ollessa päällä, ja luettelo vie tietokoneella enintään noin 5 riviä ja 375 px leveydellä suljettuna yhden rivin |
 | **8c. Sisällysluettelon pienennys ja kiinnitys** ✅ | Pienennä/Näytä-otsikkorivi ja muistettu valinta, kiinnitys sivun yläreunaan, `--toc-height` suodatinpalkille ja vieritykselle sekä palstojen pystyviivat kohdan 5.1b mukaan | Luettelon voi pienentää ja palauttaa, valinta säilyy uudelleenlatauksessa, luettelo ja suodatinpalkki pysyvät näkyvissä päällekkäin vieritettäessä, eikä korttiin siirtyminen jätä kortin otsikkoa niiden alle |
+| **8d. Lisätunnusluvut** ✅ | TTM-kasvu (Koko), EBITDA eli käyttökate (Kannattavuus) ja EV/Sales (Hinta) syventävinä tunnuslukuina kohdan 6 mukaan, sanastoon poisto ja vuosineljännes sekä rinnakkaisviittaukset olemassa oleviin kortteihin | Validointitestit menevät läpi, kortit löytyvät haulla ("ev/s", "käyttökate", "ttm") ja sisällysluettelosta, ja linkit on luettu |
 | **9. Käyttäjätesti** | 3–5 osakesijoittamista tuntematonta testaajaa, esimerkiksi tuttavia (kohta 8) | Testaajat löytävät vastaukset tavoiteajassa, ja löydetyt ongelmat on korjattu |
 | **10. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Sivu on julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 | **11. Ohje ylläpitäjälle** | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |

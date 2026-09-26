@@ -146,4 +146,18 @@ export const glossary: GlossaryTerm[] = [
     definition:
       "Osa tytäryhtiön tuloksesta tai omasta pääomasta, joka kuuluu muille kuin emoyhtiön omistajille.",
   },
+  {
+    id: "poisto",
+    term: "poisto",
+    forms: ["poistot"],
+    definition:
+      "Kirjanpidon kulu, jolla koneen, rakennuksen tai muun hankinnan hinta jaetaan sen käyttövuosille. Raha on maksettu jo ostohetkellä.",
+  },
+  {
+    id: "vuosineljannes",
+    term: "vuosineljännes",
+    forms: ["vuosineljännekset", "neljännes", "kvartaali"],
+    definition:
+      "Kolmen kuukauden jakso. Pörssiyhtiöt kertovat tuloksestaan yleensä neljännesvuosittain osavuosikatsauksessa.",
+  },
 ];

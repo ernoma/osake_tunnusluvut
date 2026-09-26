@@ -120,6 +120,10 @@ export const metrics: Metric[] = [
         id: "nettovelkaantumisaste",
         reason: "Kertoo, onko velkaa paljon suhteessa omistajien rahaan.",
       },
+      {
+        id: "ev-sales",
+        reason: "Suhteuttaa EV:n myyntiin. Toimii myös, kun yhtiö ei vielä tee voittoa.",
+      },
     ],
     links: [
       {
@@ -177,6 +181,7 @@ export const metrics: Metric[] = [
       { id: "ebit", reason: "Kertoo, jääkö myynnistä voittoa." },
       { id: "ebit-prosentti", reason: "Kertoo, montako prosenttia myynnistä jää voitoksi." },
       { id: "ps", reason: "Vertaa osakkeen hintaa myyntiin." },
+      { id: "ttm-kasvu", reason: "Kertoo, kuinka nopeasti myynti kasvaa." },
     ],
     links: [
       {
@@ -186,6 +191,85 @@ export const metrics: Metric[] = [
         language: "fi",
         kind: "selitys",
         checkedAt: "2026-09-25",
+      },
+    ],
+  },
+  {
+    id: "ttm-kasvu",
+    name: "TTM-kasvu",
+    abbreviation: "TTM",
+    abbreviationExpanded: "Trailing Twelve Months = viimeiset 12 kuukautta",
+    aliases: [
+      "liikevaihdon kasvu",
+      "myynnin kasvu",
+      "kasvu-%",
+      "12 kk kasvu",
+      "rullaava 12 kk",
+      "trailing twelve months",
+      "ltm",
+    ],
+    category: "koko",
+    level: "syventava",
+    question: "Kasvaako yhtiön myynti, kun katsotaan viimeistä 12 kuukautta?",
+    summary:
+      "Montako prosenttia viimeisten 12 kuukauden [[liikevaihto]] on kasvanut edellisistä 12 kuukaudesta. Päivittyy jokaisen [[vuosineljännes|neljänneksen]] jälkeen.",
+    analogy:
+      "Kun arvioit tulojesi kehitystä, vertaat viimeisen vuoden tuloja sitä edeltävään vuoteen etkä pelkkää joulukuuta. Yksi hyvä tai huono kuukausi ei silloin vääristä kuvaa.",
+    formula: {
+      words: "(Viimeisten 12 kk liikevaihto ÷ edellisten 12 kk liikevaihto − 1) × 100 %",
+      symbols: "(LV TTM ÷ LV TTM vuotta aiemmin − 1) × 100 %",
+      note: "Viimeiset 12 kk = neljän viimeisimmän [[vuosineljännes|vuosineljänneksen]] summa. Samoin voi laskea myös liikevoiton tai EPS:n TTM-kasvun.",
+    },
+    example:
+      "Neljän viimeisimmän neljänneksen myynti on 110 milj. € ja vuotta aiemmin 100 milj. €. TTM-kasvu = (110 ÷ 100 − 1) × 100 % = 10 %.",
+    unit: "%",
+    direction: "higher",
+    directionLabel: "Suurempi = yleensä parempi",
+    rules: [
+      "Kasvu on arvokasta vain, jos myös voitto kasvaa. Katso rinnalla [[EBIT-%]].",
+      "Katso usean vuoden kehitystä: yksi hyvä vuosi voi olla sattumaa.",
+      "Yritysostot kasvattavat lukua, vaikka oma myynti ei kasvaisi.",
+    ],
+    commonMistake:
+      "”Nopea kasvu = hyvä sijoitus.” Kasvu voi olla jo osakkeen hinnassa, ja tappiollinen kasvu kuluttaa rahaa.",
+    factors: [
+      "Hintojen nousu kasvattaa lukua, vaikka myytyjä tuotteita ei olisi enempää.",
+      "Valuuttakurssit muuttavat ulkomaisen myynnin arvoa euroissa.",
+      "TTM tasoittaa vuodenaikojen vaihtelua, koska jokainen vuodenaika on mukana kerran.",
+    ],
+    pitfalls: [
+      "Palvelut laskevat kasvun eri tavoin: osa vertaa vain viimeistä neljännestä vuoden takaiseen neljännekseen. Tarkista, mitä luku tarkoittaa.",
+      "Kun yhtiö ostaa toisen yhtiön, kasvu näyttää suurelta vuoden ajan, kunnes ostettu myynti on mukana molemmissa jaksoissa.",
+    ],
+    ranges: [
+      { label: "Alle 0 %", meaning: "Myynti on pienentynyt.", tone: "warning" },
+      {
+        label: "0–5 %",
+        meaning: "Hidasta kasvua, usein hintojen nousun tasolla.",
+        tone: "neutral",
+      },
+      { label: "5–15 %", meaning: "Hyvää kasvua.", tone: "good" },
+      {
+        label: "Yli 20 %",
+        meaning: "Nopeaa kasvua. Tarkista, johtuuko se yritysostoista.",
+        tone: "neutral",
+      },
+    ],
+    rangesNote: "Nyrkkisääntö. Vertaa saman alan yhtiöihin ja yhtiön omaan historiaan.",
+    companions: [
+      { id: "liikevaihto", reason: "Luvun pohja: kuinka suurta myyntiä kasvu koskee." },
+      { id: "ebit-prosentti", reason: "Kertoo, kasvaako myynti kannattavasti." },
+      { id: "ps", reason: "Nopea kasvu selittää usein korkeaa P/S-lukua." },
+      { id: "peg", reason: "Suhteuttaa osakkeen hinnan tuloksen kasvuun." },
+    ],
+    links: [
+      {
+        title: "Trailing 12 months (TTM): what it is and how it is used",
+        url: "https://www.investopedia.com/terms/t/ttm.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
       },
     ],
   },
@@ -206,7 +290,7 @@ export const metrics: Metric[] = [
       "Kahvilan voitto, kun kahvipavut, palkat ja vuokra on maksettu, mutta lainan korkoa ja veroja ei vielä.",
     formula: {
       words: "Liikevaihto − liiketoiminnan kulut",
-      note: "Kuluihin kuuluvat myös koneiden ja laitteiden kuluminen (poistot).",
+      note: "Kuluihin kuuluu myös koneiden ja laitteiden kuluminen ([[poisto|poistot]]).",
     },
     example: "Liikevaihto on 300 000 € ja kulut 270 000 €. EBIT = 300 000 − 270 000 = 30 000 €.",
     unit: "€",
@@ -233,6 +317,7 @@ export const metrics: Metric[] = [
         reason: "Suhteuttaa voiton myyntiin, jolloin eri kokoisia yhtiöitä voi verrata.",
       },
       { id: "ev-ebit", reason: "Kertoo, paljonko maksat koko yhtiöstä suhteessa liikevoittoon." },
+      { id: "ebitda", reason: "Liikevoitto ennen poistoja: näyttää, paljonko kuluminen vie." },
     ],
     links: [
       {
@@ -327,6 +412,78 @@ export const metrics: Metric[] = [
         language: "en",
         kind: "esimerkki",
         checkedAt: "2026-09-25",
+      },
+    ],
+  },
+  {
+    id: "ebitda",
+    name: "Käyttökate",
+    abbreviation: "EBITDA",
+    abbreviationExpanded:
+      "Earnings Before Interest, Taxes, Depreciation and Amortization = tulos ennen korkoja, veroja ja poistoja",
+    aliases: [
+      "ebitda",
+      "vertailukelpoinen käyttökate",
+      "käyttökateprosentti",
+      "ebitda-marginaali",
+      "tulos ennen poistoja",
+    ],
+    category: "kannattavuus",
+    level: "syventava",
+    question: "Paljonko liiketoiminta tuottaa, ennen kuin koneiden kuluminen vähennetään?",
+    summary:
+      "[[EBIT|Liikevoitto]] ennen [[poisto|poistoja]]. Kertoo, paljonko liiketoiminta tuottaa ennen koneiden ja laitteiden kulumista. Voi näyttää yhtiön paremmalta kuin se on.",
+    analogy:
+      "Taksiyrittäjän tulot, kun polttoaine, palkat ja vakuutukset on maksettu, mutta auton arvon laskua ei ole vähennetty. Auto on silti joskus vaihdettava uuteen.",
+    formula: {
+      words: "Liikevoitto + poistot",
+      symbols: "EBIT + poistot ja arvonalentumiset",
+      note: "Myyntiin suhteutettuna käyttökate ÷ liikevaihto × 100 % (EBITDA-%), samaan tapaan kuin [[EBIT-%]].",
+    },
+    example: "Liikevoitto on 30 000 € ja poistot 20 000 €. EBITDA = 30 000 + 20 000 = 50 000 €.",
+    unit: "€",
+    direction: "higher",
+    directionLabel: "Suurempi = yleensä parempi",
+    rules: [
+      "Poistot ovat todellinen kulu: koneet ja laitteet on joskus uusittava. Katso siksi myös [[EBIT]].",
+      "Sopii yhtiöiden vertailuun, kun ne tekevät poistoja eri tavoin.",
+      "Suhteuta myyntiin tai [[nettovelka|nettovelkaan]], jotta euromäärä kertoo jotain.",
+    ],
+    commonMistake:
+      "”Käyttökate on voittoa.” Siitä puuttuvat vielä poistot, korot ja verot, joten omistajalle jää paljon vähemmän.",
+    factors: [
+      "Aloilla, jotka tarvitsevat paljon koneita, kiinteistöjä tai laitteita, EBITDA ja EBIT eroavat paljon. Kevyillä palvelualoilla ero on pieni.",
+      "Lainanantajat vertaavat usein nettovelkaa käyttökatteeseen: nettovelka ÷ EBITDA kertoo, montako vuoden käyttökatteella velat voisi maksaa.",
+      "[[kertaerä|Kertaerät]] vääristävät. Katso myös vertailukelpoista käyttökatetta.",
+    ],
+    pitfalls: [
+      "Yhtiöt korostavat joskus käyttökatetta, koska se on suurempi kuin liikevoitto. Katso aina myös EBIT ja nettotulos.",
+      "Käyttökate ei kerro, paljonko rahaa yhtiölle jää: siitä puuttuvat vielä investoinnit, korot ja verot.",
+    ],
+    companions: [
+      { id: "ebit", reason: "Kertoo, paljonko jää, kun koneiden kuluminen on vähennetty." },
+      { id: "ebit-prosentti", reason: "Suhteuttaa voiton myyntiin, jolloin yhtiöitä voi verrata." },
+      {
+        id: "nettovelkaantumisaste",
+        reason: "Kertoo, paljonko velkaa on. Käyttökatteella velkaa maksetaan.",
+      },
+    ],
+    links: [
+      {
+        title: "Käyttökatteen määritelmä ja toimialojen tyypilliset tasot",
+        url: "https://fi.wikipedia.org/wiki/Käyttökate",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
+      },
+      {
+        title: "EBITDA: formulas and why it can overstate profitability",
+        url: "https://www.investopedia.com/terms/e/ebitda.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
       },
     ],
   },
@@ -1033,6 +1190,91 @@ export const metrics: Metric[] = [
     ],
   },
   {
+    id: "ev-sales",
+    name: "EV/Sales-luku",
+    abbreviation: "EV/Sales",
+    abbreviationExpanded: "Enterprise Value / Sales = yritysarvo suhteessa myyntiin",
+    aliases: [
+      "ev/s",
+      "ev/sales",
+      "ev/liikevaihto",
+      "yritysarvo per liikevaihto",
+      "enterprise value to sales",
+    ],
+    category: "arvostus",
+    level: "syventava",
+    question: "Paljonko maksat koko yhtiöstä velkoineen jokaista myyntieuroa kohden?",
+    summary:
+      "Kuin [[P/S]], mutta velat huomioiden: [[EV|yritysarvo]] jaettuna [[liikevaihto|liikevaihdolla]]. Toimii myös yhtiöille, jotka eivät vielä tee voittoa.",
+    analogy:
+      "P/S laskettuna asunnon velattomalla hinnalla: taloyhtiölainan osuus kuuluu hintaan, vaikka sitä ei makseta kaupanteossa.",
+    formula: {
+      words: "Yritysarvo ÷ liikevaihto",
+      symbols: "EV ÷ liikevaihto",
+    },
+    example: "EV on 300 milj. € ja liikevaihto 150 milj. €. EV/Sales = 300 ÷ 150 = 2.",
+    unit: "x",
+    direction: "lower",
+    directionLabel: "Pienempi = yleensä halvempi",
+    rules: [
+      "Parempi kuin P/S, kun yhtiöillä on eri määrä velkaa.",
+      "Toimii myös yhtiöille, joilla ei vielä ole voittoa.",
+      "Vertaa vain saman [[toimiala|alan]] yhtiöihin: tulkinta riippuu [[kate|katteista]].",
+    ],
+    commonMistake:
+      "Verrataan eri alojen yhtiöitä. Ohjelmistoyhtiön EV/Sales on luonnostaan korkeampi kuin kauppaketjun.",
+    factors: [
+      "Kannattavuus: korkeampi [[EBIT-%]] oikeuttaa korkeamman luvun.",
+      "Kasvuvauhti: nopeasti kasvavan yhtiön luku on usein korkea. Katso [[TTM-kasvu]].",
+      "Jos yhtiöllä on enemmän [[kassa|käteistä]] kuin velkaa, EV/Sales on pienempi kuin P/S.",
+    ],
+    pitfalls: [
+      "Matala luku voi kertoa vain siitä, että myynnistä ei jää juuri voittoa.",
+      "Eri palvelut laskevat EV:n hieman eri tavoin, joten lähteiden luvut voivat poiketa toisistaan.",
+    ],
+    ranges: [
+      {
+        label: "Alle 1",
+        meaning: "Halpa myyntiin nähden, tai kannattavuus on heikko.",
+        tone: "neutral",
+      },
+      { label: "1–3", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+      {
+        label: "Yli 5",
+        meaning: "Kallis, tai markkinat odottavat nopeaa kasvua ja hyviä katteita.",
+        tone: "warning",
+      },
+    ],
+    rangesNote: "Nyrkkisääntö. Riippuu vahvasti toimialasta ja kannattavuudesta.",
+    companions: [
+      {
+        id: "ps",
+        reason: "Sama luku ilman velkoja. Suuri ero kertoo velasta tai käteisestä.",
+      },
+      { id: "ev", reason: "Luvun pohja: mitä koko yhtiö maksaa velkoineen." },
+      { id: "ebit-prosentti", reason: "Kertoo, kuinka suuri osa myynnistä jää voitoksi." },
+      { id: "ttm-kasvu", reason: "Nopea myynnin kasvu selittää usein korkeaa lukua." },
+    ],
+    links: [
+      {
+        title: "Yritysarvo (EV): miksi velat ja kassa pitää huomioida",
+        url: "https://www.inderes.fi/articles/mika-enterprise-value-eli-ev-enta-evebit-ja-evebitda",
+        sourceId: "inderes",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
+      },
+      {
+        title: "EV/Sales: formula, typical levels and comparison to P/S",
+        url: "https://www.investopedia.com/terms/e/enterprisevaluesales.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-09-26",
+      },
+    ],
+  },
+  {
     id: "pb",
     name: "P/B-luku",
     abbreviation: "P/B",
@@ -1111,7 +1353,7 @@ export const metrics: Metric[] = [
     name: "P/S-luku",
     abbreviation: "P/S",
     abbreviationExpanded: "Price / Sales = hinta suhteessa myyntiin",
-    aliases: ["p/s", "hinta-myyntisuhde", "price to sales", "ev/s"],
+    aliases: ["p/s", "hinta-myyntisuhde", "price to sales"],
     category: "arvostus",
     level: "syventava",
     question: "Paljonko maksat yhtiön jokaisesta myyntieurosta?",
@@ -1136,13 +1378,14 @@ export const metrics: Metric[] = [
     factors: [
       "Kannattavuus: korkeampi [[EBIT-%]] oikeuttaa korkeamman P/S:n.",
       "Kasvuvauhti: nopeasti kasvavan yhtiön P/S on usein korkea.",
-      "Velka: P/S ei huomioi velkoja. EV/S-luku (EV ÷ liikevaihto) ottaa ne mukaan.",
+      "Velka: P/S ei huomioi velkoja. [[EV/Sales]] (EV ÷ liikevaihto) ottaa ne mukaan.",
     ],
     pitfalls: ["Matala P/S voi kertoa vain siitä, että yhtiö ei tee myynnillään juuri voittoa."],
     companions: [
       { id: "ebit-prosentti", reason: "Kertoo, kuinka suuri osa myynnistä jää voitoksi." },
       { id: "liikevaihto", reason: "Kasvaako myynti? Kasvu selittää usein korkeaa P/S:ää." },
       { id: "pe", reason: "Kun yhtiö tekee voittoa, P/E kertoo hinnan suhteessa tulokseen." },
+      { id: "ev-sales", reason: "Sama vertailu velat huomioiden." },
     ],
     links: [
       {

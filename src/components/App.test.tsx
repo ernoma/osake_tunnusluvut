@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { categories, displayName, groupByCategory, metrics, metricsById } from "../data/content.ts";
 import { recommendedOrder } from "../data/intro.ts";
+import { tocEntries } from "../data/toc.ts";
 import { HIGHLIGHT_ATTR, HIGHLIGHT_MS } from "../hooks/useCardNavigation.ts";
 import App, { STORAGE_KEYS } from "./App.tsx";
 import { TOC_HEIGHT_VAR } from "./TableOfContents.tsx";
@@ -236,7 +237,7 @@ describe("Sisällysluettelo", () => {
   it("listaa kaikki tunnusluvut aakkosjärjestyksessä ennen johdantoa", () => {
     render(<App />);
     const links = within(toc()).getAllByRole("link");
-    expect(links).toHaveLength(metrics.length + 5);
+    expect(links).toHaveLength(tocEntries(metrics).length);
     expect(links[0]).toHaveTextContent("EBIT");
     expect(links.at(-1)).toHaveTextContent("Yritysarvo");
     for (const link of links) {
@@ -250,7 +251,7 @@ describe("Sisällysluettelo", () => {
     const { user } = renderReturning();
     await user.click(screen.getByRole("button", { name: "Velka" }));
     await user.click(screen.getByRole("checkbox", { name: "Näytä myös syventävät" }));
-    expect(within(toc()).getAllByRole("link")).toHaveLength(metrics.length + 5);
+    expect(within(toc()).getAllByRole("link")).toHaveLength(tocEntries(metrics).length);
     expect(queryCard("peg")).not.toBeInTheDocument();
 
     await user.click(within(toc()).getByRole("link", { name: "PEG-luku" }));
