@@ -1,0 +1,181 @@
+/* Liittämisvaihe ja API-avaimen kenttä (PasteStep, ApiKeyField). */
+
+.step {
+  composes: step from "./StockPage.module.css";
+}
+
+.stepHeading {
+  composes: stepHeading from "./StockPage.module.css";
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-self: stretch;
+}
+
+.label {
+  font-weight: 600;
+}
+
+.hint {
+  composes: hint from "./forms.module.css";
+  max-width: 70ch;
+}
+
+.textarea {
+  composes: input from "./forms.module.css";
+  width: 100%;
+  min-height: 10rem;
+  padding: var(--space-2) var(--space-3);
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.input {
+  composes: input from "./forms.module.css";
+  max-width: 100%;
+}
+
+.field {
+  composes: field from "./forms.module.css";
+  align-self: flex-start;
+  max-width: 100%;
+}
+
+.primaryButton {
+  composes: primaryButton from "./forms.module.css";
+}
+
+.primaryButton[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.secondaryButton {
+  composes: secondaryButton from "./forms.module.css";
+}
+
+.linkButton {
+  composes: linkButton from "./forms.module.css";
+}
+
+.error {
+  composes: error from "./forms.module.css";
+  max-width: 70ch;
+}
+
+.errorBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-left: 5px solid var(--color-range);
+  border-radius: 0.5rem;
+  background: var(--color-inset);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 1.5rem;
+}
+
+.status:empty {
+  display: none;
+}
+
+.spinner {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 3s;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.keyBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: 0.5rem;
+  background: var(--color-inset);
+}
+
+.keyRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+}
+
+.keyInput {
+  composes: input from "./forms.module.css";
+  flex: 1 1 16rem;
+  max-width: 28rem;
+  min-width: 0;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+.keySaved {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-3);
+  margin: 0;
+}
+
+.keySaved code {
+  overflow-wrap: anywhere;
+}
+
+.help {
+  max-width: 70ch;
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.help a {
+  color: var(--color-accent);
+}
+
+.manual {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  align-self: stretch;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.manual p {
+  max-width: 70ch;
+  margin: 0;
+}

@@ -83,6 +83,8 @@ export interface FigureInfo {
   aliases: readonly string[];
   unit: Unit | InputUnit;
   kind: "tunnusluku" | "lahtotieto";
+  /** Kulu, joka ilmoitetaan positiivisena (ks. InputFigure.expense). */
+  expense?: true;
 }
 
 const collator = new Intl.Collator("fi");
@@ -102,6 +104,7 @@ export const figureCatalog: readonly FigureInfo[] = [
     name: i.name,
     aliases: i.aliases,
     unit: i.unit,
+    expense: i.expense,
     kind: "lahtotieto",
   })),
 ].sort((a, b) => collator.compare(a.name, b.name));

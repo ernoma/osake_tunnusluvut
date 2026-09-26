@@ -17,9 +17,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "check-links": "node scripts/check-links.mjs"
+    "check-links": "node scripts/check-links.mjs",
+    "eval-extract": "vitest run --config vitest.eval.config.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "zod": "^3.25.76"

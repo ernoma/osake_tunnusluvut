@@ -640,7 +640,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **11a. Lähtötiedot, kaavat ja numeeriset välit** ✅ | `inputs.ts`, `formulas.ts` ja `numberFormat.ts` kohdan 11.4 mukaan sekä `ranges`-rivien `min`/`max` kaikkiin tunnuslukuihin ja niiden skeematarkistus (kohta 11.5) | Jokainen kaava tuottaa kortin tasalukuesimerkin tuloksen, ja jokaisella `ranges`-rivillä on rajat, jotka vastaavat tekstiä |
 | **11b. Sivu ja käsin syöttö** ✅ | `?sivu=tutki`, otsikon sivulinkit, lukutaulukko, "Lisää luku", analyysi osoitteessa ja viisi viimeisintä analyysiä (kohdat 11.1, 11.6 ja 11.7) | Luvut voi syöttää ja korjata käsin, osoite palauttaa saman analyysin, ja viimeisimmät-lista toimii |
 | **11c. Analyysinäkymä** ✅ | Tunnusluvut kategorioittain, osuvan välin korostus, lasketut arvot kaavoineen, sivun ja laskun erot sekä puuttuvien lista (kohdat 11.4 ja 11.5) | P/FCF lasketaan markkina-arvosta ja vapaasta kassavirrasta, osuva väli erottuu muullakin kuin värillä, ja puuttuvasta luvusta kerrotaan, mitä pitää syöttää |
-| **11d. Tekoälyhaku** | SDK, API-avaimen tallennus ja poisto, datasta koottu kehote, skeema, lainaustarkistus, virheilmoitukset, keskeytys ja CSP (kohdat 11.2 ja 11.3) | Viiden eri sivuston tekstistä poimitaan oikeat luvut, eikä yksikään tekstistä puuttuva luku pääse analyysiin ilman käyttäjän hyväksyntää |
+| **11d. Tekoälyhaku** ✅ | SDK, API-avaimen tallennus ja poisto, datasta koottu kehote, skeema, lainaustarkistus, virheilmoitukset, keskeytys ja CSP (kohdat 11.2 ja 11.3) | Viiden eri sivuston tekstistä poimitaan oikeat luvut, eikä yksikään tekstistä puuttuva luku pääse analyysiin ilman käyttäjän hyväksyntää |
 | **11e. Viimeistely** | Saavutettavuus, mobiili, käsin testaus oikeilla sivuilla ja README:n ohje API-avaimesta | axe-tarkistus menee läpi kaikissa vaiheissa, Lighthouse-saavutettavuus ≥ 95, ja sivu toimii 375 px leveydellä |
 | **12. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Molemmat sivut ovat julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 
@@ -752,7 +752,7 @@ Sivun osoite on `?sivu=tutki`. Osoitteen `#`-osa on jo korttilinkkien käytöss�
 Kulku on kolmivaiheinen:
 
 1. **Liitä teksti.** Tekstikenttä, ohje ("Valitse sivulta tunnuslukuosio, kopioi se (Ctrl+C) ja liitä tähän") ja painike **"Anna tekoälyn poimia luvut"**. Jos API-avainta ei ole tallennettu, painikkeen yläpuolella on avaimen kenttä (kohta 11.3). Linkki "Syötä luvut itse" ohittaa vaiheen. Kentän alla on lista viimeisimmistä analyyseistä (kohta 11.7).
-2. **Tarkista luvut.** Taulukko poimituista luvuista: nimi, arvo ja yksikkö, kausi ja vuosi sekä lainaus tekstistä. Rivin voi korjata tai poistaa, ja "Lisää luku" lisää puuttuvan (kohta 11.6). Tästä eteenpäin luvut ovat käyttäjän hyväksymiä, eikä tekoälyä enää käytetä.
+2. **Tarkista luvut.** Lista poimituista luvuista valintaruutuineen: nimi, arvo ja yksikkö, kausi ja vuosi sekä lainaus tekstistä. ⚠-rivit eivät ole valittuina. "Käytä valittuja lukuja" vie valitut lukutaulukkoon, jossa rivin voi korjata tai poistaa, ja "Lisää luku" lisää puuttuvan (kohta 11.6). Lainauksia ei tallenneta, joten ne näkyvät vain tässä vaiheessa. Tästä eteenpäin luvut ovat käyttäjän hyväksymiä, eikä tekoälyä enää käytetä.
 3. **Analyysi.** Tunnusluvut kategorioittain samoin kysymysotsikoin kuin päänäkymässä (kohta 11.5).
 
 Vaiheet 2 ja 3 ovat samalla sivulla. Lukutaulukko on analyysin yläpuolella omana osionaan, jonka voi pienentää, ja jokainen muutos päivittää analyysin heti.
@@ -784,8 +784,10 @@ Kuvan välit ovat kuvitteellisia. Oikeat välit tulevat kunkin tunnusluvun `rang
 
 - Pyyntö lähtee selaimesta suoraan Clauden Messages API:in virallisella kirjastolla `@anthropic-ai/sdk`. Selainkäyttö sallitaan asetuksella `dangerouslyAllowBrowser: true`, koska avain on käyttäjän oma (kohta 11.3).
 - **Malli:** oletuksena Claude Opus 5 (`claude-opus-5`) matalalla ajattelutasolla (`output_config.effort: "low"`), koska poiminta on yksinkertainen tehtävä. Asetuksista voi valita halvemman mallin: Claude Sonnet 5 (`claude-sonnet-5`) tai Claude Haiku 4.5 (`claude-haiku-4-5`). Haiku 4.5 ei hyväksy `effort`-asetusta, joten sitä ei lähetetä sille. Mallitunnukset ovat yhdessä vakiossa, jotta ne on helppo päivittää.
-- **Varamalli:** Opus 5 voi kieltäytyä pyynnöstä turvallisuusluokittelun vuoksi (`stop_reason: "refusal"`). Pyyntöön lisätään palvelinpuolen varamalli (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`), jos se toimii rakenteisen vastauksen kanssa. Tämä tarkistetaan vaiheessa 11d. Kieltäytyminen on tunnuslukujen poiminnassa epätodennäköistä, mutta se käsitellään silti (virhetaulukko alla).
-- **Rakenteinen vastaus:** `client.messages.parse` ja `output_config.format`, skeema Zodilla, joka on jo sisällön validoinnissa käytössä. Vaiheessa 11d tarkistetaan, toimiiko kirjaston Zod-apu projektin Zod 3.25:n kanssa (`zod/v4`-polku), vai kirjoitetaanko JSON-skeema käsin.
+- **Varamalli:** Opus 5 voi kieltäytyä pyynnöstä turvallisuusluokittelun vuoksi (`stop_reason: "refusal"`). Opus 5:n pyyntöön lisätään palvelinpuolen varamalli (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`). Kirjaston tyypit sallivat sen yhdessä rakenteisen vastauksen kanssa (vaihe 11d). Oikeaa kieltäytymistä ei ole voitu kokeilla, joten `refusal` käsitellään silti. Kieltäytyminen on tunnuslukujen poiminnassa epätodennäköistä, mutta se käsitellään silti (virhetaulukko alla).
+- **Rakenteinen vastaus:** `output_config.format` ja skeema Zodilla (`src/ai/schema.ts`). Kirjaston Zod-apu (`betaZodOutputFormat`) toimii projektin Zod 3.25:n `zod/v4`-polulla. Kutsu tehdään `create`-metodilla eikä `parse`-metodilla, koska `parse` heittää virheen katkenneesta vastauksesta ennen kuin `stop_reason` ehditään tarkistaa. Vastaus jäsennetään samalla skeemalla itse.
+- **Kulut:** poistot, investoinnit ja rahoituskulut näkyvät tilinpäätöksessä usein miinusmerkkisinä. Lähtötiedon kenttä `expense: true` kertoo kehotteelle, että ne palautetaan positiivisina, ja lukutarkistus hyväksyy miinusmerkin.
+- **Latauksen koko:** rajapinnan kirjasto ladataan vasta, kun käyttäjä aloittaa haun (`import()`), joten sivu ei hidastu niille, jotka eivät käytä tekoälyä.
 
 **Vastauksen rakenne**
 
@@ -921,9 +923,13 @@ Monen tunnusluvun voi laskea muista luvuista. Osa laskun osista on itse tunnuslu
 src/
 ├── ai/
 │   ├── extract.ts          # extractFigures(text, signal): API-kutsu ja virheiden muunnos
+│   ├── errors.ts           # virheet ja viestit (ladataan ilman rajapinnan kirjastoa)
+│   ├── schema.ts           # vastauksen Zod-skeema (zod/v4)
 │   ├── prompt.ts           # kehote koottuna metrics.ts:stä ja inputs.ts:stä
 │   ├── verify.ts           # lainaus- ja lukutarkistus (puhdas funktio)
-│   └── apiKey.ts           # avaimen tallennus ja poisto
+│   ├── apiKey.ts           # avaimen ja mallin tallennus ja poisto
+│   ├── extract.eval.ts     # npm run eval-extract
+│   └── fixtures/           # testitekstit ja valerajapinta
 ├── data/
 │   ├── inputs.ts           # lähtötiedot
 │   ├── formulas.ts         # kaavat ja laskenta (puhdas funktio)
@@ -933,6 +939,7 @@ src/
 │   ├── StockPage.tsx       # Tutki osaketta -sivu
 │   ├── PasteStep.tsx       # tekstin liittäminen ja tekoälyhaun tila
 │   ├── ApiKeyField.tsx     # avaimen kenttä ja ohje
+│   ├── ExtractionReview.tsx # poimittujen lukujen valinta lainauksineen
 │   ├── FiguresTable.tsx    # lukujen tarkistus, korjaus ja lisäys
 │   ├── AnalysisView.tsx    # tunnusluvut kategorioittain
 │   ├── AnalysisRow.tsx     # yksi tunnusluku: arvo, lähde, osuva väli, kaava

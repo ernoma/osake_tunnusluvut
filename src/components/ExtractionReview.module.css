@@ -1,0 +1,139 @@
+.section {
+  composes: step from "./StockPage.module.css";
+}
+
+.heading {
+  composes: stepHeading from "./StockPage.module.css";
+}
+
+.subheading {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.intro {
+  max-width: 70ch;
+  margin: 0;
+}
+
+.notes {
+  align-self: stretch;
+  padding: var(--space-3) var(--space-4);
+  border-radius: 0.5rem;
+  background: var(--color-inset);
+}
+
+.notes ul {
+  margin: var(--space-1) 0 0;
+  padding-left: 1.2rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-self: stretch;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.item,
+.warn {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Tarkistettava rivi erottuu värin lisäksi reunuksella ja ⚠-tekstillä. */
+.warn {
+  border-left: 5px solid var(--color-range);
+  background: var(--color-inset);
+}
+
+.checkbox {
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin: 0.15rem 0 0;
+  accent-color: var(--color-accent);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.label {
+  cursor: pointer;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.value {
+  white-space: nowrap;
+}
+
+.meta {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.warning {
+  composes: error from "./forms.module.css";
+}
+
+.quote {
+  margin: 0;
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.rejected {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.rejected summary {
+  min-height: 2.75rem;
+  cursor: pointer;
+  display: list-item;
+  padding-top: var(--space-2);
+}
+
+.rejected ul {
+  margin: var(--space-1) 0 0;
+  padding-left: 1.2rem;
+}
+
+.rejectedQuote {
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.primaryButton {
+  composes: primaryButton from "./forms.module.css";
+}
+
+.secondaryButton {
+  composes: secondaryButton from "./forms.module.css";
+}

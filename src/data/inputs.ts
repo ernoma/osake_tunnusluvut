@@ -40,6 +40,7 @@ export const inputs: InputFigure[] = [
     name: "Rahoituskulut",
     unit: "€",
     aliases: ["korkokulut", "financial expenses", "interest expense"],
+    expense: true,
   },
   {
     id: "oma-paaoma",
@@ -89,6 +90,7 @@ export const inputs: InputFigure[] = [
     unit: "€",
     aliases: ["poistot ja arvonalentumiset", "depreciation", "depreciation and amortization"],
     term: "poisto",
+    expense: true,
   },
   {
     id: "investoinnit",
@@ -96,6 +98,7 @@ export const inputs: InputFigure[] = [
     unit: "€",
     aliases: ["bruttoinvestoinnit", "capex", "capital expenditure"],
     term: "investointi",
+    expense: true,
   },
   {
     id: "liikevaihto-edellinen",

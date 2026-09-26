@@ -173,6 +173,11 @@ export interface InputFigure {
   aliases: string[];
   /** Sanastotermi, joka selittää luvun, esim. "pörssikurssi". */
   term?: string;
+  /**
+   * Kulu tai meno, jota kaavat käyttävät positiivisena, vaikka sivulla se näkyy usein
+   * miinusmerkkisenä (poistot "−12 450"). Tekoälyhaku palauttaa sen positiivisena.
+   */
+  expense?: true;
 }
 
 export interface GlossaryTerm {

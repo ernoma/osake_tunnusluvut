@@ -188,6 +188,7 @@ export const inputFigureSchema: z.ZodType<InputFigure> = z.object({
   unit: z.enum(INPUT_UNITS),
   aliases: z.array(plain),
   term: plain.optional(),
+  expense: z.literal(true).optional(),
 });
 
 export const glossaryTermSchema: z.ZodType<GlossaryTerm> = z.object({

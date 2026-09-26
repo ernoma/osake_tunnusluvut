@@ -2,6 +2,7 @@
 // avata uudelleen linkistä, ja selain muistaa viisi viimeisintä analyysiä.
 
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { VerifiedExtraction } from "../ai/verify.ts";
 import { calculate, type KnownFigure } from "../data/formulas.ts";
 import {
   decodeAnalysis,
@@ -23,7 +24,11 @@ import AnalysisView from "./AnalysisView.tsx";
 import Footer from "./Footer.tsx";
 import FiguresTable from "./FiguresTable.tsx";
 import Header from "./Header.tsx";
-import PasteStep, { START_HEADING_ID } from "./PasteStep.tsx";
+import ExtractionReview, {
+  REVIEW_HEADING_ID,
+  type AcceptedExtraction,
+} from "./ExtractionReview.tsx";
+import PasteStep, { PASTE_TEXT_ID, START_HEADING_ID } from "./PasteStep.tsx";
 import RecentAnalyses from "./RecentAnalyses.tsx";
 import appStyles from "./App.module.css";
 import styles from "./StockPage.module.css";
@@ -44,6 +49,9 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
   // Taulukon tila (keskeneräiset kentät) nollataan, kun toinen analyysi avataan.
   const [version, setVersion] = useState(0);
   const [startedFresh, setStartedFresh] = useState(false);
+  // Liitetty teksti säilyy, kun käyttäjä palaa tarkistuksesta tekstiin. Sitä ei tallenneta.
+  const [pasteText, setPasteText] = useState("");
+  const [review, setReview] = useState<VerifiedExtraction | null>(null);
 
   // Muokattava analyysi päivittää samaa riviä viimeisimmissä eikä lisää uutta.
   const recentKey = useRef<string | null>(null);
@@ -96,7 +104,29 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
     setAnalysis(EMPTY_ANALYSIS);
     setVersion((v) => v + 1);
     setStarted(false);
+    setReview(null);
+    setPasteText("");
     focusAfterRender.current = START_HEADING_ID;
+  };
+
+  const showReview = (result: VerifiedExtraction) => {
+    setReview(result);
+    focusAfterRender.current = REVIEW_HEADING_ID;
+  };
+
+  const backToPaste = () => {
+    setReview(null);
+    focusAfterRender.current = PASTE_TEXT_ID;
+  };
+
+  const acceptExtraction = ({ name, currency, figures }: AcceptedExtraction) => {
+    recentKey.current = null;
+    setAnalysis({ name, currency, date: today(), figures });
+    setVersion((v) => v + 1);
+    setStartedFresh(figures.length === 0);
+    setReview(null);
+    setStarted(true);
+    focusAfterRender.current = ANALYSIS_HEADING_ID;
   };
 
   return (
@@ -125,8 +155,20 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
               }
             />
           </div>
+        ) : review ? (
+          <ExtractionReview
+            result={review}
+            defaultCurrency={analysis.currency}
+            onAccept={acceptExtraction}
+            onBack={backToPaste}
+          />
         ) : (
-          <PasteStep onEnterManually={startManually}>
+          <PasteStep
+            text={pasteText}
+            onTextChange={setPasteText}
+            onExtracted={showReview}
+            onEnterManually={startManually}
+          >
             <RecentAnalyses recent={recent} onOpen={openRecent} onRemove={remove} />
           </PasteStep>
         )}
