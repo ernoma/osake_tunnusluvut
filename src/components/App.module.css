@@ -5,7 +5,7 @@
 }
 
 .results {
-  scroll-margin-top: calc(var(--filter-bar-height) + var(--space-3));
+  scroll-margin-top: calc(var(--toc-height) + var(--filter-bar-height) + var(--space-3));
 }
 
 .footer {

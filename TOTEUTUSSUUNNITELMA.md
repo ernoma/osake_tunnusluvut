@@ -215,21 +215,23 @@ Sivun alussa, heti otsikon ja haun alla ja ennen johdantopaneelia, on sisällysl
 ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
 │  Osakkeen tunnusluvut – selkokielellä                                 [🔍 Hae...]  [☾]       │
 ├──────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Tunnusluvut A–Ö                                                                              │
-│ EBIT            Liikevaihto            Oman pääoman tuotto    Osinkotuotto    ROE            │
-│ EBIT-%          Liikevoitto            Omavaraisuusaste       P/B-luku        Yritysarvo     │
-│ EPS             Liikevoittoprosentti   Osakekohtainen tulos   P/E-luku                       │
-│ EV              Markkina-arvo          Osinko/osake           P/S-luku                       │
-│ EV/EBIT-luku    Nettovelkaantumisaste  Osinkosuhde            PEG-luku                       │
+│ ▾ TUNNUSLUVUT A–Ö (17)  Pienennä                                                             │
+│ EBIT          │ Liikevaihto           │ Oman pääoman tuotto  │ Osinkotuotto  │ ROE           │
+│ EBIT-%        │ Liikevoitto           │ Omavaraisuusaste     │ P/B-luku      │ Yritysarvo    │
+│ EPS           │ Liikevoittoprosentti  │ Osakekohtainen tulos │ P/E-luku      │               │
+│ EV            │ Markkina-arvo         │ Osinko/osake         │ P/S-luku      │               │
+│ EV/EBIT-luku  │ Nettovelkaantumisaste │ Osinkosuhde          │ PEG-luku      │               │
 ├──────────────────────────────────────────────────────────────────────────────────────────────┤
 │ [Aloita tästä -paneeli]  [Suodatin]  [Kortit] …                                              │
 ```
 
-Mobiilissa suljettuna:
+Pienennettynä (oletus mobiilissa) luettelo on yksi rivi, joka pysyy sivun yläreunassa:
 
 ```
 ┌─────────────────────────────────────┐
-│ ▸ Kaikki tunnusluvut A–Ö (17)       │
+│ ▸ TUNNUSLUVUT A–Ö (17)  Näytä       │
+├─────────────────────────────────────┤
+│ [Kaikki] [Koko] [Kannattavuus] …    │  ← suodatinpalkki kiinnittyy luettelon alle
 └─────────────────────────────────────┘
 ```
 
@@ -245,20 +247,36 @@ Mobiilissa suljettuna:
 - **Palstat CSS:n `columns`-ominaisuudella** (`columns: 9.25rem`): selain päättää palstojen määrän leveyden mukaan, eikä palstamäärää kirjoiteta koodiin. Palstat täyttyvät ylhäältä alas, joten aakkosjärjestys luetaan palsta kerrallaan, ja DOM-järjestys on sama kuin lukujärjestys ruudunlukijalle.
 - 22 riviä mahtuu tietokoneen näytöllä (1280 px) kuuteen palstaan ja **neljään riviin**, ja 800 px leveydellä neljään palstaan ja kuuteen riviin. 50 tunnusluvullakin rivejä on noin 10–12.
 - Tiivis typografia: fonttikoko noin 0,9 × perusfontti, riviväli noin 1,5 eikä ylimääräisiä välejä rivien välissä. Palstan leveys valitaan niin, että pisinkin nimi ("Nettovelkaantumisaste") mahtuu yhdelle riville. Jos nimi kapealla näytöllä kuitenkin rivittyy, `break-inside: avoid` estää sitä jakautumasta kahdelle palstalle.
-- Otsikko "Tunnusluvut A–Ö" on pieni ja samalla rivillä tai heti luettelon yläpuolella. Ei kehystä eikä korttimaista taustaa, jotka lisäisivät pystysuuntaista täytettä.
+- Otsikkorivi "Tunnusluvut A–Ö (17)" on pieni ja heti luettelon yläpuolella. Ei kehystä eikä korttimaista taustaa, jotka lisäisivät pystysuuntaista täytettä.
+- Palstojen välissä on **kevyt pystyviiva** (`column-rule: 1px solid var(--color-border)`), joka erottaa palstat toisistaan viemättä yhtään riviä lisää.
 - Ei kirjainväliotsikoita (A, E, L …), koska ne lisäisivät rivejä. Alkukirjaimet erottuvat riittävästi ilman niitä.
-- **Mobiilissa** (alle noin 600 px) luettelo on kahdessa palstassa ja se on oletuksena **suljettu** `<details>`-elementti, jonka otsikkorivi on "Kaikki tunnusluvut A–Ö (17) ▾". Suljettuna se vie yhden rivin, eikä korttiruudukko siirry ruudun alapuolelle. Tietokoneella luettelo on aina auki.
+- **Mobiilissa** (alle noin 600 px) luettelo on kahdessa palstassa.
 - Haun aikana luettelo väistyy samalla tavalla kuin johdanto, jotta hakutulokset näkyvät heti hakukentän alla.
+
+**Pienentäminen ja palauttaminen**
+
+- Luettelo on `<details>`-elementti, jonka otsikkorivin (`<summary>`) klikkaus pienentää luettelon yhdeksi riviksi ja palauttaa sen näkyviin. Otsikkorivin lopussa on sana "Pienennä" tai "Näytä", jotta toiminto on löydettävissä muustakin kuin nuolesta.
+- Valinta muistetaan selaimessa (`localStorage`, avain `tunnusluvut.sisallys-auki`) samalla tavalla kuin johdannon sulkeminen.
+- Oletus ilman tallennettua valintaa: tietokoneella auki, mobiilissa pienennettynä.
+- Otsikkorivin korkeus on mobiilissa 44 px (kosketus) ja tietokoneella vähintään 24 px, jotta avattu luettelo pysyy matalana.
+
+**Kiinnitys sivun yläreunaan**
+
+- Luettelo pysyy näkyvissä sivun yläreunassa (`position: sticky; top: 0`), kun sivua vieritetään alaspäin, avattuna tai pienennettynä käyttäjän valinnan mukaan. Näin minkä tahansa kortin saa auki yhdellä klikkauksella missä kohtaa sivua tahansa.
+- Kategorioiden suodatinpalkki kiinnittyy luettelon alle eikä sen päälle. Luettelon todellinen korkeus luetaan `ResizeObserver`illa CSS-muuttujaan `--toc-height`, jota käyttävät suodatinpalkin `top` sekä korttien ja tulosalueen `scroll-margin-top`. Korkeus muuttuu, kun luettelo pienennetään, avataan tai palstojen määrä muuttuu ikkunan leveyden mukana.
+- Kiinnitettynä luettelolla on sivun taustaväri ja alareunan viiva, jotta sen alle vierivät kortit eivät näy sen läpi.
+- Avatun luettelon korkeus on rajattu (`max-height: 40vh`), ja liian pitkä luettelo vierii omassa laatikossaan. Näin luettelo ei peitä koko ruutua mobiilissa eikä 50 tunnusluvunkaan kanssa.
+- **Mobiilissa** linkin klikkaus pienentää avatun luettelon, jotta kortti mahtuu ruudulle. Tätä ei tallenneta käyttäjän valinnaksi, joten luettelo on seuraavalla käynnillä taas käyttäjän valitsemassa tilassa. Tietokoneella luettelo pysyy auki.
 
 **Toiminta**
 
 - Linkit ovat tavallisia `<a href="#pe">`-linkkejä, joten niihin pätee sama siirtymä kuin muihinkin korttilinkkeihin (`useCardNavigation`): kortti vieritetään näkyviin, kohdistus siirtyy siihen, ja se korostetaan hetkeksi. Jos suodatin tai syventävien piilotus piilottaa kortin, suodatin nollataan (kohta 5.3).
-- Vieritys huomioi tahmean suodatinpalkin, jotta kortin otsikko ei jää sen alle.
+- Vieritys huomioi kiinnitetyn sisällysluettelon ja suodatinpalkin, jotta kortin otsikko ei jää niiden alle.
 - Selaimen Takaisin-painike palaa sisällysluetteloon, koska linkki muuttaa osoitteen `#`-osaa.
 
 **Saavutettavuus**
 
-- Luettelo on `<nav aria-labelledby>`-maamerkki, jonka otsikko on "Tunnusluvut A–Ö", ja sisältö on `<ul>`-lista. Ruudunlukija kertoo luettelon pituuden, ja maamerkkiin pääsee suoraan.
+- Luettelo on `<nav aria-labelledby>`-maamerkki, jonka nimi on "Tunnusluvut A–Ö", ja sisältö on `<ul>`-lista. `<summary>` kertoo ruudunlukijalle, onko luettelo auki vai pienennetty, ja sen saa auki ja kiinni Enterillä tai välilyönnillä. Ruudunlukija kertoo luettelon pituuden, ja maamerkkiin pääsee suoraan.
 - Tiiviyden vuoksi linkkien kosketusalue on pienempi kuin painikkeiden 44 px (kohta 5.5), mutta vähintään WCAG 2.2 AA:n 24 px korkea (riviväli ja pystysuuntainen `padding`). Palstojen väli on vähintään 1,5 rem, jotta vierekkäisiä linkkejä ei napauteta vahingossa.
 - Linkit erottuvat tekstistä muullakin kuin värillä: alleviivaus kohdistimen ollessa päällä ja näkyvä kohdistuskehys näppäimistöllä.
 
@@ -516,6 +534,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **7. Haku ja suodatus** ✅ | `FilterBar`, "Näytä myös syventävät", `useMetricFilter`, `useUrlState` ja pikanäppäin `/` | "velaton" löytää EV:n, ja URL säilyttää tilan |
 | **8. Ulkoasu** ✅ | Teemat, responsiivisuus ja saavutettavuustarkistus (axe tai Lighthouse) | Lighthouse-saavutettavuus ≥ 95, toimii 375 px leveydellä |
 | **8b. Sisällysluettelo** ✅ | `tocEntries` (`src/data/toc.ts`), `TableOfContents` ja sen tyylit kohdan 5.1b mukaan | Luettelo on aakkosjärjestyksessä, jokainen linkki vie oikeaan korttiin myös suodattimen ollessa päällä, ja luettelo vie tietokoneella enintään noin 5 riviä ja 375 px leveydellä suljettuna yhden rivin |
+| **8c. Sisällysluettelon pienennys ja kiinnitys** ✅ | Pienennä/Näytä-otsikkorivi ja muistettu valinta, kiinnitys sivun yläreunaan, `--toc-height` suodatinpalkille ja vieritykselle sekä palstojen pystyviivat kohdan 5.1b mukaan | Luettelon voi pienentää ja palauttaa, valinta säilyy uudelleenlatauksessa, luettelo ja suodatinpalkki pysyvät näkyvissä päällekkäin vieritettäessä, eikä korttiin siirtyminen jätä kortin otsikkoa niiden alle |
 | **9. Käyttäjätesti** | 3–5 osakesijoittamista tuntematonta testaajaa, esimerkiksi tuttavia (kohta 8) | Testaajat löytävät vastaukset tavoiteajassa, ja löydetyt ongelmat on korjattu |
 | **10. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Sivu on julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 | **11. Ohje ylläpitäjälle** | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |
@@ -545,6 +564,8 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
   - Jokainen linkki osoittaa olemassa olevaan korttiin.
   - Luettelo näyttää kaikki tunnusluvut myös silloin, kun suodatin on päällä, ja linkin klikkaus nollaa suodattimen.
   - Luettelo on `nav`-maamerkki, ja lyhennerivien saavutettavat nimet eroavat toisistaan.
+  - Luettelon voi pienentää ja palauttaa otsikkorivistä, ja valinta muistetaan. Oletus on tietokoneella auki ja mobiilissa pienennetty.
+  - Mobiilissa linkin klikkaus pienentää luettelon muuttamatta tallennettua valintaa.
 - **Komponenttitestit:**
   - kortin laajennus
   - rinnakkaislinkin klikkaus (vieritys ja suodattimen nollaus)

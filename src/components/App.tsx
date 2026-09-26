@@ -9,13 +9,14 @@ import Header, { INTRO_LINK_ID } from "./Header.tsx";
 import IntroPanel, { INTRO_HEADING_ID } from "./IntroPanel.tsx";
 import MetricGrid from "./MetricGrid.tsx";
 import ResultStatus from "./ResultStatus.tsx";
-import TableOfContents from "./TableOfContents.tsx";
+import TableOfContents, { TOC_STORAGE_KEY } from "./TableOfContents.tsx";
 import styles from "./App.module.css";
 
 /** localStorage-avaimet */
 export const STORAGE_KEYS = {
   introClosed: "tunnusluvut.johdanto-suljettu",
   showAdvanced: "tunnusluvut.nayta-syventavat",
+  tocOpen: TOC_STORAGE_KEY,
 } as const;
 
 export default function App() {

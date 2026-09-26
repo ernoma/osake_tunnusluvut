@@ -1,7 +1,7 @@
-/* Pysyy sivun yläreunassa. Korkeus on --filter-bar-height, jotta kortit osaavat jättää sille tilaa. */
+/* Pysyy sivun yläreunassa sisällysluettelon alla (--toc-height). Korkeus on --filter-bar-height, jotta kortit osaavat jättää sille tilaa. */
 .bar {
   position: sticky;
-  top: 0;
+  top: var(--toc-height);
   z-index: 2;
   min-height: var(--filter-bar-height);
   margin: 0 calc(-1 * var(--space-4));

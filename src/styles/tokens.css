@@ -16,6 +16,8 @@
 
   /* Sivun yläreunaan kiinnittyvän kategorianauhan korkeus (FilterBar). */
   --filter-bar-height: 3.8rem;
+  /* Kiinnitetyn sisällysluettelon korkeus. TableOfContents päivittää arvon. */
+  --toc-height: 0px;
 
   --color-bg: #f7f7f5;
   --color-surface: #ffffff;

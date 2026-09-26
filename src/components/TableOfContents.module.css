@@ -1,26 +1,54 @@
-/* Tiivis hakemisto: mahdollisimman vähän pystysuuntaista tilaa, ei kehystä eikä taustaa. */
+/* Tiivis hakemisto, joka pysyy sivun yläreunassa. Korkeus välitetään muuttujassa --toc-height
+   suodatinpalkille, joka kiinnittyy tämän alle. Tausta peittää alta vierivät kortit. */
 .toc {
-  margin-bottom: var(--space-5);
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  margin: 0 calc(-1 * var(--space-4)) var(--space-5);
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
   font-size: 0.9rem;
   line-height: 1.5;
 }
 
-.title {
-  margin: 0 0 var(--space-1);
+/* Oletusarvoinen display: list-item säilyttää avausnuolen. */
+.summary {
+  box-sizing: border-box;
+  min-height: 1.75rem;
+  padding: var(--space-1) 0;
   color: var(--color-text-muted);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  cursor: pointer;
 }
 
-/* Selain valitsee palstojen määrän. Palstan leveyteen mahtuu pisin nimi, "Nettovelkaantumisaste". */
+.summary:hover .hint {
+  text-decoration: underline;
+}
+
+.hint {
+  margin-left: var(--space-2);
+  color: var(--color-accent);
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* Selain valitsee palstojen määrän. Palstan leveyteen mahtuu pisin nimi, "Nettovelkaantumisaste".
+   Liian pitkä luettelo vierii omassa laatikossaan, jotta se ei peitä koko ruutua. */
 .list {
-  margin: 0;
-  padding: 0;
+  max-height: 40vh;
+  margin: 0 0 var(--space-2);
+  /* Tilaa kohdistuskehykselle, jota overflow muuten leikkaisi. */
+  padding: 0.25rem;
+  overflow-y: auto;
   list-style: none;
   columns: 9.25rem;
   column-gap: var(--space-5);
+  column-rule: 1px solid var(--color-border);
 }
 
 .list li {
@@ -47,18 +75,13 @@
   border-radius: 2px;
 }
 
-/* Mobiili: suljettuna yksi rivi, avattuna kaksi palstaa. */
-/* Oletusarvoinen display: list-item säilyttää avausnuolen. Korkeus 44 px. */
-.summary {
-  box-sizing: border-box;
-  min-height: 2.75rem;
-  padding: 0.7rem 0;
-  color: var(--color-text);
-  font-weight: 600;
-  cursor: pointer;
-}
-
+/* Mobiili: kosketukselle 44 px korkea otsikkorivi ja kaksi palstaa. */
 @media (max-width: 37.49rem) {
+  .summary {
+    min-height: 2.75rem;
+    padding: 0.7rem 0;
+  }
+
   .list {
     columns: 2;
   }

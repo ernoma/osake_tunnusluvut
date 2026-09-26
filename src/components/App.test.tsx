@@ -1,10 +1,11 @@
-import { act, render, screen, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { categories, displayName, groupByCategory, metrics, metricsById } from "../data/content.ts";
 import { recommendedOrder } from "../data/intro.ts";
 import { HIGHLIGHT_ATTR, HIGHLIGHT_MS } from "../hooks/useCardNavigation.ts";
 import App, { STORAGE_KEYS } from "./App.tsx";
+import { TOC_HEIGHT_VAR } from "./TableOfContents.tsx";
 
 function card(id: string) {
   return screen.getByRole("article", { name: displayName(metricsById.get(id)!) });
@@ -270,26 +271,67 @@ describe("Sisällysluettelo", () => {
     expect(screen.queryByRole("navigation", { name: "Tunnusluvut A–Ö" })).not.toBeInTheDocument();
   });
 
-  describe("kapealla näytöllä", () => {
-    afterEach(() => {
-      // @ts-expect-error jsdom:ssa ei ole matchMediaa
-      delete window.matchMedia;
-    });
+  const details = () => toc().querySelector("details")!;
+  const summary = () => toc().querySelector("summary")!;
 
-    it("on suljettu rivi, jonka voi avata", async () => {
+  it("on kiinnitetty, ja sen korkeus välitetään suodatinpalkille", () => {
+    renderReturning();
+    expect(toc()).toHaveClass("toc");
+    expect(document.documentElement.style.getPropertyValue(TOC_HEIGHT_VAR)).toMatch(/px$/);
+  });
+
+  it("pienenee ja palautuu otsikkorivistä, ja valinta muistetaan", async () => {
+    const { user, unmount } = renderReturning();
+    expect(details().open).toBe(true);
+    expect(summary()).toHaveTextContent("Pienennä");
+
+    await user.click(summary());
+    await waitFor(() => expect(summary()).toHaveTextContent("Näytä"));
+    expect(details().open).toBe(false);
+    expect(window.localStorage.getItem(STORAGE_KEYS.tocOpen)).toBe("false");
+
+    unmount();
+    render(<App />);
+    expect(details().open).toBe(false);
+
+    await user.click(summary());
+    await waitFor(() => expect(summary()).toHaveTextContent("Pienennä"));
+    expect(details().open).toBe(true);
+    expect(window.localStorage.getItem(STORAGE_KEYS.tocOpen)).toBe("true");
+  });
+
+  describe("kapealla näytöllä", () => {
+    beforeEach(() => {
       window.matchMedia = vi.fn().mockReturnValue({
         matches: false,
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
       });
-      const { user } = renderReturning();
-      const nav = screen.getByRole("navigation", { name: "Kaikki tunnusluvut A–Ö" });
-      const details = nav.querySelector("details")!;
-      expect(details.open).toBe(false);
+    });
 
-      await user.click(within(nav).getByText(/Kaikki tunnusluvut A–Ö/));
-      expect(details.open).toBe(true);
-      expect(within(nav).getByRole("link", { name: "P/E-luku" })).toBeVisible();
+    afterEach(() => {
+      // @ts-expect-error jsdom:ssa ei ole matchMediaa
+      delete window.matchMedia;
+    });
+
+    it("on oletuksena pienennetty rivi, jonka voi avata", async () => {
+      const { user } = renderReturning();
+      expect(details().open).toBe(false);
+
+      await user.click(summary());
+      await waitFor(() => expect(summary()).toHaveTextContent("Pienennä"));
+      expect(within(toc()).getByRole("link", { name: "P/E-luku" })).toBeVisible();
+    });
+
+    it("linkki pienentää luettelon muuttamatta tallennettua valintaa", async () => {
+      window.localStorage.setItem(STORAGE_KEYS.tocOpen, "true");
+      const { user } = renderReturning();
+      expect(details().open).toBe(true);
+
+      await user.click(within(toc()).getByRole("link", { name: "PEG-luku" }));
+      expect(card("peg")).toHaveFocus();
+      await waitFor(() => expect(details().open).toBe(false));
+      expect(window.localStorage.getItem(STORAGE_KEYS.tocOpen)).toBe("true");
     });
   });
 });
