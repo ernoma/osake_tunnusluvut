@@ -459,7 +459,7 @@ function AddFigure({ exclude, currency, onAdd, onClose }: AddProps) {
               {options.map((o) => (
                 <li key={o.id}>
                   <button type="button" className={styles.option} onClick={() => choose(o)}>
-                    <span>{displayName(o)}</span>
+                    <span className={styles.optionName}>{displayName(o)}</span>
                     <span className={styles.kind}>
                       {o.kind === "tunnusluku" ? "Tunnusluku" : "Lähtötieto"}
                     </span>

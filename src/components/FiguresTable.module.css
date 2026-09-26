@@ -208,6 +208,13 @@
   background: var(--color-inset);
 }
 
+/* Pitkä yhdyssana, kuten "Nettovelkaantumisaste", katkeaa kapealla näytöllä. */
+.optionName {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
 .kind {
   color: var(--color-text-muted);
   font-size: 0.85rem;

@@ -2,6 +2,37 @@
 
 Selainpohjainen opas osakesijoittamisen tunnuslukuihin aloittelijalle. Suunnitelma on tiedostossa [TOTEUTUSSUUNNITELMA.md](TOTEUTUSSUUNNITELMA.md).
 
+Sovelluksessa on kaksi sivua:
+
+- **Tunnusluvut** selittää tunnusluvut ja niiden tulkinnan.
+- **Tutki osaketta** (`?sivu=tutki`) näyttää yhden osakkeen luvut samojen tunnuslukujen avulla: mihin nyrkkisääntöväliin kukin osuu, mitkä luvut voi laskea muista ja mitä puuttuu.
+
+## Tutki osaketta: luvut tekoälyllä tai käsin
+
+Luvut saa sivulle kahdella tavalla:
+
+1. **Käsin, ilman API-avainta.** Valitse "Syötä luvut itse" ja lisää luvut "Lisää luku" -haulla, esimerkiksi pankin sovelluksesta tai tilinpäätöksestä. Kenttä hyväksyy muodot "1 234,5", "1,2 mrd" ja "12 %". Sovellus laskee puuttuvat tunnusluvut, jos lähtötiedot riittävät.
+2. **Tekoälyllä.** Kopioi pörssisivulta tai tilinpäätöksestä tunnuslukuosio, liitä se tekstikenttään ja valitse "Anna tekoälyn poimia luvut". Claude poimii luvut, ja tarkistat ne lainauksia vasten ennen kuin ne siirtyvät analyysiin. Luku, jonka lainaus ei vastaa arvoa, on merkitty ⚠-merkillä eikä ole valittuna.
+
+Analyysin luvut tallentuvat osoitteeseen, joten analyysin voi avata uudelleen linkistä. Selain muistaa lisäksi viisi viimeisintä analyysiä. Liitettyä tekstiä ei tallenneta.
+
+### API-avain
+
+Tekoälyhaku käyttää Clauden rajapintaa suoraan selaimesta **käyttäjän omalla API-avaimella**. Sovelluksella ei ole palvelinta, joten avain ja teksti eivät kulje minkään muun kuin Anthropicin rajapinnan (`api.anthropic.com`) kautta.
+
+1. Kirjaudu [Anthropic Consoleen](https://console.anthropic.com/) ja lisää tilille maksutapa tai saldoa. Rajapinnan käyttö maksaa, ja hinta riippuu tekstin pituudesta ja mallista.
+2. Luo avain kohdassa **Settings → API keys** ([suora linkki](https://console.anthropic.com/settings/keys)). Tee tätä sovellusta varten oma avain, jotta voit poistaa sen vaikuttamatta muuhun käyttöön.
+3. Aseta Consolessa kuukausittainen kulukatto (**Settings → Limits**), jotta kulut eivät voi yllättää.
+4. Liitä avain Tutki osaketta -sivun kenttään "Claude API -avain". Avain tallentuu selaimeen ensimmäisellä haulla.
+
+Hyvä tietää:
+
+- **Avain on vain tässä selaimessa** (`localStorage`, avain `tunnusluvut.api-avain`). Kuka tahansa samalla koneella ja selainprofiililla voi käyttää sitä, joten älä tallenna avainta yhteiskäyttöiselle koneelle. Painike "Poista avain tältä laitteelta" poistaa sen. Jos avain on vuotanut, poista se myös Consolesta.
+- **Avain ei päädy** osoitteeseen, jakolinkkiin, viimeisimpien listaan eikä virheilmoituksiin.
+- **Liitetty teksti lähetetään Anthropicille** käsiteltäväksi. Älä liitä tekstiä, jota et halua lähettää.
+- **Malli:** oletus on Claude Opus 5, joka poimi testiaineistosta kaikki luvut oikein. Halvemmat Sonnet 5 ja Haiku 4.5 ovat valittavissa, mutta Haiku sekoitti testeissä monisarakkeisen taulukon vuodet (ks. [eval-tulokset](docs/eval-extract-tulokset.md)). Tarkista luvut aina itse.
+- **Virheet:** "API-avain ei kelpaa" tarkoittaa väärää tai poistettua avainta. "Pyyntö hylättiin" johtuu usein loppuneesta saldosta, jonka näet Consolesta.
+
 ## Kehitys
 
 Vaatii Node.js 20:n tai uudemman.
@@ -11,39 +42,42 @@ npm install
 npm run dev
 ```
 
-| Komento               | Tarkoitus                                         |
-| --------------------- | ------------------------------------------------- |
-| `npm run dev`         | Kehityspalvelin osoitteessa http://localhost:5173 |
-| `npm test`            | Testit kertaalleen                                |
-| `npm run test:watch`  | Testit jatkuvasti muutosten mukaan                |
-| `npm run lint`        | ESLint                                            |
-| `npm run format`      | Prettier-muotoilu                                 |
-| `npm run typecheck`   | TypeScript-tarkistus                              |
-| `npm run check-links` | Lisälukemista-linkkien tarkistus (verkkoyhteys)   |
-| `npm run build`       | Tuotantoversio kansioon `dist/`                   |
+| Komento                | Tarkoitus                                                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`          | Kehityspalvelin osoitteessa http://localhost:5173                                                                   |
+| `npm test`             | Testit kertaalleen                                                                                                  |
+| `npm run test:watch`   | Testit jatkuvasti muutosten mukaan                                                                                  |
+| `npm run lint`         | ESLint                                                                                                              |
+| `npm run format`       | Prettier-muotoilu                                                                                                   |
+| `npm run typecheck`    | TypeScript-tarkistus                                                                                                |
+| `npm run check-links`  | Lisälukemista-linkkien tarkistus (verkkoyhteys)                                                                     |
+| `npm run build`        | Tuotantoversio kansioon `dist/`                                                                                     |
+| `npm run eval-extract` | Tekoälyhaun laatu oikeaa mallia vasten (`ANTHROPIC_API_KEY`, maksullinen), tulokset `docs/eval-extract-tulokset.md` |
 
 ## Kansiorakenne
 
 ```
+docs/                # tekoälyhaun eval-tulokset ja käsin testauksen kirjaus
 public/              # favicon ja robots.txt
 scripts/
 └── check-links.mjs  # lisälukemista-linkkien tarkistus
 src/
-├── components/   # React-komponentit: kortti ja sen osat, ruudukko, johdanto, haku ja suodatin
-├── data/         # tunnusluvut, kategoriat, sanasto, linkkien sivustot ja johdannon lukujärjestys
+├── ai/           # tekoälyhaku: kehote, skeema, lainaustarkistus, API-avain ja testiaineisto
+├── components/   # React-komponentit: molemmat sivut, kortti ja sen osat, analyysi ja lukutaulukko
+├── data/         # tunnusluvut, kategoriat, sanasto, linkkien sivustot, lähtötiedot, kaavat ja lukujen muotoilu
 ├── hooks/        # selitysikkunat, korttiin siirtyminen, haku ja suodatus, URL-tila, teema, selaimeen muistetut valinnat
 ├── styles/       # värit, välit ja teemat sekä niiden kontrastitesti
-└── test/         # testien alustus
+└── test/         # testien alustus ja yhteinen axe-tarkistus
 ```
 
 ## Saavutettavuus
 
 `npm test` tarkistaa saavutettavuuden kahdella tavalla:
 
-- `src/components/a11y.test.tsx` ajaa axe-tarkistuksen koko sovellukselle eri tiloissa.
+- axe-tarkistus (`src/test/axe.ts`) ajetaan koko dokumentille eri tiloissa: päänäkymä `a11y.test.tsx`:ssä ja Tutki osaketta -sivun jokainen vaihe (liittäminen, haku käynnissä, virheet, tarkistus ja analyysi) `PasteStep.test.tsx`:ssä ja `StockPage.test.tsx`:ssä. Koska tarkistus kattaa koko dokumentin, myös maamerkkien ulkopuolelle jäävä sisältö löytyy.
 - `src/styles/contrast.test.ts` laskee WCAG AA -kontrastit `tokens.css`:n väreistä molemmissa teemoissa. Uusi teksti–tausta-pari lisätään sen listaan.
 
-Lighthouse ajetaan käsin tuotantoversiota vasten. Tavoite on saavutettavuus ≥ 95. Chromen sijaan käy Edge (`CHROME_PATH`).
+Lighthouse ajetaan käsin tuotantoversiota vasten molemmille sivuille (`/` ja `/?sivu=tutki`, lisäksi analyysi luvuilla). Tavoite on saavutettavuus ≥ 95. Chromen sijaan käy Edge (`CHROME_PATH`). Jos osoitteessa on `&`-merkkejä, Windowsin `npx` katkaisee sen, joten osoite kannattaa lainata tai ajaa Lighthouse `node`lla.
 
 ```bash
 npm run build && npx vite preview --port 4173

@@ -3,30 +3,21 @@
 
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import axe from "axe-core";
+import { violations } from "../test/axe.ts";
 import { describe, expect, it } from "vitest";
 import App, { STORAGE_KEYS } from "./App.tsx";
-
-async function violations(container: Element) {
-  const results = await axe.run(container, {
-    rules: { "color-contrast": { enabled: false } },
-  });
-  return results.violations.map(
-    (v) => `${v.id}: ${v.help}\n  ${v.nodes.map((n) => n.target.join(" ")).join("\n  ")}`,
-  );
-}
 
 // axe käy koko sivun läpi, joten rinnakkain ajettuna oletusraja (5 s) voi ylittyä.
 describe("saavutettavuus (axe)", { timeout: 20_000 }, () => {
   it("ensimmäinen käynti johdannon kanssa", async () => {
-    const { container } = render(<App />);
-    expect(await violations(container)).toEqual([]);
+    render(<App />);
+    expect(await violations()).toEqual([]);
   });
 
   it("avattu kortti, avoin sanastoikkuna ja tumma teema", async () => {
     window.localStorage.setItem(STORAGE_KEYS.introClosed, "true");
     const user = userEvent.setup();
-    const { container } = render(<App />);
+    render(<App />);
 
     await user.click(screen.getByRole("button", { name: "Tumma teema" }));
     const card = screen.getByRole("article", { name: "P/E-luku" });
@@ -34,14 +25,14 @@ describe("saavutettavuus (axe)", { timeout: 20_000 }, () => {
     within(card).getAllByRole("button", { expanded: false })[0]?.focus();
     await user.keyboard("{Enter}");
 
-    expect(await violations(container)).toEqual([]);
+    expect(await violations()).toEqual([]);
   });
 
   it("haku ilman osumia", async () => {
     window.localStorage.setItem(STORAGE_KEYS.introClosed, "true");
     const user = userEvent.setup();
-    const { container } = render(<App />);
+    render(<App />);
     await user.type(screen.getByRole("searchbox"), "xyzzy");
-    expect(await violations(container)).toEqual([]);
+    expect(await violations()).toEqual([]);
   });
 });

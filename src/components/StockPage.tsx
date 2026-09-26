@@ -132,10 +132,11 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
   return (
     <div className={appStyles.page}>
       <Header page="tutki" onNavigate={onNavigate} />
-      <p className={styles.disclaimer}>
-        Tämä on opas tunnuslukujen tulkintaan, ei sijoitusneuvontaa.
-      </p>
       <main className={styles.main}>
+        {/* Maamerkin sisällä, jotta ruudunlukija ei ohita lauseketta (axe: region). */}
+        <p className={styles.disclaimer}>
+          Tämä on opas tunnuslukujen tulkintaan, ei sijoitusneuvontaa.
+        </p>
         {started ? (
           <div key={version} className={styles.analysis}>
             <AnalysisDetails analysis={analysis} onChange={setAnalysis} onStartOver={startOver} />

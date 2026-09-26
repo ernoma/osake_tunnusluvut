@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import axe from "axe-core";
+import { violations } from "../test/axe.ts";
 import { describe, expect, it } from "vitest";
 import { decodeAnalysis } from "../hooks/useAnalysisUrl.ts";
 import { RECENT_STORAGE_KEY } from "../hooks/useRecentAnalyses.ts";
@@ -280,42 +280,35 @@ describe("analyysi", () => {
   });
 });
 
-async function violations(container: Element) {
-  const results = await axe.run(container, { rules: { "color-contrast": { enabled: false } } });
-  return results.violations.map(
-    (v) => `${v.id}: ${v.help}\n  ${v.nodes.map((n) => n.target.join(" ")).join("\n  ")}`,
-  );
-}
-
 describe("saavutettavuus (axe)", { timeout: 20_000 }, () => {
   it("aloitus viimeisimpien kanssa", async () => {
     window.localStorage.setItem(
       RECENT_STORAGE_KEY,
       JSON.stringify([{ key: "a", name: "Nokia", date: "2026-09-26", search: "?sivu=tutki&pe=1" }]),
     );
-    const { container } = renderAt("?sivu=tutki");
-    expect(await violations(container)).toEqual([]);
+    renderAt("?sivu=tutki");
+    expect(await violations()).toEqual([]);
   });
 
   it("luvut, virheellinen arvo ja avoin Lisää luku -paneeli", async () => {
-    const { user, container } = renderAt("?sivu=tutki&kurssi=10~t~~s&osakkeiden-maara=5~t~~s");
+    const { user } = renderAt("?sivu=tutki&kurssi=10~t~~s&osakkeiden-maara=5~t~~s");
     const price = screen.getByRole("textbox", { name: "Osakkeen kurssi, arvo" });
     await user.clear(price);
     await user.type(price, "x{Enter}");
     await user.click(screen.getByRole("button", { name: "+ Lisää luku" }));
-    expect(await violations(container)).toEqual([]);
+    expect(await violations()).toEqual([]);
 
     await user.keyboard("pe{Enter}");
     await user.click(screen.getByRole("button", { name: "Lisää" }));
-    expect(await violations(container)).toEqual([]);
+    expect(await violations()).toEqual([]);
   });
 
   it("analyysi: osuva väli, laskelma, huomautukset ja avoin puuttuvien lomake", async () => {
-    const { user, container } = renderAt(
+    const { user } = renderAt(
       "?sivu=tutki&pe=12.4~t~~s&kurssi=20~t~~s&eps=1~e~~s&markkina-arvo=20000000000~t~~s&vapaa-kassavirta=1100000000~t~~s&ebit-prosentti=7~t~~k",
     );
     await user.click(screen.getByRole("button", { name: "Lisää: EV/EBIT-luku" }));
     await user.click(screen.getByRole("button", { name: "Lisää" }));
-    expect(await violations(container)).toEqual([]);
+    expect(await violations()).toEqual([]);
   });
 });

@@ -3,7 +3,7 @@
 
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import axe from "axe-core";
+import { violations } from "../test/axe.ts";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { API_KEY_STORAGE_KEY, MODEL_STORAGE_KEY } from "../ai/apiKey.ts";
 import { errorReply, messageReply, stubApi } from "../ai/fixtures/api.ts";
@@ -218,35 +218,57 @@ describe("poimittujen lukujen tarkistus", () => {
   });
 });
 
-async function violations(container: Element) {
-  const results = await axe.run(container, { rules: { "color-contrast": { enabled: false } } });
-  return results.violations.map(
-    (v) => `${v.id}: ${v.help}\n  ${v.nodes.map((n) => n.target.join(" ")).join("\n  ")}`,
-  );
-}
-
 describe("saavutettavuus (axe)", { timeout: 20_000 }, () => {
   it("liittäminen, avaimen kenttä ja virhe", async () => {
     stubApi(errorReply(401));
-    const { user, container } = renderPage();
-    expect(await violations(container)).toEqual([]);
+    const { user } = renderPage();
+    expect(await violations()).toEqual([]);
 
     await user.type(keyField(), KEY);
     await paste(user, tilinpaatos.text);
     await user.click(extractButton());
     await screen.findByRole("alert");
-    expect(await violations(container)).toEqual([]);
+    expect(await violations()).toEqual([]);
   });
 
   it("tallennettu avain ja tarkistusvaihe", async () => {
     window.localStorage.setItem(API_KEY_STORAGE_KEY, KEY);
     stubApi(messageReply(tilinpaatos.response));
-    const { user, container } = renderPage();
-    expect(await violations(container)).toEqual([]);
+    const { user } = renderPage();
+    expect(await violations()).toEqual([]);
 
     await paste(user, tilinpaatos.text);
     await user.click(extractButton());
     await screen.findByRole("heading", { name: "Tarkista poimitut luvut" });
-    expect(await violations(container)).toEqual([]);
+    expect(await violations()).toEqual([]);
+  });
+
+  it("haku käynnissä ja tumma teema", async () => {
+    window.localStorage.setItem(API_KEY_STORAGE_KEY, KEY);
+    stubApi("odota");
+    const { user } = renderPage();
+    await user.click(screen.getByRole("button", { name: "Tumma teema" }));
+    await paste(user, tilinpaatos.text);
+    await user.click(extractButton());
+    expect(screen.getByRole("button", { name: "Keskeytä" })).toBeInTheDocument();
+    expect(await violations()).toEqual([]);
+    await user.click(screen.getByRole("button", { name: "Keskeytä" }));
+  });
+
+  it("ei lukuja -virhe ja avatut hylätyt luvut", async () => {
+    window.localStorage.setItem(API_KEY_STORAGE_KEY, KEY);
+    stubApi(messageReply({ ...tilinpaatos.response, values: [] }), messageReply(inderes.response));
+    const { user } = renderPage();
+    await paste(user, "Säätiedote: huomenna sataa.");
+    await user.click(extractButton());
+    await screen.findByRole("alert");
+    expect(await violations()).toEqual([]);
+
+    await user.clear(textField());
+    await paste(user, inderes.text);
+    await user.click(extractButton());
+    await screen.findByRole("heading", { name: "Tarkista poimitut luvut" });
+    await user.click(screen.getByText(/Hylätyt luvut/));
+    expect(await violations()).toEqual([]);
   });
 });
