@@ -21,8 +21,8 @@ Aikuinen, joka on nähnyt tunnuslukuja esimerkiksi pankin sovelluksessa, osakeve
 
 **Rajaukset**
 
-- ~~Laskuri, johon syötetään omia lukuja~~: siirtyi vaiheeseen 12 (kohta 11).
-- Valmis yhtiöaineisto ja tietojen haku pörssisivustoilta: sovellus ei hae tietoja muilta sivustoilta eikä sisällä yhtiöaineistoa. Vaiheessa 12 käyttäjä tuo luvut itse liittämällä tekstiä tai syöttämällä ne.
+- ~~Laskuri, johon syötetään omia lukuja~~: siirtyi vaiheeseen 11 (kohta 11).
+- Valmis yhtiöaineisto ja tietojen haku pörssisivustoilta: sovellus ei hae tietoja muilta sivustoilta eikä sisällä yhtiöaineistoa. Vaiheessa 11 käyttäjä tuo luvut itse liittämällä tekstiä tai syöttämällä ne.
 - Käyttäjätilit ja palvelinpuoli: tekoälyhaku kutsuu Clauden rajapintaa suoraan selaimesta käyttäjän omalla API-avaimella (kohta 11.3).
 - Sijoitusneuvonta: sovellus ei koskaan sano "osta" tai "myy" eikä anna osakkeelle kokonaisarvosanaa.
 
@@ -54,7 +54,7 @@ Nämä periaatteet ohjaavat sekä käyttöliittymää että sisältöä. Ne ovat
 | Haku | Oma kevyt suodatus (nimi, lyhenne, synonyymit, kysymys) | Kymmenille tietueille ei tarvita hakukirjastoa |
 | Testit | **Vitest** ja **React Testing Library** | Integroituvat Viteen |
 | Julkaisu | **GitHub Pages** (tai Netlify/Cloudflare Pages) | Ilmainen staattinen hosting |
-| Tekoälyhaku (vaihe 12) | **@anthropic-ai/sdk** (Clauden virallinen TypeScript-kirjasto) | Rakenteinen vastaus Zod-skeemalla, tyypitetyt virheluokat ja valmis uudelleenyritys. Toimii selaimessa ilman palvelinta (kohta 11.2) |
+| Tekoälyhaku (vaihe 11) | **@anthropic-ai/sdk** (Clauden virallinen TypeScript-kirjasto) | Rakenteinen vastaus Zod-skeemalla, tyypitetyt virheluokat ja valmis uudelleenyritys. Toimii selaimessa ilman palvelinta (kohta 11.2) |
 
 Käyttöliittymän kieli on suomi. Tekstit ovat datatiedostoissa, joten myöhemmin voidaan lisätä muita kieliä.
 
@@ -110,8 +110,8 @@ export interface Metric {
     label: string;            // "Alle 1"
     meaning: string;          // "Kasvuun nähden edullinen"
     tone: "good" | "neutral" | "warning";
-    min?: number;             // vaihe 12: välin alaraja (mukaan lukien), prosentit prosentteina
-    max?: number;             // vaihe 12: välin yläraja (ei mukaan). Ainakin toinen on annettu (kohta 11.5)
+    min?: number;             // vaihe 11: välin alaraja (mukaan lukien), prosentit prosentteina
+    max?: number;             // vaihe 11: välin yläraja (ei mukaan). Ainakin toinen on annettu (kohta 11.5)
   }[];
   rangesNote?: string;        // "Nyrkkisääntö, vaihtelee toimialoittain"
   companions: {               // mitä katsoa rinnalla
@@ -636,15 +636,15 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **8f. P/FCF** ✅ | P/FCF (Hinta) syventävänä tunnuslukuna kohdan 6.6c mukaan, tekoälyinvestoinnit (AI capex) tulkintaesimerkkinä ja rinnakkaisviittaus Kassavirtatuotosta | Validointitestit menevät läpi, kortti löytyy haulla ("p/fcf", "ai capex") ja sisällysluettelosta, ja linkit on luettu |
 | **8g. Liiketoiminnan kassavirta** ✅ | Liiketoiminnan kassavirta (Kannattavuus) syventävänä tunnuslukuna kohdan 6.6d mukaan, sanastotermin korvaaminen kortilla, sanastoon käyttöpääoma, rinnakkaisviittaus vapaaseen kassavirtaan ja lyhennerivi OCF | Validointitestit menevät läpi, kortti löytyy haulla ("operating cash flow", "kassavirta") ja sisällysluettelosta, vapaan kassavirran kaava viittaa korttiin, ja linkit on luettu |
 | **9. Käyttäjätesti** ✅ | 3–5 osakesijoittamista tuntematonta testaajaa, esimerkiksi tuttavia (kohta 8) | Testaajat löytävät vastaukset tavoiteajassa, ja löydetyt ongelmat on korjattu |
-| **11. Ohje ylläpitäjälle** ✅ | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |
-| **12a. Lähtötiedot, kaavat ja numeeriset välit** | `inputs.ts`, `formulas.ts` ja `numberFormat.ts` kohdan 11.4 mukaan sekä `ranges`-rivien `min`/`max` kaikkiin tunnuslukuihin ja niiden skeematarkistus (kohta 11.5) | Jokainen kaava tuottaa kortin tasalukuesimerkin tuloksen, ja jokaisella `ranges`-rivillä on rajat, jotka vastaavat tekstiä |
-| **12b. Sivu ja käsin syöttö** | `?sivu=tutki`, otsikon sivulinkit, lukutaulukko, "Lisää luku", analyysi osoitteessa ja viisi viimeisintä analyysiä (kohdat 11.1, 11.6 ja 11.7) | Luvut voi syöttää ja korjata käsin, osoite palauttaa saman analyysin, ja viimeisimmät-lista toimii |
-| **12c. Analyysinäkymä** | Tunnusluvut kategorioittain, osuvan välin korostus, lasketut arvot kaavoineen, sivun ja laskun erot sekä puuttuvien lista (kohdat 11.4 ja 11.5) | P/FCF lasketaan markkina-arvosta ja vapaasta kassavirrasta, osuva väli erottuu muullakin kuin värillä, ja puuttuvasta luvusta kerrotaan, mitä pitää syöttää |
-| **12d. Tekoälyhaku** | SDK, API-avaimen tallennus ja poisto, datasta koottu kehote, skeema, lainaustarkistus, virheilmoitukset, keskeytys ja CSP (kohdat 11.2 ja 11.3) | Viiden eri sivuston tekstistä poimitaan oikeat luvut, eikä yksikään tekstistä puuttuva luku pääse analyysiin ilman käyttäjän hyväksyntää |
-| **12e. Viimeistely** | Saavutettavuus, mobiili, käsin testaus oikeilla sivuilla ja README:n ohje API-avaimesta | axe-tarkistus menee läpi kaikissa vaiheissa, Lighthouse-saavutettavuus ≥ 95, ja sivu toimii 375 px leveydellä |
-| **13. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Molemmat sivut ovat julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
+| **10. Ohje ylläpitäjälle** ✅ | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |
+| **11a. Lähtötiedot, kaavat ja numeeriset välit** | `inputs.ts`, `formulas.ts` ja `numberFormat.ts` kohdan 11.4 mukaan sekä `ranges`-rivien `min`/`max` kaikkiin tunnuslukuihin ja niiden skeematarkistus (kohta 11.5) | Jokainen kaava tuottaa kortin tasalukuesimerkin tuloksen, ja jokaisella `ranges`-rivillä on rajat, jotka vastaavat tekstiä |
+| **11b. Sivu ja käsin syöttö** | `?sivu=tutki`, otsikon sivulinkit, lukutaulukko, "Lisää luku", analyysi osoitteessa ja viisi viimeisintä analyysiä (kohdat 11.1, 11.6 ja 11.7) | Luvut voi syöttää ja korjata käsin, osoite palauttaa saman analyysin, ja viimeisimmät-lista toimii |
+| **11c. Analyysinäkymä** | Tunnusluvut kategorioittain, osuvan välin korostus, lasketut arvot kaavoineen, sivun ja laskun erot sekä puuttuvien lista (kohdat 11.4 ja 11.5) | P/FCF lasketaan markkina-arvosta ja vapaasta kassavirrasta, osuva väli erottuu muullakin kuin värillä, ja puuttuvasta luvusta kerrotaan, mitä pitää syöttää |
+| **11d. Tekoälyhaku** | SDK, API-avaimen tallennus ja poisto, datasta koottu kehote, skeema, lainaustarkistus, virheilmoitukset, keskeytys ja CSP (kohdat 11.2 ja 11.3) | Viiden eri sivuston tekstistä poimitaan oikeat luvut, eikä yksikään tekstistä puuttuva luku pääse analyysiin ilman käyttäjän hyväksyntää |
+| **11e. Viimeistely** | Saavutettavuus, mobiili, käsin testaus oikeilla sivuilla ja README:n ohje API-avaimesta | axe-tarkistus menee läpi kaikissa vaiheissa, Lighthouse-saavutettavuus ≥ 95, ja sivu toimii 375 px leveydellä |
+| **12. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Molemmat sivut ovat julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 
-Julkaisu oli aiemmin vaihe 10. Se siirrettiin viimeiseksi, jotta julkaistu versio sisältää myös Tutki osaketta -sivun. Käyttäjätesti (vaihe 9) tehtiin ensimmäiselle sivulle, joten sen tehtävä 5 (kohta 8.2) testataan erikseen vaiheen 12 jälkeen.
+Julkaisu on viimeinen vaihe, jotta julkaistu versio sisältää myös Tutki osaketta -sivun. Käyttäjätesti (vaihe 9) tehtiin ensimmäiselle sivulle, joten sen tehtävä 5 (kohta 8.2) testataan erikseen vaiheen 11 jälkeen.
 
 ## 8. Testaus
 
@@ -690,7 +690,7 @@ Testaajiksi valitaan 3–5 henkilöä, jotka eivät sijoita osakkeisiin. Tehtäv
 2. "Yhden osakkeen osinkotuotto on 12 %. Onko se hyvä asia?" Testaaja löytää osinkoansan ja osinkosuhteen.
 3. "Mitä tarkoittaa 'oma pääoma'?" Testaaja löytää sanaston.
 4. "Mikä on EV?" Testaaja löytää kortin haulla.
-5. (Vaiheen 12 jälkeen) "Tässä on pankin sivulta kopioitu teksti. Onko osakkeen P/E nyrkkisäännön mukaan korkea vai matala, ja mitä luku ei kerro?" Testaaja liittää tekstin, tarkistaa poimitut luvut ja löytää osuvan välin sekä yleisen virheen.
+5. (Vaiheen 11 jälkeen) "Tässä on pankin sivulta kopioitu teksti. Onko osakkeen P/E nyrkkisäännön mukaan korkea vai matala, ja mitä luku ei kerro?" Testaaja liittää tekstin, tarkistaa poimitut luvut ja löytää osuvan välin sekä yleisen virheen.
 
 **Tavoite:** tehtävät 1 ja 2 onnistuvat alle minuutissa. Seurataan myös, mitkä sanat testaajat kokevat vaikeiksi. Ne lisätään sanastoon tai kirjoitetaan uudelleen.
 
@@ -700,7 +700,7 @@ Mobiilinäkymä, tumma teema ja näppäimistökäyttö.
 
 ## 9. Uuden tunnusluvun lisääminen (ylläpitäjän näkökulma)
 
-Yksityiskohtainen ohje mallitietueineen ja virheilmoitusten korjauksineen on tiedostossa `README.md` (vaihe 11).
+Yksityiskohtainen ohje mallitietueineen ja virheilmoitusten korjauksineen on tiedostossa `README.md` (vaihe 10).
 
 1. Kopioi olemassa oleva tietue `src/data/metrics.ts`-tiedostossa ja muokkaa kentät.
 2. Valitse `category`, `level` ja `direction`. Jos tarvitset uuden kategorian, lisää se `categories.ts`:ään kysymyksenä.
@@ -727,7 +727,7 @@ Yksityiskohtainen ohje mallitietueineen ja virheilmoitusten korjauksineen on tie
 
 ## 10. Avoimet kysymykset myöhemmin päätettäväksi
 
-- ~~Tarvitaanko myöhemmin laskuri?~~ Ratkaistu vaiheessa 12 (kohta 11).
+- ~~Tarvitaanko myöhemmin laskuri?~~ Ratkaistu vaiheessa 11 (kohta 11).
 - Toimialakohtaiset tyypilliset tasot (esim. EBIT-% tai P/E eri aloilla): lisätäänkö `ranges`-kenttään toimialatunniste?
 - Kuvitetaanko vertaukset pienillä kuvakkeilla?
 - Lisätäänkö lisälukemista-linkit myöhemmin myös sanastotermeille? Sama `ExternalLink`-rakenne sopii niihin sellaisenaan.
@@ -739,7 +739,7 @@ Yksityiskohtainen ohje mallitietueineen ja virheilmoitusten korjauksineen on tie
   - Kahden osakkeen vertailu rinnakkain.
   - Yhdistelmähuomiot, esimerkiksi "osinko on suurempi kuin vapaa kassavirta" tai "ROE on paljon ROI:ta korkeampi, joten ero johtuu velasta". Kortit sanovat nämä jo sanoin, ja ne voisi tarkistaa luvuista.
 
-## 11. Tutki osaketta -sivu (vaihe 12)
+## 11. Tutki osaketta -sivu (vaihe 11)
 
 Toisella sivulla käyttäjä tutkii yhtä osaketta oppaan tunnuslukujen avulla. Hän liittää tekstin, jossa on yhtiön tunnuslukuja, esimerkiksi Nordnetista, Inderesistä, Kauppalehdestä tai tilinpäätöksestä, ja tekoäly poimii siitä luvut. Sovellus laskee puuttuvat tunnusluvut, jos lähtötiedot riittävät, ja näyttää jokaisen luvun kohdalla, mihin nyrkkisääntöväliin se osuu. Käyttäjä voi korjata poimittuja lukuja ja syöttää puuttuvia itse.
 
@@ -784,8 +784,8 @@ Kuvan välit ovat kuvitteellisia. Oikeat välit tulevat kunkin tunnusluvun `rang
 
 - Pyyntö lähtee selaimesta suoraan Clauden Messages API:in virallisella kirjastolla `@anthropic-ai/sdk`. Selainkäyttö sallitaan asetuksella `dangerouslyAllowBrowser: true`, koska avain on käyttäjän oma (kohta 11.3).
 - **Malli:** oletuksena Claude Opus 5 (`claude-opus-5`) matalalla ajattelutasolla (`output_config.effort: "low"`), koska poiminta on yksinkertainen tehtävä. Asetuksista voi valita halvemman mallin: Claude Sonnet 5 (`claude-sonnet-5`) tai Claude Haiku 4.5 (`claude-haiku-4-5`). Haiku 4.5 ei hyväksy `effort`-asetusta, joten sitä ei lähetetä sille. Mallitunnukset ovat yhdessä vakiossa, jotta ne on helppo päivittää.
-- **Varamalli:** Opus 5 voi kieltäytyä pyynnöstä turvallisuusluokittelun vuoksi (`stop_reason: "refusal"`). Pyyntöön lisätään palvelinpuolen varamalli (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`), jos se toimii rakenteisen vastauksen kanssa. Tämä tarkistetaan vaiheessa 12d. Kieltäytyminen on tunnuslukujen poiminnassa epätodennäköistä, mutta se käsitellään silti (virhetaulukko alla).
-- **Rakenteinen vastaus:** `client.messages.parse` ja `output_config.format`, skeema Zodilla, joka on jo sisällön validoinnissa käytössä. Vaiheessa 12d tarkistetaan, toimiiko kirjaston Zod-apu projektin Zod 3.25:n kanssa (`zod/v4`-polku), vai kirjoitetaanko JSON-skeema käsin.
+- **Varamalli:** Opus 5 voi kieltäytyä pyynnöstä turvallisuusluokittelun vuoksi (`stop_reason: "refusal"`). Pyyntöön lisätään palvelinpuolen varamalli (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`), jos se toimii rakenteisen vastauksen kanssa. Tämä tarkistetaan vaiheessa 11d. Kieltäytyminen on tunnuslukujen poiminnassa epätodennäköistä, mutta se käsitellään silti (virhetaulukko alla).
+- **Rakenteinen vastaus:** `client.messages.parse` ja `output_config.format`, skeema Zodilla, joka on jo sisällön validoinnissa käytössä. Vaiheessa 11d tarkistetaan, toimiiko kirjaston Zod-apu projektin Zod 3.25:n kanssa (`zod/v4`-polku), vai kirjoitetaanko JSON-skeema käsin.
 
 **Vastauksen rakenne**
 
