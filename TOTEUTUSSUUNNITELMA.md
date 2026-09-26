@@ -205,6 +205,63 @@ Sivun yläosassa on ensimmäisellä käynnillä lyhyt johdantopaneeli, jonka voi
 - **Suositeltu lukujärjestys** klikattavina askelina: Liikevaihto → EBIT → EBIT-% → EPS → P/E → Omavaraisuusaste → Osinkotuotto → Osinkosuhde. Jokainen askel vie kyseiseen korttiin.
 - Suuntamerkkien selitys (kohta 5.2) pienenä selitteenä.
 
+### 5.1b Sisällysluettelo: kaikki tunnusluvut A–Ö
+
+Sivun alussa, heti otsikon ja haun alla ja ennen johdantopaneelia, on sisällysluettelo, jossa kaikkien tunnuslukujen nimet ovat aakkosjärjestyksessä usealla palstalla. Jokainen nimi on linkki kyseisen tunnusluvun korttiin. Käyttäjä, joka tietää etsimänsä luvun nimen, löytää sen yhdellä klikkauksella ilman hakua tai suodatinta.
+
+**Tärkein vaatimus: luettelo vie mahdollisimman vähän tilaa pystysuunnassa.**
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│  Osakkeen tunnusluvut – selkokielellä                                 [🔍 Hae...]  [☾]       │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Tunnusluvut A–Ö                                                                              │
+│ EBIT            Liikevaihto            Oman pääoman tuotto    Osinkotuotto    ROE            │
+│ EBIT-%          Liikevoitto            Omavaraisuusaste       P/B-luku        Yritysarvo     │
+│ EPS             Liikevoittoprosentti   Osakekohtainen tulos   P/E-luku                       │
+│ EV              Markkina-arvo          Osinko/osake           P/S-luku                       │
+│ EV/EBIT-luku    Nettovelkaantumisaste  Osinkosuhde            PEG-luku                       │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ [Aloita tästä -paneeli]  [Suodatin]  [Kortit] …                                              │
+```
+
+Mobiilissa suljettuna:
+
+```
+┌─────────────────────────────────────┐
+│ ▸ Kaikki tunnusluvut A–Ö (17)       │
+└─────────────────────────────────────┘
+```
+
+**Sisältö ja järjestys**
+
+- Luettelossa ovat **aina kaikki tunnusluvut**, riippumatta hausta, kategoriasuodattimesta tai "Näytä myös syventävät" -valinnasta. Näin luettelo toimii koko oppaan hakemistona.
+- Nimenä näytetään tunnusluvun `name` (esim. "Osakekohtainen tulos"). Kun nimessä ei ole lyhennettä, lyhenteelle tehdään **oma rivi**, joka vie samaan korttiin (EBIT, EBIT-%, EPS, EV, ROE). Aloittelija näkee pankin sovelluksessa usein vain lyhenteen, joten hänen pitää löytää "EPS" E-kirjaimen kohdalta. Lyhennerivin saavutettava nimi on esimerkiksi "EPS, osakekohtainen tulos", jotta ruudunlukija ei lue kahta samannäköistä linkkiä ilman eroa.
+- Järjestys lasketaan koodissa `Intl.Collator("fi")`-vertailulla, joten Å, Ä ja Ö tulevat aakkosten loppuun oikein, eikä järjestystä ylläpidetä käsin. Uusi tunnusluku ilmestyy luetteloon automaattisesti oikealle paikalleen (onnistumisen mittari 3).
+- Luettelon data tuotetaan puhtaalla funktiolla `tocEntries(metrics)` tiedostossa `src/data/toc.ts`, jotta sen voi testata ilman käyttöliittymää.
+
+**Pystysuunnan tilansäästö**
+
+- **Palstat CSS:n `columns`-ominaisuudella** (esim. `columns: 12rem`): selain päättää palstojen määrän leveyden mukaan, eikä palstamäärää kirjoiteta koodiin. Palstat täyttyvät ylhäältä alas, joten aakkosjärjestys luetaan palsta kerrallaan, ja DOM-järjestys on sama kuin lukujärjestys ruudunlukijalle.
+- 22 riviä mahtuu tietokoneen näytöllä 4–5 palstaan ja **noin viiteen riviin**. 50 tunnusluvullakin rivejä on noin 10–12.
+- Tiivis typografia: fonttikoko noin 0,9 × perusfontti, riviväli noin 1,5 eikä ylimääräisiä välejä rivien välissä. Palstan leveys valitaan niin, että pisinkin nimi ("Nettovelkaantumisaste") mahtuu yhdelle riville. Jos nimi kapealla näytöllä kuitenkin rivittyy, `break-inside: avoid` estää sitä jakautumasta kahdelle palstalle.
+- Otsikko "Tunnusluvut A–Ö" on pieni ja samalla rivillä tai heti luettelon yläpuolella. Ei kehystä eikä korttimaista taustaa, jotka lisäisivät pystysuuntaista täytettä.
+- Ei kirjainväliotsikoita (A, E, L …), koska ne lisäisivät rivejä. Alkukirjaimet erottuvat riittävästi ilman niitä.
+- **Mobiilissa** (alle noin 600 px) luettelo on kahdessa palstassa ja se on oletuksena **suljettu** `<details>`-elementti, jonka otsikkorivi on "Kaikki tunnusluvut A–Ö (17) ▾". Suljettuna se vie yhden rivin, eikä korttiruudukko siirry ruudun alapuolelle. Tietokoneella luettelo on aina auki.
+- Haun aikana luettelo väistyy samalla tavalla kuin johdanto, jotta hakutulokset näkyvät heti hakukentän alla.
+
+**Toiminta**
+
+- Linkit ovat tavallisia `<a href="#pe">`-linkkejä, joten niihin pätee sama siirtymä kuin muihinkin korttilinkkeihin (`useCardNavigation`): kortti vieritetään näkyviin, kohdistus siirtyy siihen, ja se korostetaan hetkeksi. Jos suodatin tai syventävien piilotus piilottaa kortin, suodatin nollataan (kohta 5.3).
+- Vieritys huomioi tahmean suodatinpalkin, jotta kortin otsikko ei jää sen alle.
+- Selaimen Takaisin-painike palaa sisällysluetteloon, koska linkki muuttaa osoitteen `#`-osaa.
+
+**Saavutettavuus**
+
+- Luettelo on `<nav aria-labelledby>`-maamerkki, jonka otsikko on "Tunnusluvut A–Ö", ja sisältö on `<ul>`-lista. Ruudunlukija kertoo luettelon pituuden, ja maamerkkiin pääsee suoraan.
+- Tiiviyden vuoksi linkkien kosketusalue on pienempi kuin painikkeiden 44 px (kohta 5.5), mutta vähintään WCAG 2.2 AA:n 24 px korkea (riviväli ja pystysuuntainen `padding`). Palstojen väli on vähintään 1,5 rem, jotta vierekkäisiä linkkejä ei napauteta vahingossa.
+- Linkit erottuvat tekstistä muullakin kuin värillä: alleviivaus kohdistimen ollessa päällä ja näkyvä kohdistuskehys näppäimistöllä.
+
 ### 5.2 Päänäkymä: korttiruudukko
 
 ```
@@ -291,6 +348,7 @@ Sivun yläosassa on ensimmäisellä käynnillä lyhyt johdantopaneeli, jonka voi
 |---|---|
 | Liian monta korttia | Kortit ryhmitellään kategorioittain kysymysotsikoiden alle, ja kategoriasuodatin on korttien yläpuolella |
 | Aloittelija hukkuu | "Näytä myös syventävät" -valinta. Aluksi kaikki näytetään, ja perustason kortit ovat kunkin kategorian alussa. Valinta tallennetaan selaimeen |
+| Nimeltä tunnetun luvun löytäminen | Sivun alun aakkosellinen sisällysluettelo usealla palstalla (kohta 5.1b). 50 tunnusluvullakin se vie tietokoneella vain noin 10–12 riviä, ja mobiilissa se on suljettuna yksi rivi |
 | Tietyn luvun löytäminen | Haku kohdistuu nimeen, lyhenteeseen, synonyymeihin ja kysymykseen. Esimerkiksi "velaton" löytää EV:n. Pikanäppäin `/` |
 | Kortit venyvät | Pituusrajat skeemassa (1–3 sääntöä, selitys enintään 160 merkkiä), ja loput ovat "Lisää"-osiossa |
 | Linkit vievät hukkaan | Klikkaus vierittää korttiin ja korostaa sen. Jos suodatin piilottaa kohteen, suodatin nollataan automaattisesti |
@@ -318,10 +376,12 @@ src/
 │   ├── terms.ts            # termihakemisto: mihin [[termi]] osoittaa
 │   ├── validate.ts         # koko sisällön ristiintarkistus
 │   ├── intro.ts            # suositeltu lukujärjestys ja suuntamerkkien selite
+│   ├── toc.ts              # sisällysluettelon rivit aakkosjärjestyksessä (tocEntries)
 │   └── metrics.ts          # KAIKKI TUNNUSLUVUT
 ├── components/
 │   ├── App.tsx
 │   ├── Header.tsx          # otsikko, haku, teemavalitsin
+│   ├── TableOfContents.tsx # sivun alun sisällysluettelo A–Ö palstoissa
 │   ├── IntroPanel.tsx      # "Aloita tästä" ja suositeltu lukujärjestys
 │   ├── FilterBar.tsx       # kategoriat ja syventävien näyttäminen
 │   ├── ResultStatus.tsx    # "ei löytynyt" ja suodattimen piilottamat osumat
@@ -455,6 +515,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **6. Johdanto** ✅ | `IntroPanel` ja suositeltu lukujärjestys | Paneelin voi sulkea ja avata uudelleen, ja askeleet vievät oikeisiin kortteihin |
 | **7. Haku ja suodatus** ✅ | `FilterBar`, "Näytä myös syventävät", `useMetricFilter`, `useUrlState` ja pikanäppäin `/` | "velaton" löytää EV:n, ja URL säilyttää tilan |
 | **8. Ulkoasu** ✅ | Teemat, responsiivisuus ja saavutettavuustarkistus (axe tai Lighthouse) | Lighthouse-saavutettavuus ≥ 95, toimii 375 px leveydellä |
+| **8b. Sisällysluettelo** | `tocEntries` (`src/data/toc.ts`), `TableOfContents` ja sen tyylit kohdan 5.1b mukaan | Luettelo on aakkosjärjestyksessä, jokainen linkki vie oikeaan korttiin myös suodattimen ollessa päällä, ja luettelo vie tietokoneella enintään noin 5 riviä ja 375 px leveydellä suljettuna yhden rivin |
 | **9. Käyttäjätesti** | 3–5 osakesijoittamista tuntematonta testaajaa, esimerkiksi tuttavia (kohta 8) | Testaajat löytävät vastaukset tavoiteajassa, ja löydetyt ongelmat on korjattu |
 | **10. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Sivu on julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 | **11. Ohje ylläpitäjälle** | `README.md`: "Näin lisäät uuden tunnusluvun" (mallitietue ja kohdan 9 tarkistuslista) | Uuden luvun lisääminen onnistuu ohjeen avulla ilman koodin lukemista |
@@ -479,6 +540,11 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 
     Varoitukset: tunnusluvulla ei ole yhtään linkkiä tai ei yhtään suomenkielistä linkkiä, tai `checkedAt` on yli 12 kuukautta vanha.
 - **Logiikkatestit:** haku (synonyymit, kysymykset, isot ja pienet kirjaimet, ä/ö) sekä kategoria- ja tasosuodatus.
+- **Sisällysluettelon testit:**
+  - `tocEntries` palauttaa jokaisen tunnusluvun ja lyhennerivit, ja järjestys on suomen aakkosjärjestys (Ä ja Ö lopussa).
+  - Jokainen linkki osoittaa olemassa olevaan korttiin.
+  - Luettelo näyttää kaikki tunnusluvut myös silloin, kun suodatin on päällä, ja linkin klikkaus nollaa suodattimen.
+  - Luettelo on `nav`-maamerkki, ja lyhennerivien saavutettavat nimet eroavat toisistaan.
 - **Komponenttitestit:**
   - kortin laajennus
   - rinnakkaislinkin klikkaus (vieritys ja suodattimen nollaus)
