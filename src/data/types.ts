@@ -37,6 +37,16 @@ export interface MetricRange {
   /** "Kasvuun nähden edullinen" */
   meaning: string;
   tone: Tone;
+  /**
+   * Välin alaraja, joka kuuluu väliin. Puuttuu vain ensimmäiseltä riviltä ("Alle 10").
+   * Prosentit prosentteina (12,3 eikä 0,123) ja eurot euroina (150 milj. € = 150_000_000).
+   */
+  min?: number;
+  /**
+   * Välin yläraja, joka ei kuulu väliin. Puuttuu vain viimeiseltä riviltä ("Yli 25").
+   * Jos min ja max ovat samat, väli on yksi luku, esimerkiksi "0 %".
+   */
+  max?: number;
 }
 
 export interface Companion {
@@ -144,6 +154,25 @@ export interface Category {
   question: string;
   description: string;
   order: number;
+}
+
+export const INPUT_UNITS = ["€", "€/osake", "kpl", "%"] as const;
+export type InputUnit = (typeof INPUT_UNITS)[number];
+
+/**
+ * Lähtötieto: luku, josta tunnuslukuja lasketaan, mutta joka ei itse ole tunnusluku,
+ * esimerkiksi osakkeen kurssi tai oma pääoma (Tutki osaketta -sivu, suunnitelman kohta 11.4).
+ */
+export interface InputFigure {
+  /** Yksilöivä tunniste. Ei saa olla sama kuin minkään tunnusluvun id. */
+  id: string;
+  /** "Osakkeen kurssi" */
+  name: string;
+  unit: InputUnit;
+  /** Muut nimet, joilla luku esiintyy sivuilla. Tekoälyhaku ja "Lisää luku" -haku käyttävät näitä. */
+  aliases: string[];
+  /** Sanastotermi, joka selittää luvun, esim. "pörssikurssi". */
+  term?: string;
 }
 
 export interface GlossaryTerm {

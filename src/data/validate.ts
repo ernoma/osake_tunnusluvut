@@ -3,10 +3,11 @@
 // "tulossa"-viittauksista ja linkeistä, jotka kaipaavat huomiota.
 
 import type { z } from "zod";
-import { hasMalformedMarkup, termKeys } from "./richText.ts";
+import { hasMalformedMarkup, normalizeKey, termKeys } from "./richText.ts";
 import {
   categorySchema,
   glossaryTermSchema,
+  inputFigureSchema,
   metricSchema,
   plannedMetricSchema,
   sourceSchema,
@@ -16,6 +17,7 @@ import {
   CATEGORY_IDS,
   type Category,
   type GlossaryTerm,
+  type InputFigure,
   type Metric,
   type PlannedMetric,
   type Source,
@@ -27,6 +29,8 @@ export interface Content {
   categories: readonly Category[];
   glossary: readonly GlossaryTerm[];
   sources: readonly Source[];
+  /** Lähtötiedot (inputs.ts). */
+  inputs: readonly InputFigure[];
 }
 
 export interface ValidationResult {
@@ -48,13 +52,14 @@ export function validateContent(
 ): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
-  const { metrics, planned, categories, glossary, sources } = content;
+  const { metrics, planned, categories, glossary, sources, inputs } = content;
 
   checkSchema(metricSchema, metrics, "tunnusluku", errors);
   checkSchema(plannedMetricSchema, planned, "tulossa", errors);
   checkSchema(categorySchema, categories, "kategoria", errors);
   checkSchema(glossaryTermSchema, glossary, "sanasto", errors);
   checkSchema(sourceSchema, sources, "sivusto", errors);
+  checkSchema(inputFigureSchema, inputs, "lähtötieto", errors);
 
   // Yksilöllisyys
   for (const id of duplicates(metrics.map((m) => m.id)))
@@ -68,6 +73,30 @@ export function validateContent(
   for (const id of plannedIds) {
     if (metricIds.has(id))
       errors.push(`"${id}" on jo kirjoitettu tunnusluku: poista se tulossa-listalta (planned.ts)`);
+  }
+
+  // Lähtötiedot: id:t ja nimet eivät saa sekoittua tunnuslukuihin, koska tekoälyhaku ja
+  // "Lisää luku" -haku tunnistavat luvut niiden perusteella.
+  for (const id of duplicates(inputs.map((i) => i.id)))
+    errors.push(`lähtötiedon id "${id}" on käytössä useasti`);
+  for (const i of inputs) {
+    if (metricIds.has(i.id) || plannedIds.has(i.id))
+      errors.push(`lähtötiedon id "${i.id}" on jo tunnusluvun id`);
+  }
+  const figureNames = new Map<string, string>();
+  const addName = (name: string, owner: string) => {
+    const key = normalizeKey(name);
+    const existing = figureNames.get(key);
+    if (existing && existing !== owner)
+      errors.push(`nimi "${name}" kuuluu sekä luvulle ${existing} että ${owner}`);
+    else figureNames.set(key, owner);
+  };
+  for (const m of metrics) {
+    for (const name of [m.name, ...(m.abbreviation ? [m.abbreviation] : []), ...m.aliases])
+      addName(name, `tunnusluku ${m.id}`);
+  }
+  for (const i of inputs) {
+    for (const name of [i.name, ...i.aliases]) addName(name, `lähtötieto ${i.id}`);
   }
 
   // Kategoriat: jokainen CategoryId täsmälleen kerran, järjestysnumerot yksilöllisiä
@@ -145,6 +174,10 @@ export function validateContent(
   // Sanastotermit teksteissä (linkkien otsikoissa ei käytetä [[ ]]-merkintöjä)
   const { index, collisions } = buildTermIndex(metrics, planned, glossary);
   for (const c of collisions) errors.push(`termi ${c}`);
+  for (const i of inputs) {
+    if (i.term && !index.has(normalizeKey(i.term)))
+      errors.push(`lähtötieto ${i.id}: termiä "${i.term}" ei löydy sanastosta eikä tunnusluvuista`);
+  }
   const texts = [
     ...metrics.flatMap((m) => [...walkStrings({ ...m, links: undefined }, m.id)]),
     ...glossary.flatMap((g) => [...walkStrings(g, `sanasto ${g.id}`)]),

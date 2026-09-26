@@ -4,13 +4,14 @@
 import { describe, expect, it } from "vitest";
 import { categories } from "./categories.ts";
 import { glossary } from "./glossary.ts";
+import { inputs } from "./inputs.ts";
 import { metrics } from "./metrics.ts";
 import { planned } from "./planned.ts";
 import { sources } from "./sources.ts";
 import { validateContent } from "./validate.ts";
 
 describe("sisältö", () => {
-  const result = validateContent({ metrics, planned, categories, glossary, sources });
+  const result = validateContent({ metrics, planned, categories, glossary, sources, inputs });
 
   it("läpäisee kaikki tarkistukset", () => {
     expect(result.errors).toEqual([]);

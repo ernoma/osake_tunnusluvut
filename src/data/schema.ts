@@ -7,6 +7,7 @@ import { toPlainText } from "./richText.ts";
 import {
   CATEGORY_IDS,
   DIRECTIONS,
+  INPUT_UNITS,
   LEVELS,
   LINK_KINDS,
   LINK_LANGUAGES,
@@ -16,7 +17,9 @@ import {
   type Category,
   type ExternalLink,
   type GlossaryTerm,
+  type InputFigure,
   type Metric,
+  type MetricRange,
   type PlannedMetric,
   type Source,
 } from "./types.ts";
@@ -84,6 +87,46 @@ export const sourceSchema: z.ZodType<Source> = z.object({
   type: z.enum(SOURCE_TYPES),
 });
 
+const bound = z.number().finite().optional();
+
+export const rangeSchema: z.ZodType<MetricRange> = z
+  .object({
+    label: plain,
+    meaning: rich(LIMITS.listItem),
+    tone: z.enum(TONES),
+    min: bound,
+    max: bound,
+  })
+  .refine((r) => r.min !== undefined || r.max !== undefined, "välillä pitää olla min tai max")
+  .refine(
+    (r) => r.min === undefined || r.max === undefined || r.min <= r.max,
+    "min ei saa olla suurempi kuin max",
+  );
+
+/**
+ * Välit ovat nousevassa järjestyksessä eivätkä mene päällekkäin. Vain ensimmäiseltä riviltä saa
+ * puuttua alaraja ja vain viimeiseltä yläraja.
+ */
+const rangesSchema = z
+  .array(rangeSchema)
+  .min(1)
+  .superRefine((ranges, ctx) => {
+    ranges.forEach((r, i) => {
+      const issue = (message: string) =>
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [i],
+          message: `"${r.label}": ${message}`,
+        });
+      if (i > 0 && r.min === undefined) issue("vain ensimmäiseltä väliltä saa puuttua min");
+      if (i < ranges.length - 1 && r.max === undefined)
+        issue("vain viimeiseltä väliltä saa puuttua max");
+      const prev = ranges[i - 1];
+      if (prev?.max !== undefined && r.min !== undefined && r.min < prev.max)
+        issue(`alkaa ennen kuin edellinen väli "${prev.label}" päättyy`);
+    });
+  });
+
 export const metricSchema: z.ZodType<Metric> = z.object({
   id: idSchema,
   name: plain,
@@ -114,10 +157,7 @@ export const metricSchema: z.ZodType<Metric> = z.object({
   commonMistake: rich(LIMITS.commonMistake),
   factors: z.array(rich(LIMITS.listItem)),
   pitfalls: z.array(rich(LIMITS.listItem)),
-  ranges: z
-    .array(z.object({ label: plain, meaning: rich(LIMITS.listItem), tone: z.enum(TONES) }))
-    .min(1)
-    .optional(),
+  ranges: rangesSchema.optional(),
   rangesNote: rich(LIMITS.listItem).optional(),
   companions: z
     .array(z.object({ id: idSchema, reason: rich(LIMITS.companionReason) }))
@@ -140,6 +180,14 @@ export const categorySchema: z.ZodType<Category> = z.object({
   question: plain.refine((s) => s.endsWith("?"), "kysymyksen pitää päättyä ?-merkkiin"),
   description: plain,
   order: z.number().int(),
+});
+
+export const inputFigureSchema: z.ZodType<InputFigure> = z.object({
+  id: idSchema,
+  name: plain,
+  unit: z.enum(INPUT_UNITS),
+  aliases: z.array(plain),
+  term: plain.optional(),
 });
 
 export const glossaryTermSchema: z.ZodType<GlossaryTerm> = z.object({

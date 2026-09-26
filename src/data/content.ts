@@ -3,14 +3,22 @@
 
 import { categories } from "./categories.ts";
 import { glossary } from "./glossary.ts";
+import { inputs } from "./inputs.ts";
 import { metrics } from "./metrics.ts";
 import { planned } from "./planned.ts";
 import { normalizeKey } from "./richText.ts";
 import { sources } from "./sources.ts";
 import { buildTermIndex, type TermTarget } from "./terms.ts";
-import type { Category, GlossaryTerm, Metric, PlannedMetric, Source } from "./types.ts";
+import type {
+  Category,
+  GlossaryTerm,
+  InputFigure,
+  Metric,
+  PlannedMetric,
+  Source,
+} from "./types.ts";
 
-export { categories, glossary, metrics, planned, sources };
+export { categories, glossary, inputs, metrics, planned, sources };
 
 const byId = <T extends { id: string }>(items: readonly T[]) =>
   new Map(items.map((item) => [item.id, item]));
@@ -19,6 +27,7 @@ export const metricsById: ReadonlyMap<string, Metric> = byId(metrics);
 export const plannedById: ReadonlyMap<string, PlannedMetric> = byId(planned);
 export const glossaryById: ReadonlyMap<string, GlossaryTerm> = byId(glossary);
 export const sourcesById: ReadonlyMap<string, Source> = byId(sources);
+export const inputsById: ReadonlyMap<string, InputFigure> = byId(inputs);
 
 const { index: termIndex } = buildTermIndex(metrics, planned, glossary);
 

@@ -40,9 +40,20 @@ export const metrics: Metric[] = [
       "Kahden yhtiön markkina-arvoja ei voi verrata järkevästi, jos toisella on paljon velkaa ja toisella ei. Vertaa silloin [[EV|yritysarvoja]].",
     ],
     ranges: [
-      { label: "Alle 150 milj. €", meaning: "Pieni yhtiö (mikroyhtiö).", tone: "neutral" },
-      { label: "150 milj. – 1 mrd. €", meaning: "Pieni tai keskisuuri yhtiö.", tone: "neutral" },
-      { label: "Yli 1 mrd. €", meaning: "Suuri yhtiö.", tone: "neutral" },
+      {
+        label: "Alle 150 milj. €",
+        max: 150_000_000,
+        meaning: "Pieni yhtiö (mikroyhtiö).",
+        tone: "neutral",
+      },
+      {
+        label: "150 milj. – 1 mrd. €",
+        min: 150_000_000,
+        max: 1_000_000_000,
+        meaning: "Pieni tai keskisuuri yhtiö.",
+        tone: "neutral",
+      },
+      { label: "Yli 1 mrd. €", min: 1_000_000_000, meaning: "Suuri yhtiö.", tone: "neutral" },
     ],
     rangesNote: "Suuntaa antava jako, kokoluokkien rajat vaihtelevat lähteittäin.",
     companions: [
@@ -147,7 +158,7 @@ export const metrics: Metric[] = [
   {
     id: "liikevaihto",
     name: "Liikevaihto",
-    aliases: ["myynti", "revenue", "sales", "liikevaihdon kasvu"],
+    aliases: ["myynti", "revenue", "sales"],
     category: "koko",
     level: "perus",
     question: "Paljonko yhtiö myy vuodessa?",
@@ -242,15 +253,18 @@ export const metrics: Metric[] = [
       "Kun yhtiö ostaa toisen yhtiön, kasvu näyttää suurelta vuoden ajan, kunnes ostettu myynti on mukana molemmissa jaksoissa.",
     ],
     ranges: [
-      { label: "Alle 0 %", meaning: "Myynti on pienentynyt.", tone: "warning" },
+      { label: "Alle 0 %", max: 0, meaning: "Myynti on pienentynyt.", tone: "warning" },
       {
         label: "0–5 %",
+        min: 0,
+        max: 5,
         meaning: "Hidasta kasvua, usein hintojen nousun tasolla.",
         tone: "neutral",
       },
-      { label: "5–15 %", meaning: "Hyvää kasvua.", tone: "good" },
+      { label: "5–15 %", min: 5, max: 15, meaning: "Hyvää kasvua.", tone: "good" },
       {
         label: "Yli 20 %",
+        min: 20,
         meaning: "Nopeaa kasvua. Tarkista, johtuuko se yritysostoista.",
         tone: "neutral",
       },
@@ -380,11 +394,24 @@ export const metrics: Metric[] = [
       "Korkea EBIT-% ei yksin kerro, onko osake hyvä sijoitus. Hinta voi olla jo valmiiksi korkea.",
     ],
     ranges: [
-      { label: "Alle 0 %", meaning: "Liiketoiminta on tappiollista.", tone: "warning" },
-      { label: "3–5 %", meaning: "Tavallinen esimerkiksi kaupan alalla.", tone: "neutral" },
-      { label: "10–15 %", meaning: "Hyvä monella teollisuuden alalla.", tone: "good" },
+      { label: "Alle 0 %", max: 0, meaning: "Liiketoiminta on tappiollista.", tone: "warning" },
+      {
+        label: "3–5 %",
+        min: 3,
+        max: 5,
+        meaning: "Tavallinen esimerkiksi kaupan alalla.",
+        tone: "neutral",
+      },
+      {
+        label: "10–15 %",
+        min: 10,
+        max: 15,
+        meaning: "Hyvä monella teollisuuden alalla.",
+        tone: "good",
+      },
       {
         label: "Yli 20 %",
+        min: 20,
         meaning: "Korkea, tyypillinen esimerkiksi ohjelmistoyhtiöille.",
         tone: "good",
       },
@@ -686,11 +713,12 @@ export const metrics: Metric[] = [
       "Jos oma pääoma on hyvin pieni tai negatiivinen, ROE voi olla valtava tai mieletön luku.",
     ],
     ranges: [
-      { label: "Negatiivinen", meaning: "Yhtiö tekee tappiota.", tone: "warning" },
-      { label: "Alle 5 %", meaning: "Heikko tuotto.", tone: "neutral" },
-      { label: "10–15 %", meaning: "Hyvä.", tone: "good" },
+      { label: "Negatiivinen", max: 0, meaning: "Yhtiö tekee tappiota.", tone: "warning" },
+      { label: "Alle 5 %", min: 0, max: 5, meaning: "Heikko tuotto.", tone: "neutral" },
+      { label: "10–15 %", min: 10, max: 15, meaning: "Hyvä.", tone: "good" },
       {
         label: "Yli 20 %",
+        min: 20,
         meaning: "Erinomainen, tai taustalla on paljon velkaa.",
         tone: "neutral",
       },
@@ -773,10 +801,10 @@ export const metrics: Metric[] = [
       "Eri palvelut käyttävät nimeä ROI, ROCE tai ROIC hieman eri kaavoilla. Vertaa vain samalla tavalla laskettuja lukuja.",
     ],
     ranges: [
-      { label: "Negatiivinen", meaning: "Yhtiö tekee tappiota.", tone: "warning" },
-      { label: "Alle 5 %", meaning: "Heikko tuotto.", tone: "neutral" },
-      { label: "5–14 %", meaning: "Tyydyttävä.", tone: "neutral" },
-      { label: "Vähintään 15 %", meaning: "Hyvä.", tone: "good" },
+      { label: "Negatiivinen", max: 0, meaning: "Yhtiö tekee tappiota.", tone: "warning" },
+      { label: "Alle 5 %", min: 0, max: 5, meaning: "Heikko tuotto.", tone: "neutral" },
+      { label: "5–14 %", min: 5, max: 14, meaning: "Tyydyttävä.", tone: "neutral" },
+      { label: "Vähintään 15 %", min: 15, meaning: "Hyvä.", tone: "good" },
     ],
     rangesNote: "Nyrkkisääntö. Pääomavaltaisilla aloilla tasot ovat matalampia.",
     companions: [
@@ -969,12 +997,21 @@ export const metrics: Metric[] = [
     ranges: [
       {
         label: "0 %",
+        min: 0,
+        max: 0,
         meaning: "Ei osinkoa. Usein kasvuyhtiö tai yhtiö, jolla on vaikeuksia.",
         tone: "neutral",
       },
-      { label: "2–5 %", meaning: "Tavallinen taso monella vakaalla yhtiöllä.", tone: "neutral" },
+      {
+        label: "2–5 %",
+        min: 2,
+        max: 5,
+        meaning: "Tavallinen taso monella vakaalla yhtiöllä.",
+        tone: "neutral",
+      },
       {
         label: "Yli 8 %",
+        min: 8,
         meaning: "Poikkeuksellisen korkea. Tarkista, onko osinko kestävä.",
         tone: "warning",
       },
@@ -1059,13 +1096,21 @@ export const metrics: Metric[] = [
     ranges: [
       {
         label: "Alle 30 %",
+        max: 30,
         meaning: "Yhtiö käyttää suurimman osan voitosta kasvuun.",
         tone: "neutral",
       },
-      { label: "30–70 %", meaning: "Usein kestävä taso.", tone: "good" },
-      { label: "70–100 %", meaning: "Korkea, pelivara on pieni.", tone: "neutral" },
+      { label: "30–70 %", min: 30, max: 70, meaning: "Usein kestävä taso.", tone: "good" },
+      {
+        label: "70–100 %",
+        min: 70,
+        max: 100,
+        meaning: "Korkea, pelivara on pieni.",
+        tone: "neutral",
+      },
       {
         label: "Yli 100 %",
+        min: 100,
         meaning: "Osinko on suurempi kuin tulos. Leikkauksen riski.",
         tone: "warning",
       },
@@ -1136,9 +1181,9 @@ export const metrics: Metric[] = [
       "Luku ei kerro, paljonko yhtiöllä on käteistä. Katso siksi myös nettovelkaantumisaste.",
     ],
     ranges: [
-      { label: "Alle 20 %", meaning: "Heikko, paljon velkaa.", tone: "warning" },
-      { label: "20–40 %", meaning: "Tyydyttävä.", tone: "neutral" },
-      { label: "Yli 40 %", meaning: "Vakaa.", tone: "good" },
+      { label: "Alle 20 %", max: 20, meaning: "Heikko, paljon velkaa.", tone: "warning" },
+      { label: "20–40 %", min: 20, max: 40, meaning: "Tyydyttävä.", tone: "neutral" },
+      { label: "Yli 40 %", min: 40, meaning: "Vakaa.", tone: "good" },
     ],
     rangesNote: "Nyrkkisääntö. Ei sovellu pankeille.",
     companions: [
@@ -1195,10 +1240,21 @@ export const metrics: Metric[] = [
       "Jos [[oma pääoma]] on hyvin pieni, luku voi näyttää valtavalta, vaikka velkaa ei olisi paljon euroina.",
     ],
     ranges: [
-      { label: "Negatiivinen", meaning: "Enemmän käteistä kuin velkaa.", tone: "good" },
-      { label: "0–50 %", meaning: "Maltillinen velka.", tone: "good" },
-      { label: "50–100 %", meaning: "Paljon velkaa, seuraa tilannetta.", tone: "neutral" },
-      { label: "Yli 100 %", meaning: "Velkaa enemmän kuin omaa pääomaa.", tone: "warning" },
+      { label: "Negatiivinen", max: 0, meaning: "Enemmän käteistä kuin velkaa.", tone: "good" },
+      { label: "0–50 %", min: 0, max: 50, meaning: "Maltillinen velka.", tone: "good" },
+      {
+        label: "50–100 %",
+        min: 50,
+        max: 100,
+        meaning: "Paljon velkaa, seuraa tilannetta.",
+        tone: "neutral",
+      },
+      {
+        label: "Yli 100 %",
+        min: 100,
+        meaning: "Velkaa enemmän kuin omaa pääomaa.",
+        tone: "warning",
+      },
     ],
     rangesNote: "Nyrkkisääntö. Kiinteistö- ja infrayhtiöillä tasot ovat usein korkeampia.",
     companions: [
@@ -1264,11 +1320,12 @@ export const metrics: Metric[] = [
       "Yritysoston jälkeen velka näkyy heti, mutta ostetun yhtiön käyttökate vasta vähitellen. Luku voi näyttää hetken liian korkealta.",
     ],
     ranges: [
-      { label: "Negatiivinen", meaning: "Rahaa on enemmän kuin velkaa.", tone: "good" },
-      { label: "Alle 1", meaning: "Vähän velkaa.", tone: "good" },
-      { label: "1–3", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+      { label: "Negatiivinen", max: 0, meaning: "Rahaa on enemmän kuin velkaa.", tone: "good" },
+      { label: "Alle 1", min: 0, max: 1, meaning: "Vähän velkaa.", tone: "good" },
+      { label: "1–3", min: 1, max: 3, meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
       {
         label: "Yli 3",
+        min: 3,
         meaning: "Paljon velkaa. Huonona vuonna velan hoito voi käydä raskaaksi.",
         tone: "warning",
       },
@@ -1337,17 +1394,27 @@ export const metrics: Metric[] = [
     ranges: [
       {
         label: "Negatiivinen",
+        max: 0,
         meaning: "Yhtiö tekee tappiota, eikä luku kerro mitään.",
         tone: "warning",
       },
       {
         label: "Alle 10",
+        min: 0,
+        max: 10,
         meaning: "Halpa, tai markkinat odottavat tuloksen laskevan.",
         tone: "neutral",
       },
-      { label: "10–20", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+      {
+        label: "10–20",
+        min: 10,
+        max: 20,
+        meaning: "Tavallinen taso monella alalla.",
+        tone: "neutral",
+      },
       {
         label: "Yli 25",
+        min: 25,
         meaning: "Kallis, tai markkinat odottavat nopeaa kasvua.",
         tone: "warning",
       },
@@ -1408,7 +1475,7 @@ export const metrics: Metric[] = [
     direction: "lower",
     directionLabel: "Pienempi = yleensä halvempi",
     rules: [
-      "Alle 1 on kasvuun nähden edullinen, noin 1 kohtuullinen ja yli 1 kallis (nyrkkisääntö).",
+      "Alle 1 on kasvuun nähden edullinen, 1–2 kohtuullinen ja yli 2 kallis (nyrkkisääntö).",
       "Luku on vain yhtä luotettava kuin kasvu[[ennuste]].",
       "Ei toimi, jos tulos ei kasva tai laskee.",
     ],
@@ -1424,9 +1491,9 @@ export const metrics: Metric[] = [
       "Negatiivista PEG-lukua ei voi tulkita.",
     ],
     ranges: [
-      { label: "Alle 1", meaning: "Kasvuun nähden edullinen.", tone: "good" },
-      { label: "Noin 1", meaning: "Kohtuullinen.", tone: "neutral" },
-      { label: "Yli 2", meaning: "Kallis kasvuun nähden.", tone: "warning" },
+      { label: "Alle 1", max: 1, meaning: "Kasvuun nähden edullinen.", tone: "good" },
+      { label: "1–2", min: 1, max: 2, meaning: "Kohtuullinen.", tone: "neutral" },
+      { label: "Yli 2", min: 2, meaning: "Kallis kasvuun nähden.", tone: "warning" },
     ],
     rangesNote: "Nyrkkisääntö, ei totuus. Riippuu täysin kasvuennusteen osuvuudesta.",
     companions: [
@@ -1489,12 +1556,20 @@ export const metrics: Metric[] = [
     ranges: [
       {
         label: "Alle 8",
+        max: 8,
         meaning: "Halpa, tai markkinat odottavat voiton laskevan.",
         tone: "neutral",
       },
-      { label: "8–15", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+      {
+        label: "8–15",
+        min: 8,
+        max: 15,
+        meaning: "Tavallinen taso monella alalla.",
+        tone: "neutral",
+      },
       {
         label: "Yli 20",
+        min: 20,
         meaning: "Kallis, tai markkinat odottavat nopeaa kasvua.",
         tone: "warning",
       },
@@ -1566,12 +1641,14 @@ export const metrics: Metric[] = [
     ranges: [
       {
         label: "Alle 1",
+        max: 1,
         meaning: "Halpa myyntiin nähden, tai kannattavuus on heikko.",
         tone: "neutral",
       },
-      { label: "1–3", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+      { label: "1–3", min: 1, max: 3, meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
       {
         label: "Yli 5",
+        min: 5,
         meaning: "Kallis, tai markkinat odottavat nopeaa kasvua ja hyviä katteita.",
         tone: "warning",
       },
@@ -1644,12 +1721,20 @@ export const metrics: Metric[] = [
     ranges: [
       {
         label: "Alle 6",
+        max: 6,
         meaning: "Halpa, tai markkinat odottavat käyttökatteen laskevan.",
         tone: "neutral",
       },
-      { label: "6–12", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+      {
+        label: "6–12",
+        min: 6,
+        max: 12,
+        meaning: "Tavallinen taso monella alalla.",
+        tone: "neutral",
+      },
       {
         label: "Yli 15",
+        min: 15,
         meaning: "Kallis, tai markkinat odottavat nopeaa kasvua.",
         tone: "warning",
       },
@@ -1718,11 +1803,17 @@ export const metrics: Metric[] = [
     ranges: [
       {
         label: "Alle 1",
+        max: 1,
         meaning: "Halpa kirjanpitoon nähden, tai kannattavuus on heikko.",
         tone: "neutral",
       },
-      { label: "1–3", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
-      { label: "Yli 5", meaning: "Arvo perustuu muuhun kuin taseen omaisuuteen.", tone: "neutral" },
+      { label: "1–3", min: 1, max: 3, meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+      {
+        label: "Yli 5",
+        min: 5,
+        meaning: "Arvo perustuu muuhun kuin taseen omaisuuteen.",
+        tone: "neutral",
+      },
     ],
     rangesNote: "Nyrkkisääntö. Riippuu vahvasti toimialasta ja kannattavuudesta.",
     companions: [
@@ -1849,10 +1940,22 @@ export const metrics: Metric[] = [
       "Kassavirtaa voi kaunistella lykkäämällä investointeja tai venyttämällä laskujen maksua. Katso usean vuoden kehitystä.",
     ],
     ranges: [
-      { label: "Alle 0 %", meaning: "Yhtiö kuluttaa enemmän rahaa kuin tuottaa.", tone: "warning" },
-      { label: "2–5 %", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+      {
+        label: "Alle 0 %",
+        max: 0,
+        meaning: "Yhtiö kuluttaa enemmän rahaa kuin tuottaa.",
+        tone: "warning",
+      },
+      {
+        label: "2–5 %",
+        min: 2,
+        max: 5,
+        meaning: "Tavallinen taso monella alalla.",
+        tone: "neutral",
+      },
       {
         label: "Yli 8 %",
+        min: 8,
         meaning: "Halpa, tai markkinat odottavat kassavirran heikkenevän.",
         tone: "neutral",
       },
@@ -1883,14 +1986,7 @@ export const metrics: Metric[] = [
     name: "P/FCF-luku",
     abbreviation: "P/FCF",
     abbreviationExpanded: "Price / Free Cash Flow = hinta suhteessa vapaaseen kassavirtaan",
-    aliases: [
-      "p/fcf",
-      "pfcf",
-      "price to free cash flow",
-      "hinta-kassavirtasuhde",
-      "ai capex",
-      "capex",
-    ],
+    aliases: ["p/fcf", "pfcf", "price to free cash flow", "hinta-kassavirtasuhde", "ai capex"],
     category: "arvostus",
     level: "syventava",
     question: "Montako vuoden vapaata kassavirtaa maksat osakkeen hinnassa?",
@@ -1927,15 +2023,24 @@ export const metrics: Metric[] = [
     ranges: [
       {
         label: "Negatiivinen",
+        max: 0,
         meaning: "Yhtiö kuluttaa enemmän rahaa kuin tuottaa, eikä luku kerro mitään.",
         tone: "warning",
       },
       {
         label: "Alle 12",
+        min: 0,
+        max: 12,
         meaning: "Halpa, tai markkinat odottavat kassavirran heikkenevän.",
         tone: "neutral",
       },
-      { label: "20–50", meaning: "Tavallinen taso monella alalla.", tone: "neutral" },
+      {
+        label: "20–50",
+        min: 20,
+        max: 50,
+        meaning: "Tavallinen taso monella alalla.",
+        tone: "neutral",
+      },
     ],
     rangesNote:
       "Nyrkkisääntö, joka vastaa kassavirtatuoton välejä käänteisenä (yli 8 % ja 2–5 %). Vertaa saman alan yhtiöihin.",

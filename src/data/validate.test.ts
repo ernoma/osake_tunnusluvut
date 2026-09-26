@@ -3,7 +3,14 @@
 import { describe, expect, it } from "vitest";
 import { categories } from "./categories.ts";
 import { LIMITS } from "./schema.ts";
-import type { ExternalLink, GlossaryTerm, Metric, PlannedMetric, Source } from "./types.ts";
+import type {
+  ExternalLink,
+  GlossaryTerm,
+  InputFigure,
+  Metric,
+  PlannedMetric,
+  Source,
+} from "./types.ts";
 import { hostMatches, validateContent, type Content } from "./validate.ts";
 
 const TODAY = new Date("2026-09-25T12:00:00Z");
@@ -73,6 +80,7 @@ function content(overrides: Partial<Content> = {}): Content {
     categories,
     glossary: [glossaryTerm],
     sources,
+    inputs: [],
     ...overrides,
   };
 }
@@ -257,5 +265,38 @@ describe("lisälukemista-linkit", () => {
     const errors = errorsOf(content({ sources: [...sources, bad] }));
     expect(errors).toMatch(/sivuston id "esimerkki" on käytössä useasti/);
     expect(errors).toMatch(/sivusto esimerkki\.domain: verkkotunnus ilman https/);
+  });
+
+  it("hyväksyy kelvollisen lähtötiedon", () => {
+    const input: InputFigure = {
+      id: "kurssi",
+      name: "Kurssi",
+      unit: "€/osake",
+      aliases: [],
+      term: "termi",
+    };
+    expect(validate(content({ inputs: [input] }))).toEqual({ errors: [], warnings: [] });
+  });
+
+  it("löytää lähtötiedon, joka sekoittuu tunnuslukuun tai toiseen lähtötietoon", () => {
+    const errors = errorsOf(
+      content({
+        inputs: [
+          { id: "aa", name: "Lähtö", unit: "€", aliases: [] },
+          { id: "cc", name: "Toinen", unit: "€", aliases: ["bb-luku"] },
+          { id: "cc", name: "Kolmas", unit: "€", aliases: [] },
+        ],
+      }),
+    );
+    expect(errors).toMatch(/lähtötiedon id "aa" on jo tunnusluvun id/);
+    expect(errors).toMatch(/lähtötiedon id "cc" on käytössä useasti/);
+    expect(errors).toMatch(/nimi "bb-luku" kuuluu sekä luvulle tunnusluku bb että lähtötieto cc/);
+  });
+
+  it("löytää lähtötiedon tuntemattoman sanastotermin ja väärän yksikön", () => {
+    const input = { id: "cc", name: "C", unit: "mk", aliases: [], term: "puuttuva" };
+    const errors = errorsOf(content({ inputs: [input as unknown as InputFigure] }));
+    expect(errors).toMatch(/lähtötieto cc: termiä "puuttuva" ei löydy/);
+    expect(errors).toMatch(/lähtötieto cc\.unit/);
   });
 });

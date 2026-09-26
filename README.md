@@ -90,11 +90,11 @@ Lisää tietue `metrics.ts`:ään saman kategorian muiden lukujen joukkoon siihe
   commonMistake: "”Matala luku = hyvä ostos.” Miksi se ei pidä paikkaansa.", // enintään 140
   factors: ["Tulkintaan vaikuttava seikka (Lisää-osio)."], // kukin enintään 220, lista voi olla tyhjä
   pitfalls: ["Muu sudenkuoppa (Lisää-osio)."],             // kukin enintään 220, lista voi olla tyhjä
-  ranges: [                        // valinnainen nyrkkisääntöasteikko
-    { label: "Alle 10", meaning: "Mitä väli tarkoittaa.", tone: "good" }, // good | neutral | warning
-    { label: "10–20", meaning: "Mitä väli tarkoittaa.", tone: "neutral" },
-    { label: "Yli 20", meaning: "Mitä väli tarkoittaa.", tone: "warning" },
-  ],
+  ranges: [                        // valinnainen nyrkkisääntöasteikko, välit nousevassa järjestyksessä
+    { label: "Alle 10", max: 10, meaning: "Mitä väli tarkoittaa.", tone: "good" }, // good | neutral | warning
+    { label: "10–20", min: 10, max: 20, meaning: "Mitä väli tarkoittaa.", tone: "neutral" },
+    { label: "Yli 20", min: 20, meaning: "Mitä väli tarkoittaa.", tone: "warning" },
+  ],                               // min kuuluu väliin, max ei. Prosentit prosentteina (12,3), eurot euroina
   rangesNote: "Nyrkkisääntö. Vaihtelee toimialoittain.", // valinnainen
   companions: [                    // vähintään yksi, perustelu enintään 120
     { id: "pe", reason: "Miksi tämä luku kannattaa katsoa rinnalla." },
@@ -126,6 +126,10 @@ Merkkirajat koskevat näkyvää tekstiä: `[[oma pääoma|omasta pääomasta]]` 
 | Jos alias oli ennestään toisella kortilla ja kuuluu nyt uudelle, siirrä se.                                                                                                                                                                                              | Molempien korttien `aliases`    |
 | Jos luvulla on lyhenne, joka ei näy nimessä (esim. nimi "Vapaa kassavirta", lyhenne "FCF"), sisällysluetteloon tulee lyhenteelle oma rivi. Lisää lyhenne sisällysluettelon testin listaan.                                                                               | `src/data/toc.test.ts`          |
 | Jos linkki osoittaa uudelle sivustolle, lisää sivusto: `{ id, name, domain, type }`, jossa `type` on `neutraali` tai `kaupallinen`.                                                                                                                                      | `src/data/sources.ts`           |
+
+**Välien rajat.** Jokaisella `ranges`-rivillä on numeeriset rajat, joiden avulla Tutki osaketta -sivu näyttää, mihin väliin yhtiön luku osuu. Vain ensimmäiseltä riviltä saa puuttua `min` ja vain viimeiseltä `max`. Välien väliin saa jäädä aukkoja (esim. 10–15 % ja Yli 20 %). "Negatiivinen" on `{ max: 0 }`, ja sen jälkeinen "Alle 5 %" on `{ min: 0, max: 5 }`. Yhden luvun väli, kuten "0 %", on `{ min: 0, max: 0 }`. Testi tarkistaa, että rajat vastaavat otsikkoa.
+
+**Laskenta.** Jos luvun voi laskea muista luvuista, lisää kaava tiedostoon `src/data/formulas.ts` ja kaavan lähtöluvut, jotka eivät ole tunnuslukuja (esim. kurssi tai oma pääoma), tiedostoon `src/data/inputs.ts`. Lisää kaavalle testiesimerkki tiedostoon `src/data/formulas.test.ts`. Testi tarkistaa, että kaava tuottaa kortin esimerkin tuloksen. Kertoimen nimittäjä merkitään `positive`-listaan, jotta esimerkiksi tappiolliselle yhtiölle ei lasketa P/E:tä.
 
 Tunnuslukujen määrää ei tarvitse päivittää sovellukseen, koska sisällysluettelo laskee sen itse. Toteutussuunnitelmassa määrä mainitaan kohdissa 1, 5.1b ja 6.
 
@@ -160,6 +164,8 @@ npm run check-links
 | `tuntematon sivusto "…" (lisää se sources.ts:ään)`              | Lisää sivusto tiedostoon `sources.ts`.                                      |
 | `osoite … ei ole sivuston … osoite`                             | Linkin osoite ja `sourceId` eivät vastaa toisiaan.                          |
 | `suomenkieliset linkit kuuluvat listassa ensin`                 | Järjestä `links` uudelleen.                                                 |
+| `"…": alkaa ennen kuin edellinen väli "…" päättyy`              | Korjaa `ranges`-rivien `min`/`max` tai järjestys.                           |
+| `nimi "…" kuuluu sekä luvulle … että …`                         | Sama alias kahdella luvulla. Jätä se vain sille, jota se tarkoittaa.        |
 
 - **Varoitukset** tulostuvat testin tulosteeseen, mutta ne eivät kaada testejä. Esimerkiksi "ei yhtään suomenkielistä lisälukemista-linkkiä" on hyväksyttävä, jos suomenkielistä lähdettä ei löytynyt.
 
