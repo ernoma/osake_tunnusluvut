@@ -10,6 +10,33 @@ EVAL_MODEL=claude-haiku-4-5 npm run eval-extract
 
 ---
 
+## 2026-09-27 · commit `6b2b2cf` (vaihe 11h: valuuttojen sekoittumisen varoitus)
+
+Skeemaan lisättiin kenttä `company.priceCurrency` ja kehotteeseen ohje tarkistaa, ovatko kurssi ja markkina-arvo samassa valuutassa kuin tilinpäätösluvut. Uusi testiaineisto **Nordnet (kurssi SEK, tilinpäätös EUR)**: ruotsalainen yhtiö, jonka kurssi ja markkina-arvo ovat kruunuina ja tilinpäätösluvut (MEUR) euroina. Eval tarkistaa nyt myös, että `priceCurrency` on SEK-aineistossa `SEK` ja muissa `null`.
+
+### Yhteenveto
+
+| Lähde                                 | claude-opus-5-5 | claude-opus-5-5 (edellinen ajo) |
+| ------------------------------------- | --------------- | ------------------------------- |
+| Nordnet                               | ✓ 10 lukua      | ✓ 10 lukua                      |
+| Inderes                               | ✓ 12 lukua      | ✓ 12 lukua                      |
+| Kauppalehti                           | ✓ 8 lukua       | ✓ 8 lukua                       |
+| Yahoo Finance                         | ✓ 18 lukua      | ✓ 18 lukua                      |
+| Tilinpäätös                           | ✓ 12 lukua      | ✓ 12 lukua                      |
+| Tilinpäätös (IFRS)                    | ✓ 8 lukua       | ✓ 8 lukua                       |
+| Nordnet (kurssi SEK, tilinpäätös EUR) | ✓ 10 lukua      | (uusi)                          |
+| **Yhteensä**                          | **7/7**         | **6/6**                         |
+
+Kesto 53 s koko ajolta, 5–9 s lähdettä kohden. Ei ⚠-rivejä eikä hylättyjä lukuja.
+
+### Huomiot
+
+- **Nordnet (SEK):** tunnisti tilinpäätöksen valuutaksi EUR ja kurssin valuutaksi SEK, kertoi siitä huomautuksessa eikä muuntanut lukuja.
+- **Nordnet (SEK):** poimi myös vertailuvuoden liikevaihdon (`liikevaihto-edellinen = 1 402,6 milj.`). Luku on oikea, joten se lisättiin aineiston odotettuihin lukuihin kuten Inderesissä.
+- Yksivaluuttaisissa aineistoissa `priceCurrency` oli `null`, eikä kehotteen lisäys heikentänyt muiden lähteiden poimintaa.
+
+---
+
 ## 2026-09-27 · commit `b7ae677` (vaihe 11f: taseen loppusumma = varat yhteensä)
 
 Lähtötiedon `taseen-loppusumma` aliaksiin lisättiin "varat yhteensä", "vastattavaa yhteensä", "oma pääoma ja velat yhteensä" ja "total equity and liabilities". Kehotteen lukulista kootaan aliaksista, joten kehote muuttui. Uusi testiaineisto **Tilinpäätös (IFRS)**: taseen loppusumma on vain riveillä "Varat yhteensä" ja "Oma pääoma ja velat yhteensä", ja välisummat (pitkä- ja lyhytaikaiset varat) ovat houkuttimina.

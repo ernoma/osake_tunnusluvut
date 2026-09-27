@@ -33,6 +33,8 @@ export const nordnetSek: ExtractionFixture = {
     { id: "osakkeiden-maara", value: 106_400_000 },
     { id: "osinkotuotto", value: 2.9 },
     { id: "liikevaihto", value: 1488.1e6, period: "toteutunut" },
+    // Vertailuvuoden sarake. Sen avulla sovellus laskee kasvun myös itse.
+    { id: "liikevaihto-edellinen", value: 1402.6e6, period: "toteutunut" },
     { id: "ebit", value: 142.7e6, period: "toteutunut" },
     { id: "nettotulos", value: 101.8e6, period: "toteutunut" },
     { id: "oma-paaoma", value: 741.3e6, period: "toteutunut" },
@@ -62,6 +64,13 @@ export const nordnetSek: ExtractionFixture = {
         value: 1488.1e6,
         period: "toteutunut",
         year: "2025",
+        quote: "Liikevaihto 1 402,6 1 488,1",
+      },
+      {
+        id: "liikevaihto-edellinen",
+        value: 1402.6e6,
+        period: "toteutunut",
+        year: "2024",
         quote: "Liikevaihto 1 402,6 1 488,1",
       },
       {
