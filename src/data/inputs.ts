@@ -53,7 +53,15 @@ export const inputs: InputFigure[] = [
     id: "taseen-loppusumma",
     name: "Taseen loppusumma",
     unit: "€",
-    aliases: ["taseen yhteismäärä", "vastaavaa yhteensä", "total assets"],
+    aliases: [
+      "varat yhteensä",
+      "taseen yhteismäärä",
+      "vastaavaa yhteensä",
+      "vastattavaa yhteensä",
+      "oma pääoma ja velat yhteensä",
+      "total assets",
+      "total equity and liabilities",
+    ],
     term: "tase",
   },
   {

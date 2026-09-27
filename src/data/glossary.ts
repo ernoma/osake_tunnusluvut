@@ -66,9 +66,9 @@ export const glossary: GlossaryTerm[] = [
   {
     id: "tase",
     term: "tase",
-    forms: ["taseen loppusumma"],
+    forms: ["taseen loppusumma", "varat yhteensä"],
     definition:
-      "Luettelo yhtiön omaisuudesta ja siitä, millä se on rahoitettu (oma pääoma ja velat). Taseen loppusumma on kaiken omaisuuden yhteisarvo.",
+      "Luettelo yhtiön omaisuudesta ja siitä, millä se on rahoitettu (oma pääoma ja velat). Taseen loppusumma eli varat yhteensä on kaiken omaisuuden yhteisarvo, ja se on sama luku kuin oma pääoma ja velat yhteensä.",
   },
   {
     id: "saadut-ennakot",
