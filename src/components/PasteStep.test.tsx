@@ -214,7 +214,7 @@ describe("poimittujen lukujen tarkistus", () => {
     expect(screen.getByText(/Hylätyt luvut \(1\)/)).toBeInTheDocument();
     expect(screen.getByText(/lainausta ei löytynyt liitetystä tekstistä/)).toBeInTheDocument();
     expect(screen.getByText(/Vuodet 2026e ja 2027e ovat ennusteita/)).toBeInTheDocument();
-    expect(within(list).getAllByRole("checkbox", { checked: true })).toHaveLength(10);
+    expect(within(list).getAllByRole("checkbox", { checked: true })).toHaveLength(12);
   });
 });
 

@@ -29,6 +29,9 @@ export const inderes: ExtractionFixture = {
   ].join("\n"),
   expected: [
     { id: "liikevaihto", value: 865e6, period: "toteutunut" },
+    // Vertailuvuoden sarake. Sen avulla sovellus laskee kasvun myös itse.
+    { id: "liikevaihto-edellinen", value: 812.4e6, period: "toteutunut" },
+    { id: "ttm-kasvu", value: 6.5, period: "toteutunut" },
     { id: "ebit", value: 71.3e6, period: "toteutunut" },
     { id: "ebit-prosentti", value: 8.2, period: "toteutunut" },
     { id: "nettotulos", value: 49.9e6, period: "toteutunut" },
@@ -48,6 +51,20 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Liikevaihto 812,4 865,0 910,2 955,0",
+      },
+      {
+        id: "liikevaihto-edellinen",
+        value: 812.4e6,
+        period: "toteutunut",
+        year: "2024",
+        quote: "Liikevaihto 812,4 865,0 910,2 955,0",
+      },
+      {
+        id: "ttm-kasvu",
+        value: 6.5,
+        period: "toteutunut",
+        year: "2025",
+        quote: "Kasvu-% 4,1 % 6,5 % 5,2 % 4,9 %",
       },
       {
         id: "ebit",
