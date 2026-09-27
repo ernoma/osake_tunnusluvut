@@ -643,6 +643,9 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **11d. Tekoälyhaku** ✅ | SDK, API-avaimen tallennus ja poisto, datasta koottu kehote, skeema, lainaustarkistus, virheilmoitukset, keskeytys ja CSP (kohdat 11.2 ja 11.3) | Viiden eri sivuston tekstistä poimitaan oikeat luvut, eikä yksikään tekstistä puuttuva luku pääse analyysiin ilman käyttäjän hyväksyntää |
 | **11e. Viimeistely** (oikeiden sivujen testi kesken) | Saavutettavuus, mobiili, käsin testaus oikeilla sivuilla ja README:n ohje API-avaimesta. Tulokset ja oikeiden sivujen tarkistuslista: `docs/kasin-testaus.md` | axe-tarkistus menee läpi kaikissa vaiheissa, Lighthouse-saavutettavuus ≥ 95, ja sivu toimii 375 px leveydellä |
 | **11f. Taseen loppusumma = varat yhteensä** ✅ | Sanaston `tase`-termin selitykseen maininta, että taseen loppusumma on sama luku kuin varat yhteensä (ja oma pääoma ja velat yhteensä), `forms`-listaan "varat yhteensä" sekä lähtötiedon `taseen-loppusumma` aliaksiin "varat yhteensä", "vastattavaa yhteensä", "oma pääoma ja velat yhteensä" ja "total equity and liabilities" (kohdat 4.3 ja 11.4) | Sanasto- ja skeematestit menevät läpi, "varat yhteensä" avaa tase-termin selityksen, ja tekoälyhaku poimii IFRS-muotoisen taseen "Varat yhteensä" -rivin taseen loppusummaksi |
+| **11g. Markkina-arvon kokoluokka muussa valuutassa** | EKP:n kurssi Frankfurter-rajapinnasta, välimuisti, muunnos euroiksi kokoluokan vertailua varten ja CSP:n `connect-src`-lisäys kohdan 11.10 mukaan | DKK-määräinen markkina-arvo osuu oikeaan kokoluokkaan, kurssi ja sen päivä näkyvät, ja kun haku epäonnistuu, näkyy huomautus syineen |
+| **11h. Valuuttojen sekoittumisen varoitus** | Tekoäly kirjaa, jos kurssi ja markkina-arvo ovat eri valuutassa kuin tilinpäätösluvut, ja sovellus näyttää varoituksen kohdan 11.11 mukaan | Testiaineistossa, jossa kurssi on SEK ja tulos EUR, varoitus näkyy tarkistusvaiheessa ja analyysissä, eikä yksivaluuttaisissa aineistoissa näy |
+| **11i. Valuuttojen sekoittumisen täysi tuki** | Luvuille oma valuutta, muunnos analyysin valuuttaan ennen laskentaa ja valuutta osoitteeseen kohdan 11.11 mukaan | SEK-kurssista ja EUR-tuloksesta laskettu P/E on oikein, ja muunnos näkyy laskelmassa |
 | **12. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Molemmat sivut ovat julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 
 Julkaisu on viimeinen vaihe, jotta julkaistu versio sisältää myös Tutki osaketta -sivun. Käyttäjätesti (vaihe 9) tehtiin ensimmäiselle sivulle, joten sen tehtävä 5 (kohta 8.2) testataan erikseen vaiheen 11 jälkeen.
@@ -846,7 +849,7 @@ interface ExtractionResult {
   - suositus: tee tätä sovellusta varten oma avain ja aseta sille kulukatto Consolessa
   - avain tallentuu vain tähän selaimeen, ja kuka tahansa tällä koneella voi käyttää sitä, joten sitä ei kannata tallentaa yhteiskäyttöiselle koneelle
   - liitetty teksti lähetetään Anthropicille käsiteltäväksi.
-- **Tietoturva:** sivun JavaScript voi lukea `localStorage`n, joten sivulle ei lisätä ulkopuolisia skriptejä, kuten analytiikkaa tai mainoksia. `index.html`:n Content-Security-Policy rajaa yhteydet (`connect-src`) omaan sivustoon ja osoitteeseen `api.anthropic.com`. Liitettyä tekstiä eikä tekoälyn vastausta näytetä koskaan HTML:nä.
+- **Tietoturva:** sivun JavaScript voi lukea `localStorage`n, joten sivulle ei lisätä ulkopuolisia skriptejä, kuten analytiikkaa tai mainoksia. `index.html`:n Content-Security-Policy rajaa yhteydet (`connect-src`) omaan sivustoon, osoitteeseen `api.anthropic.com` ja valuuttakurssien osoitteeseen `api.frankfurter.dev` (kohta 11.10). Liitettyä tekstiä eikä tekoälyn vastausta näytetä koskaan HTML:nä.
 - **Tulevaisuus:** API-kutsu on yhden funktion takana: `extractFigures(text, signal): Promise<ExtractionResult>` tiedostossa `src/ai/extract.ts`. Myöhemmin funktion voi vaihtaa kutsumaan omaa taustapalvelua (kohta 10), jolloin avaimen kenttä poistuu eikä muuta sovellusta tarvitse muuttaa.
 
 ### 11.4 Lähtötiedot ja lasketut tunnusluvut
@@ -891,7 +894,7 @@ Taseen loppusumma on sama luku kuin varat yhteensä (IFRS: *total assets*, FAS: 
 - **Erot:** jos sivulta poimittu ja omista luvuista laskettu arvo eroavat yli 10 %, näytetään huomautus: "Sivun luku on 12,4, omista luvuista laskettuna 14,1. Ero johtuu yleensä eri kaudesta tai oikaistuista luvuista." Arvoa ei muuteta.
 - **Kaudet:** jos lähtöluvut ovat eri kausilta, esimerkiksi toteutunut ja ennuste, tulos merkitään "eri kausien luvuista" ja näytetään varoitus.
 - **Nolla ja negatiivinen:** kertoimia (P/E, EV/EBIT, EV/EBITDA, P/FCF, PEG) ei lasketa, jos nimittäjä on nolla tai negatiivinen. Sen sijaan näytetään kortin sääntö, esimerkiksi "Tappiollisella yhtiöllä P/E:tä ei voi käyttää".
-- **Valuutta:** suhdeluvut eivät riipu valuutasta. Euromääräiset nyrkkisäännöt (markkina-arvon kokoluokat) näytetään vain euroille. Muulle valuutalle näytetään huomautus.
+- **Valuutta:** suhdeluvut eivät riipu valuutasta. Euromääräisiin nyrkkisääntöihin (markkina-arvon kokoluokat) verrataan muussa valuutassa euroiksi muunnettua arvoa (kohta 11.10). Oletus on, että kaikki luvut ovat samassa valuutassa. Poikkeuksista kerrotaan kohdassa 11.11.
 
 ### 11.5 Tulkinta: osuva nyrkkisääntöväli
 
@@ -937,7 +940,8 @@ src/
 │   ├── inputs.ts           # lähtötiedot
 │   ├── formulas.ts         # kaavat ja laskenta (puhdas funktio)
 │   ├── figureEntry.ts      # "Lisää luku" -haku ja syötetyn arvon tarkistus
-│   └── numberFormat.ts     # lukujen jäsennys ja muotoilu
+│   ├── numberFormat.ts     # lukujen jäsennys ja muotoilu
+│   └── exchangeRates.ts    # EKP:n kurssi euroon ja välimuisti (vaihe 11g)
 ├── components/
 │   ├── StockPage.tsx       # Tutki osaketta -sivu
 │   ├── PasteStep.tsx       # tekstin liittäminen ja tekoälyhaun tila
@@ -952,7 +956,8 @@ src/
 └── hooks/
     ├── usePage.ts          # sivun valinta (?sivu=tutki)
     ├── useAnalysisUrl.ts   # analyysin luvut osoitteessa
-    └── useRecentAnalyses.ts
+    ├── useRecentAnalyses.ts
+    └── useEurRate.ts       # kurssin haun tila (vaihe 11g)
 ```
 
 ### 11.9 Testit
@@ -967,3 +972,38 @@ src/
 - **Poiminnan laatu:** käsin ajettava skripti `npm run eval-extract` (vaatii ympäristömuuttujan `ANTHROPIC_API_KEY`) ajaa testitekstit oikeaa mallia vasten ja vertaa tuloksia odotettuihin lukuihin. Skripti ajetaan, kun kehotetta tai mallia muutetaan. Se ei ole osa `npm test`:iä. Tulokset kirjataan tiedostoon `docs/eval-extract-tulokset.md`.
 - **Komponentit:** avaimen tallennus ja poisto, virheilmoitukset, korjaus päivittää analyysin, ⚠-rivi ei ole valittuna oletuksena ja viimeisimmät-lista.
 - **Saavutettavuus:** axe-tarkistus sivun jokaisessa vaiheessa. Haun tila ja virheet ilmoitetaan ruudunlukijalle (`aria-live`), ja osuva väli ja lähdemerkinnät ovat tekstinä eivätkä pelkkinä väreinä.
+
+### 11.10 Valuuttakurssi markkina-arvon kokoluokkaan (vaihe 11g)
+
+Suhdeluvut eivät riipu valuutasta, mutta markkina-arvon kokoluokkien rajat ovat euroina (alle 150 milj. €, 150 milj.–1 mrd. € ja yli 1 mrd. €). Esimerkiksi Nordnet näyttää tanskalaisen yhtiön luvut kruunuina, joten DKK-määräinen markkina-arvo muunnetaan euroiksi ennen vertailua. Käyttäjän ei tarvitse syöttää kurssia.
+
+- **Lähde:** Euroopan keskuspankin (EKP) viitekurssit avoimesta Frankfurter-rajapinnasta. Se ei vaadi rekisteröitymistä eikä avainta, ja se sallii kutsun selaimesta (CORS). Kutsu on muotoa `https://api.frankfurter.dev/v1/2026-09-26?base=EUR&symbols=DKK`. Rajapinnalle lähtee vain päivä ja valuuttakoodi, ei tietoa yhtiöstä.
+- **Päivä:** kurssi haetaan analyysin hakupäivältä, koska markkina-arvo on sen päivän luku. Viikonloppuna ja pyhäpäivinä rajapinta palauttaa edellisen julkaisupäivän kurssin. Jos hakupäivää ei ole tai se on tulevaisuudessa, käytetään viimeisintä kurssia (`latest`).
+- **Milloin:** kurssi haetaan vain, kun valuutta ei ole EUR ja analyysissä on markkina-arvo. Muut rahamääräiset luvut näytetään ennallaan analyysin valuutassa.
+- **Näkyvissä:** kokoluokka korostetaan euroiksi muunnetun arvon mukaan. Arvo näytetään edelleen alkuperäisessä valuutassa, ja välin alla lukee muunnos ja kurssi, esimerkiksi "Kokoluokka on arvioitu euroiksi muunnettuna: 14,7 mrd. DKK ≈ 2,0 mrd. €. EKP:n kurssi 25.9.2026: 1 € = 7,4755 DKK."
+- **Haun aikana ja virheessä:** haun aikana näkyy "Haetaan valuuttakurssia…". Jos haku epäonnistuu (verkkovirhe tai valuutta, jolle EKP ei julkaise kurssia), näytetään huomautus "Kokoluokkien rajat ovat euroina, joten DKK-määräistä lukua ei verrata niihin" ja lyhyt syy.
+- **Välimuisti:** kurssit tallennetaan selaimeen (`localStorage`, avain `tunnusluvut.valuuttakurssit`). Mennyttä päivää koskeva kurssi ei muutu, joten se kelpaa aina. Kuluvan päivän ja viimeisimmän kurssin tallenne kelpaa saman päivän loppuun. Tallenteeseen jää enintään 30 kurssia. Jos tallennus ei ole käytettävissä, kurssi muistetaan käynnin ajan.
+- **CSP:** `connect-src`-listaan lisätään `https://api.frankfurter.dev`.
+- **Koodi:** kurssin haku ja välimuisti ovat tiedostossa `src/data/exchangeRates.ts` (`fetchEurRate(currency, date, signal)`), ja koukku `useEurRate` (`src/hooks/useEurRate.ts`) hoitaa haun tilan. Muunnos ja vertailu tehdään `AnalysisRow`-komponentissa.
+- **Testit:** haku korvataan testeissä valmiilla vastauksilla. Testataan osoitteen muodostus (menneen päivän, tulevan päivän ja puuttuvan päivän kurssi), välimuistin kelpoisuus ja virheet sekä se, että DKK-määräinen markkina-arvo osuu oikeaan kokoluokkaan ja että epäonnistuneesta hausta näytetään huomautus.
+
+### 11.11 Valuuttojen sekoittuminen (vaiheet 11h ja 11i)
+
+Sovellus olettaa nyt, että kaikki analyysin luvut ovat samassa valuutassa. Oletus ei aina pidä. Esimerkiksi Tukholman pörssissä kruunuissa noteerattu yhtiö voi raportoida tilinpäätöksensä euroissa, tai tanskalainen yhtiö dollareissa. Silloin kurssi ja markkina-arvo ovat eri valuutassa kuin tulos, oma pääoma ja kassavirta. Tällöin P/E, P/B, P/S, P/FCF, osinkotuotto, kassavirtatuotto ja EV-luvut menevät pieleen, jopa kymmenkertaisesti, eikä sovellus varoita siitä. Tuki tehdään kahdessa vaiheessa: ensin tunnistus ja varoitus, sitten muunnos.
+
+**Vaihe 11h: tunnistus ja varoitus**
+
+- Tekoälyn vastaukseen lisätään kenttä `company.priceCurrency`: valuutta, jossa kurssi ja markkina-arvo on ilmoitettu, jos se näkyy tekstistä ja eroaa tilinpäätöslukujen valuutasta (`company.currency`). Muuten `null`.
+- Kehotteeseen lisätään ohje: tarkista, ovatko kurssi ja markkina-arvo samassa valuutassa kuin tilinpäätösluvut. Jos eivät ole, kirjaa kummankin valuutta ja lisää huomautus `notes`-listaan. Älä muunna lukuja.
+- Tarkistusvaiheessa (`ExtractionReview`) näytetään varoitus, esimerkiksi: "Kurssi ja markkina-arvo ovat SEK-määräisiä, mutta tilinpäätösluvut EUR-määräisiä. Tunnusluvut, joissa ne yhdistetään (esim. P/E ja P/B), menevät väärin. Muunna kurssi ja markkina-arvo samaan valuuttaan tai jätä ne pois."
+- Kurssin valuutta tallennetaan osoitteeseen parametrina `hval`, jotta varoitus näkyy myös analyysissä. Analyysissä varoitus näkyy sivun yläosassa ja jokaisessa tunnusluvussa, jonka laskelma yhdistää kurssiin sidotun luvun (kurssi, markkina-arvo, EV) tilinpäätöslukuun. Lukuja ei muuteta.
+- Analyysin otsikkorivillä on valinta "Kurssin valuutta", joka näkyy vain, kun `hval` on asetettu. Kun käyttäjä on muuntanut luvut ja valitsee molempiin saman valuutan, varoitus poistuu.
+- Testiaineistoon lisätään teksti, jossa kurssi on SEK ja tilinpäätös EUR, ja olemassa oleviin aineistoihin odotus `priceCurrency: null`. Eval ajetaan, ja tulokset kirjataan.
+
+**Vaihe 11i: täysi tuki**
+
+- Jokaisella rahamääräisellä luvulla on oma valuutta (`AnalysisFigure.currency`, oletuksena analyysin valuutta). Tekoäly kirjaa valuutan luvuittain, ja osoitteen lukumuotoon lisätään valinnainen valuuttakenttä (`id=arvo~kausi~vuosi~lähde~val`).
+- Ennen laskentaa luvut muunnetaan analyysin valuuttaan (tilinpäätöksen valuutta) kohdan 11.10 kurssihaulla ja hakupäivän kurssilla. Laskelmassa näkyy alkuperäinen arvo ja kurssi: "markkina-arvo 120 mrd. SEK ≈ 10,6 mrd. € (1 € = 11,29 SEK)".
+- Jos kurssia ei saada, eri valuutan lukuja ei käytetä laskennassa, ja puuttuvien listassa kerrotaan syy.
+- Lukutaulukossa ja "Lisää luku" -lomakkeessa rahamääräisen luvun valuutan voi vaihtaa.
+- Vaiheen 11h varoitus poistuu, kun kaikki luvut voidaan muuntaa.
