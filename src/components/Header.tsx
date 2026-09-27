@@ -41,7 +41,7 @@ function isEditable(target: EventTarget | null): boolean {
   );
 }
 
-/** Otsikko, sivulinkit, teemavalitsin sekä Tunnusluvut-sivulla haku ja linkki johdantoon. */
+/** Otsikko, sivulinkit, teemavalitsin, vastuuvapauslauseke sekä Tunnusluvut-sivulla haku ja linkki johdantoon. */
 export default function Header({ page, onNavigate, search }: Props) {
   const [theme, setTheme] = useTheme();
   const dark = theme === "dark";
@@ -84,6 +84,12 @@ export default function Header({ page, onNavigate, search }: Props) {
         </button>
       </div>
       <p className={styles.lead}>{LEADS[page]}</p>
+      <p className={styles.disclaimer}>
+        <strong>Ei sijoitusneuvontaa.</strong> Opas on harrastusprojekti, ja sen tiedoissa,
+        laskelmissa ja tekoälyn poimimissa luvuissa voi olla virheitä. Käytät sovellusta omalla
+        vastuullasi: tekijä ei vastaa päätöksistä, jotka teet sen perusteella, eikä niiden
+        seurauksista.
+      </p>
 
       {search && <SearchTools {...search} />}
     </header>

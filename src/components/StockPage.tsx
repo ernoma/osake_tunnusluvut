@@ -139,10 +139,6 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
     <div className={appStyles.page}>
       <Header page="tutki" onNavigate={onNavigate} />
       <main className={styles.main}>
-        {/* Maamerkin sisällä, jotta ruudunlukija ei ohita lauseketta (axe: region). */}
-        <p className={styles.disclaimer}>
-          Tämä on opas tunnuslukujen tulkintaan, ei sijoitusneuvontaa.
-        </p>
         {started ? (
           <div key={version} className={styles.analysis}>
             <AnalysisDetails

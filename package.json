@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Osakesijoittamisen tunnusluvut selkokielellä aloittelijalle",
+  "license": "EUPL-1.2",
   "engines": {
     "node": ">=20"
   },

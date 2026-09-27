@@ -7,6 +7,8 @@ Sovelluksessa on kaksi sivua:
 - **Tunnusluvut** selittää tunnusluvut ja niiden tulkinnan.
 - **Tutki osaketta** (`?sivu=tutki`) näyttää yhden osakkeen luvut samojen tunnuslukujen avulla: mihin nyrkkisääntöväliin kukin osuu, mitkä luvut voi laskea muista ja mitä puuttuu.
 
+> **Ei sijoitusneuvontaa.** Sovellus on harrastusprojekti ja opas tunnuslukujen ymmärtämiseen. Sen tiedoissa, laskelmissa ja tekoälyn poimimissa luvuissa voi olla virheitä. Sovellus tarjotaan sellaisenaan ilman takuita, ja sitä käytetään omalla vastuulla: tekijä ei vastaa vahingoista tai menetyksistä, jotka aiheutuvat sovelluksen tai sen tietojen käytöstä.
+
 ## Tutki osaketta: luvut tekoälyllä tai käsin
 
 Luvut saa sivulle kahdella tavalla:
@@ -220,3 +222,11 @@ Katso lopuksi kortti selaimessa (`npm run dev`). Löytyykö se haulla nimellä, 
 - [ ] Linkkiteksti kertoo, mitä sivulta löytyy, ja mukana on suomenkielinen linkki, jos sellainen on saatavilla.
 
 Kirjaa lisäys lopuksi toteutussuunnitelman kohtaan 6 (taulukkorivi ja "Lisäyksen vaatimat muut muutokset") samaan tapaan kuin vaiheissa 8d–8g.
+
+## Julkaisu
+
+`.github/workflows/pages.yml` ajaa tarkistukset (lint, muotoilu, testit, build) jokaiselle pushille ja pull requestille ja julkaisee `main`-haaran GitHub Pagesiin. Ota julkaisu käyttöön repositorion asetuksista: **Settings → Pages → Source: GitHub Actions**. Build käyttää suhteellisia polkuja, joten sivu toimii myös alihakemistossa (`https://<käyttäjä>.github.io/<repo>/`).
+
+## Lisenssi
+
+[EUPL 1.2](LICENSE) (European Union Public Licence). Lisenssi on saatavilla kaikilla EU:n virallisilla kielillä, myös [suomeksi](https://eur-lex.europa.eu/legal-content/FI/TXT/?uri=CELEX:32017D0863).

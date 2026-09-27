@@ -90,6 +90,16 @@
   color: var(--color-text-muted);
 }
 
+.disclaimer {
+  max-width: 70ch;
+  margin: var(--space-2) 0 0;
+  padding: var(--space-2) var(--space-4);
+  border-left: 4px solid var(--color-range);
+  border-radius: var(--radius);
+  background: var(--color-inset);
+  font-size: 0.95rem;
+}
+
 .tools {
   display: flex;
   flex-wrap: wrap;
