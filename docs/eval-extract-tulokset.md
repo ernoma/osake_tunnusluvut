@@ -10,6 +10,12 @@ EVAL_MODEL=claude-haiku-4-5 npm run eval-extract
 
 ---
 
+## 2026-09-27 · oletusmalliksi `claude-opus-5-5`, ei vielä ajettu
+
+Oletusmalli vaihdettiin Claude Opus 5:stä Opus 5.5:een, ja Opus 5 poistettiin valikosta. Kehote ja skeema ovat ennallaan. Aja `npm run eval-extract` ja kirjaa tulokset tähän ennen kuin oletus vahvistetaan.
+
+---
+
 ## 2026-09-27 · commit `5c940a4` (Vaihe 11d: tekoälyhaku)
 
 ### Yhteenveto
@@ -48,6 +54,6 @@ Ei sovellu poimintaan nykyisellä kehotteella.
 
 ### Johtopäätökset ja jatkotoimet
 
-- Pidetään `claude-opus-5` oletusmallina.
+- Pidetään `claude-opus-5` oletusmallina. (Myöhemmin korvattu `claude-opus-5-5`:llä, ks. yllä.)
 - Jos Haikua tarjotaan vaihtoehtona, kehotteeseen tarvitaan selvä ohje sarakkeen valinnasta: viimeisin toteutunut vuosi, ei ennuste eikä vertailuvuosi. Lisäksi tarvitaan ohje edellisen vuoden liikevaihdon poimimisesta ja nettokatteen erottamisesta EBIT-%:sta. Ajo tehdään sen jälkeen uudelleen.
 - `claude-sonnet-5`:tä ei ole vielä ajettu.

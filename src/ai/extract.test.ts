@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { modelById } from "./apiKey.ts";
+import { loadModel, modelById, MODEL_STORAGE_KEY } from "./apiKey.ts";
 import { ExtractionError, MAX_TEXT_LENGTH } from "./errors.ts";
 import { extractFigures } from "./extract.ts";
 import { errorReply, messageReply, stubApi } from "./fixtures/api.ts";
@@ -33,7 +33,7 @@ describe("extractFigures", () => {
     expect(call?.headers.get("x-api-key")).toBe(KEY);
     expect(call?.headers.get("anthropic-beta")).toContain("server-side-fallback-2026-07-01");
     expect(call?.body).toMatchObject({
-      model: "claude-opus-5",
+      model: "claude-opus-5-5",
       fallbacks: "default",
       output_config: { effort: "low", format: { type: "json_schema" } },
     });
@@ -43,6 +43,14 @@ describe("extractFigures", () => {
     // Kehote on koottu tunnusluvuista ja lähtötiedoista.
     expect(system).toContain("- pe: P/E-luku");
     expect(system).toContain("- kurssi: Osakkeen kurssi");
+  });
+
+  it("poistunut malli (Opus 5) vaihtuu selaimessa oletusmalliin", async () => {
+    window.localStorage.setItem(MODEL_STORAGE_KEY, "claude-opus-5");
+    expect(loadModel().id).toBe("claude-opus-5-5");
+    const calls = stubApi(messageReply(nordnet.response));
+    await extractFigures(nordnet.text, undefined, { apiKey: KEY });
+    expect(calls[0]?.body.model).toBe("claude-opus-5-5");
   });
 
   it("Haiku 4.5:lle ei lähetetä ajattelutasoa eikä varamallia", async () => {

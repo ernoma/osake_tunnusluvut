@@ -30,7 +30,7 @@ Hyvä tietää:
 - **Avain on vain tässä selaimessa** (`localStorage`, avain `tunnusluvut.api-avain`). Kuka tahansa samalla koneella ja selainprofiililla voi käyttää sitä, joten älä tallenna avainta yhteiskäyttöiselle koneelle. Painike "Poista avain tältä laitteelta" poistaa sen. Jos avain on vuotanut, poista se myös Consolesta.
 - **Avain ei päädy** osoitteeseen, jakolinkkiin, viimeisimpien listaan eikä virheilmoituksiin.
 - **Liitetty teksti lähetetään Anthropicille** käsiteltäväksi. Älä liitä tekstiä, jota et halua lähettää.
-- **Malli:** oletus on Claude Opus 5, joka poimi testiaineistosta kaikki luvut oikein. Halvemmat Sonnet 5 ja Haiku 4.5 ovat valittavissa, mutta Haiku sekoitti testeissä monisarakkeisen taulukon vuodet (ks. [eval-tulokset](docs/eval-extract-tulokset.md)). Tarkista luvut aina itse.
+- **Malli:** oletus on Claude Opus 5.5. Sen edeltäjä Opus 5 poimi testiaineistosta kaikki luvut oikein. Halvemmat Sonnet 5 ja Haiku 4.5 ovat valittavissa, mutta Haiku sekoitti testeissä monisarakkeisen taulukon vuodet (ks. [eval-tulokset](docs/eval-extract-tulokset.md)). Tarkista luvut aina itse.
 - **Virheet:** "API-avain ei kelpaa" tarkoittaa väärää tai poistettua avainta. "Pyyntö hylättiin" johtuu usein loppuneesta saldosta, jonka näet Consolesta.
 
 ## Kehitys

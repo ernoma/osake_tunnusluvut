@@ -12,7 +12,7 @@ import { extractionSchema } from "./schema.ts";
 import { verifyExtraction, type VerifiedExtraction } from "./verify.ts";
 import { ExtractionError, extractionError, MAX_TEXT_LENGTH } from "./errors.ts";
 
-/** Palvelinpuolen varamalli, jos malli kieltäytyy pyynnöstä (Opus 5). */
+/** Palvelinpuolen varamalli, jos malli kieltäytyy pyynnöstä (Opus 5.5). */
 const FALLBACK_BETA = "server-side-fallback-2026-07-01";
 
 /** Rajapinnan virheviesti vastauksen rungosta, esim. "Your credit balance is too low…". */

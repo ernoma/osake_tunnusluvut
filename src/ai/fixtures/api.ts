@@ -28,7 +28,7 @@ export function messageReply(result: unknown, stopReason = "end_turn"): MakeResp
     id: "msg_test",
     type: "message",
     role: "assistant",
-    model: "claude-opus-5",
+    model: "claude-opus-5-5",
     content: [{ type: "text", text: typeof result === "string" ? result : JSON.stringify(result) }],
     stop_reason: stopReason,
     stop_sequence: null,

@@ -12,8 +12,8 @@ export const MODEL_STORAGE_KEY = "tunnusluvut.malli";
  */
 export const MODELS = [
   {
-    id: "claude-opus-5",
-    name: "Claude Opus 5",
+    id: "claude-opus-5-5",
+    name: "Claude Opus 5.5",
     description: "tarkin (oletus)",
     effort: true,
     fallbacks: true,
@@ -37,7 +37,7 @@ export const MODELS = [
 export type ModelOption = (typeof MODELS)[number];
 export type ModelId = ModelOption["id"];
 
-export const DEFAULT_MODEL: ModelId = "claude-opus-5";
+export const DEFAULT_MODEL: ModelId = "claude-opus-5-5";
 
 function read(key: string): string | null {
   try {

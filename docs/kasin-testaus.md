@@ -34,7 +34,7 @@ Lighthouse 12, saavutettavuus, tuotantoversio (Edge, headless):
 
 ### Oikeat sivut tekoälyhaulla
 
-**Kesken.** Vaatii oman API-avaimen, joten testaa ylläpitäjä. Kopioi kultakin sivulta yhden yhtiön tunnuslukuosio ja liitä se Tutki osaketta -sivulle (oletusmalli Opus 5). Kirjaa tulos taulukkoon.
+**Kesken.** Vaatii oman API-avaimen, joten testaa ylläpitäjä. Kopioi kultakin sivulta yhden yhtiön tunnuslukuosio ja liitä se Tutki osaketta -sivulle (oletusmalli Opus 5.5). Kirjaa tulos taulukkoon.
 
 | Sivu                                     | Yhtiö | Poimittu / oikein | ⚠-rivit | Hylätyt | Huomiot |
 | ---------------------------------------- | ----- | ----------------- | ------- | ------- | ------- |
