@@ -151,6 +151,7 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
               result={result}
               figures={analysis.figures}
               currency={analysis.currency}
+              date={analysis.date}
               onAdd={(added) =>
                 setAnalysis({ ...analysis, figures: [...analysis.figures, ...added] })
               }

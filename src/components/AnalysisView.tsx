@@ -18,10 +18,12 @@ interface Props {
   result: CalculationResult;
   figures: readonly AnalysisFigure[];
   currency: string;
+  /** Hakupäivä vvvv-kk-pp tai tyhjä. */
+  date: string;
   onAdd: (figures: AnalysisFigure[]) => void;
 }
 
-export default function AnalysisView({ result, figures, currency, onAdd }: Props) {
+export default function AnalysisView({ result, figures, currency, date, onAdd }: Props) {
   const headingId = useId();
   const [announcement, setAnnouncement] = useState("");
   const years = new Map(figures.map((f) => [f.id, f.year]));
@@ -84,6 +86,7 @@ export default function AnalysisView({ result, figures, currency, onAdd }: Props
                 figure={result.figures.get(metric.id)!}
                 year={years.get(metric.id)}
                 currency={currency}
+                date={date}
               />
             ))}
             <MissingList items={missing} figures={result.figures} currency={currency} onAdd={add} />

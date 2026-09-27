@@ -139,6 +139,13 @@ export function formatNumber(value: number, unit: NumberUnit, currency = "EUR"):
   }
 }
 
+const rateFormat = fi({ maximumFractionDigits: 4 });
+
+/** Valuuttakurssi euroon: "1 € = 7,4755 DKK". */
+export function formatEurRate(rate: number, currency: string): string {
+  return `1${NBSP}€ = ${rateFormat.format(rate)}${NBSP}${currency}`;
+}
+
 /** Yksikön nimi syöttökentän vieressä: "€", "USD", "€/osake", "%", "kpl" tai "kerroin". */
 export function unitLabel(unit: NumberUnit, currency = "EUR"): string {
   const symbol = currencySymbol(currency);

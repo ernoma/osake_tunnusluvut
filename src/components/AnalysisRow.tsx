@@ -5,8 +5,11 @@
 import { describeCalculation, matchRange } from "../data/analysis.ts";
 import { displayName } from "../data/content.ts";
 import { differsNotably, PERIOD_LABELS, type ResolvedFigure } from "../data/formulas.ts";
-import { formatNumber } from "../data/numberFormat.ts";
+import type { EurRate, RateErrorReason } from "../data/exchangeRates.ts";
+import { formatEurRate, formatNumber } from "../data/numberFormat.ts";
 import type { Metric } from "../data/types.ts";
+import { formatDate } from "../hooks/useAnalysisUrl.ts";
+import { useEurRate } from "../hooks/useEurRate.ts";
 import { rowHeadingId } from "./analysisIds.ts";
 import DirectionBadge from "./DirectionBadge.tsx";
 import RangeScale from "./RangeScale.tsx";
@@ -19,23 +22,32 @@ const ORIGIN_LABELS: Record<ResolvedFigure["origin"], string> = {
   laskettu: "Laskettu",
 };
 
+const RATE_ERRORS: Record<RateErrorReason, (currency: string) => string> = {
+  verkko: () => "Valuuttakurssin haku ei onnistunut. Tarkista verkkoyhteys.",
+  valuutta: (currency) => `Euroopan keskuspankki ei julkaise kurssia valuutalle ${currency}.`,
+  vastaus: () => "Valuuttakurssipalvelu ei vastannut odotetusti.",
+};
+
 interface Props {
   metric: Metric;
   figure: ResolvedFigure;
   /** Syötetyn tai poimitun luvun vuosi, esim. "2025". */
   year?: string;
   currency: string;
+  /** Analyysin hakupäivä vvvv-kk-pp tai tyhjä. Valuuttakurssi haetaan tältä päivältä. */
+  date: string;
 }
 
-export default function AnalysisRow({ metric, figure, year, currency }: Props) {
+export default function AnalysisRow({ metric, figure, year, currency, date }: Props) {
   const format = (value: number, unit = metric.unit) => formatNumber(value, unit, currency);
   const valueText = format(figure.value);
   const calculation = figure.calculation;
   const source = [ORIGIN_LABELS[figure.origin], figure.period && PERIOD_LABELS[figure.period], year]
     .filter(Boolean)
     .join(" · ");
-  // Euromääräiset rajat (markkina-arvon kokoluokat) eivät sovi muun valuutan luvuille.
-  const currencyMismatch = metric.unit === "€" && currency !== "EUR";
+  // Euromääräisiin rajoihin (markkina-arvon kokoluokat) verrataan muun valuutan luku euroiksi
+  // muunnettuna EKP:n kurssilla (kohta 11.10).
+  const eurRate = useEurRate(currency, date, metric.ranges !== undefined && metric.unit === "€");
   const headingId = rowHeadingId(metric.id);
 
   return (
@@ -85,17 +97,31 @@ export default function AnalysisRow({ metric, figure, year, currency }: Props) {
 
       <DirectionBadge direction={metric.direction} label={metric.directionLabel} />
 
-      {metric.ranges && !currencyMismatch && (
+      {metric.ranges && eurRate.status === "ei-tarvita" && (
         <RangeScale
           ranges={metric.ranges}
           note={metric.rangesNote}
           value={{ match: matchRange(metric.ranges, figure.value), text: valueText }}
         />
       )}
-      {metric.ranges && currencyMismatch && (
-        <p className={styles.note}>
-          Kokoluokkien rajat ovat euroina, joten {currency}-määräistä lukua ei verrata niihin.
-          Muunna luku euroiksi, jos haluat verrata.
+      {metric.ranges && eurRate.status === "valmis" && (
+        <ConvertedScale
+          metric={metric}
+          value={figure.value}
+          valueText={valueText}
+          {...eurRate.rate}
+        />
+      )}
+      {metric.ranges && eurRate.status === "haetaan" && (
+        <p className={styles.note} role="status">
+          Haetaan valuuttakurssia, jotta {currency}-määräistä lukua voi verrata euromääräisiin
+          kokoluokkiin…
+        </p>
+      )}
+      {metric.ranges && eurRate.status === "virhe" && (
+        <p className={styles.note} role="status">
+          Kokoluokkien rajat ovat euroina, joten {currency}-määräistä lukua ei verrata niihin.{" "}
+          {RATE_ERRORS[eurRate.reason](currency)}
         </p>
       )}
 
@@ -126,5 +152,30 @@ export default function AnalysisRow({ metric, figure, year, currency }: Props) {
         <span aria-hidden="true"> →</span>
       </a>
     </article>
+  );
+}
+
+interface ConvertedProps extends EurRate {
+  metric: Metric;
+  value: number;
+  valueText: string;
+}
+
+/** Kokoluokat euroiksi muunnetun arvon mukaan sekä muunnos ja kurssi näkyvissä. */
+function ConvertedScale({ metric, value, valueText, currency, rate, date }: ConvertedProps) {
+  const eurValue = value / rate;
+  const conversion = `${valueText} ≈ ${formatNumber(eurValue, metric.unit, "EUR")}`;
+  return (
+    <>
+      <RangeScale
+        ranges={metric.ranges!}
+        note={metric.rangesNote}
+        value={{ match: matchRange(metric.ranges!, eurValue), text: conversion }}
+      />
+      <p className={styles.note}>
+        Kokoluokka on arvioitu euroiksi muunnettuna: {conversion}. Euroopan keskuspankin kurssi{" "}
+        {formatDate(date)}: {formatEurRate(rate, currency)}.
+      </p>
+    </>
   );
 }

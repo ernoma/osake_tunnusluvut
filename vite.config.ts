@@ -11,7 +11,7 @@ async function sha256(code: string): Promise<string> {
 /**
  * Content-Security-Policy julkaistavaan sivuun (suunnitelman kohta 11.3). API-avain on
  * selaimen muistissa, joten sivu saa ladata skriptejä vain omasta osoitteestaan ja ottaa
- * yhteyttä vain omaan sivustoon ja Clauden rajapintaan. index.html:n oma skripti (teema ennen
+ * yhteyttä vain omaan sivustoon, Clauden rajapintaan ja valuuttakurssien rajapintaan (kohta 11.10). index.html:n oma skripti (teema ennen
  * ensimmäistä piirtoa) sallitaan tiivisteellä.
  *
  * Vain buildissa, koska kehityspalvelin lisää sivulle omia skriptejään.
@@ -32,7 +32,7 @@ function contentSecurityPolicy(): Plugin {
           `script-src 'self' ${hashes.join(" ")}`.trim(),
           "style-src 'self'",
           "img-src 'self' data:",
-          "connect-src 'self' https://api.anthropic.com",
+          "connect-src 'self' https://api.anthropic.com https://api.frankfurter.dev",
           "object-src 'none'",
           "base-uri 'self'",
           "form-action 'self'",

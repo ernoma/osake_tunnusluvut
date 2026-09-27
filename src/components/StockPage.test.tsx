@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { violations } from "../test/axe.ts";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { decodeAnalysis } from "../hooks/useAnalysisUrl.ts";
 import { RECENT_STORAGE_KEY } from "../hooks/useRecentAnalyses.ts";
 import App from "./App.tsx";
@@ -272,11 +272,41 @@ describe("analyysi", () => {
     expect(item).toHaveTextContent(/tappiota, P\/E:tä ei voi käyttää/);
   });
 
-  it("euromääräisiä kokoluokkia ei verrata muun valuutan lukuun", () => {
+  it("muun valuutan markkina-arvo verrataan kokoluokkiin euroiksi muunnettuna", async () => {
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({ amount: 1, base: "EUR", date: "2026-09-25", rates: { DKK: 7.4755 } }),
+        ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    renderAt("?sivu=tutki&val=DKK&pvm=2026-09-26&markkina-arvo=14700000000~t~~s");
+    const row = analysisRow("Markkina-arvo");
+    expect(row).toHaveTextContent(/Haetaan valuuttakurssia/);
+
+    const hit = await within(row).findByText(/osuu tähän väliin/);
+    expect(hit.closest("li")).toHaveTextContent("Yli 1 mrd. €");
+    expect(row).toHaveTextContent(/14,7\smrd\.\sDKK ≈ 1,97\smrd\.\s€/);
+    expect(row).toHaveTextContent(/kurssi 25\.9\.2026: 1\s€ = 7,4755\sDKK/);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.frankfurter.dev/v1/2026-09-26?base=EUR&symbols=DKK",
+      expect.anything(),
+    );
+  });
+
+  it("kun kurssia ei saada, kokoluokkia ei verrata ja syy kerrotaan", async () => {
     renderAt("?sivu=tutki&val=USD&markkina-arvo=5000000000~t~~s");
     const row = analysisRow("Markkina-arvo");
-    expect(row).toHaveTextContent(/Kokoluokkien rajat ovat euroina/);
+    expect(await within(row).findByText(/Kokoluokkien rajat ovat euroina/)).toHaveTextContent(
+      /Tarkista verkkoyhteys/,
+    );
     expect(within(row).queryByText(/osuu tähän väliin/)).not.toBeInTheDocument();
+  });
+
+  it("euromääräiselle analyysille kurssia ei haeta", () => {
+    renderAt("?sivu=tutki&markkina-arvo=5000000000~t~~s");
+    expect(within(analysisRow("Markkina-arvo")).getByText(/osuu tähän väliin/)).toBeInTheDocument();
+    expect(fetch).not.toHaveBeenCalled();
   });
 });
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatNumber, parseNumber } from "./numberFormat.ts";
+import { formatEurRate, formatNumber, parseNumber } from "./numberFormat.ts";
 
 const value = (text: string) => parseNumber(text)?.value;
 
@@ -57,6 +57,14 @@ describe("parseNumber", () => {
     expect(parseNumber("abc")).toBeNull();
     expect(parseNumber("12 omenaa")).toBeNull();
     expect(parseNumber("1,2,3")).toBeNull();
+  });
+});
+
+describe("formatEurRate", () => {
+  it("näyttää kurssin enintään neljällä desimaalilla", () => {
+    expect(plain(formatEurRate(7.4755, "DKK"))).toBe("1 € = 7,4755 DKK");
+    expect(plain(formatEurRate(1.14034, "USD"))).toBe("1 € = 1,1403 USD");
+    expect(plain(formatEurRate(170.5, "JPY"))).toBe("1 € = 170,5 JPY");
   });
 });
 

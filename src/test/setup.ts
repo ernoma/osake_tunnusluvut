@@ -15,8 +15,14 @@ beforeEach(() => {
   window.localStorage.clear();
   window.history.replaceState(null, "", "/");
   vi.mocked(Element.prototype.scrollIntoView).mockClear();
+  // Testit eivät käytä verkkoa. Testi, joka tarvitsee vastauksen, korvaa fetchin itse.
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => Promise.reject(new TypeError("Testeissä ei ole verkkoa"))),
+  );
 });
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
 });
