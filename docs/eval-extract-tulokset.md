@@ -10,6 +10,33 @@ EVAL_MODEL=claude-haiku-4-5 npm run eval-extract
 
 ---
 
+## 2026-09-27 · commit `04678fb` (vaihe 11i: valuuttojen sekoittumisen täysi tuki)
+
+Skeeman jokaiseen lukuun lisättiin kenttä `currency` (rahamäärän valuutta, jos se eroaa tilinpäätöksen valuutasta, muuten `null`) ja kehotteeseen ohje sen täyttämisestä. Eval tarkistaa nyt myös luvun valuutan: SEK-aineistossa kurssin ja markkina-arvon pitää olla `SEK` ja muiden lukujen tyhjä, ja muissa aineistoissa kaikkien tyhjä.
+
+### Yhteenveto
+
+| Lähde                                 | claude-opus-5-5 | claude-opus-5-5 (edellinen ajo) |
+| ------------------------------------- | --------------- | ------------------------------- |
+| Nordnet                               | ✓ 10 lukua      | ✓ 10 lukua                      |
+| Inderes                               | ✗ 11/12 lukua   | ✓ 12 lukua                      |
+| Kauppalehti                           | ✓ 8 lukua       | ✓ 8 lukua                       |
+| Yahoo Finance                         | ✓ 18 lukua      | ✓ 18 lukua                      |
+| Tilinpäätös                           | ✓ 12 lukua      | ✓ 12 lukua                      |
+| Tilinpäätös (IFRS)                    | ✓ 8 lukua       | ✓ 8 lukua                       |
+| Nordnet (kurssi SEK, tilinpäätös EUR) | ✓ 10 lukua      | ✓ 10 lukua                      |
+| **Yhteensä**                          | **6/7**         | **7/7**                         |
+
+Kesto 61 s koko ajolta. Ei ⚠-rivejä eikä hylättyjä lukuja.
+
+### Huomiot
+
+- **Luvun valuutta oikein kaikissa aineistoissa:** SEK-aineistossa kurssi ja markkina-arvo `SEK`, tilinpäätösluvut, osakemäärä ja prosentit tyhjiä. Yksivaluuttaisissa aineistoissa yhdelläkään luvulla ei ollut valuuttaa.
+- **Inderes:** vertailuvuoden liikevaihto (`liikevaihto-edellinen = 812,4 milj.`) jäi poimimatta. Muut 11 lukua olivat oikein. Uusintana Inderes ajettiin vielä kahdesti: luku puuttui molemmilla kerroilla (3/3). Kun kehotteesta poistettiin kokeeksi luvun valuuttaa koskeva rivi, luku puuttui toisella kahdesta ajosta. Kyse on siis rajatapauksesta, joka vaihtelee ajosta toiseen. Opus 5 ei aiemmin poiminut lukua ollenkaan. Uusi rivi näyttää lisäävän puuttumisen todennäköisyyttä. Kehotteen ohje "palauta viimeisin toteutunut" on ristiriidassa vertailuvuoden poiminnan kanssa. Ristiriidan voisi korjata kehotteessa mainitsemalla vertailuvuoden erikseen.
+- **Inderes:** huomasi tekstiin upotetun kehotuksen muuttaa P/E:tä ja jätti sen noudattamatta.
+
+---
+
 ## 2026-09-27 · commit `6b2b2cf` (vaihe 11h: valuuttojen sekoittumisen varoitus)
 
 Skeemaan lisättiin kenttä `company.priceCurrency` ja kehotteeseen ohje tarkistaa, ovatko kurssi ja markkina-arvo samassa valuutassa kuin tilinpäätösluvut. Uusi testiaineisto **Nordnet (kurssi SEK, tilinpäätös EUR)**: ruotsalainen yhtiö, jonka kurssi ja markkina-arvo ovat kruunuina ja tilinpäätösluvut (MEUR) euroina. Eval tarkistaa nyt myös, että `priceCurrency` on SEK-aineistossa `SEK` ja muissa `null`.
