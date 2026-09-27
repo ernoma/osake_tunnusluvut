@@ -10,6 +10,32 @@ EVAL_MODEL=claude-haiku-4-5 npm run eval-extract
 
 ---
 
+## 2026-09-27 · vertailukauden luku kehotteeseen
+
+Edellisen ajon Inderes-virheen korjaus. Kehotteen ohje "palauta viimeisin toteutunut" sai mallin jättämään vertailuvuoden liikevaihdon pois. Kehotteeseen lisättiin ohje: vertailukauden luku, jolla on oma id (esim. `liikevaihto-edellinen`), palautetaan aina, kun tekstissä on sama luku edelliseltä kaudelta. Se on valittua kautta edeltävä kausi.
+
+### Yhteenveto
+
+| Lähde                                 | claude-opus-5-5 | claude-opus-5-5 (edellinen ajo) |
+| ------------------------------------- | --------------- | ------------------------------- |
+| Nordnet                               | ✓ 10 lukua      | ✓ 10 lukua                      |
+| Inderes                               | ✓ 12 lukua      | ✗ 11/12 lukua                   |
+| Kauppalehti                           | ✓ 8 lukua       | ✓ 8 lukua                       |
+| Yahoo Finance                         | ✓ 18 lukua      | ✓ 18 lukua                      |
+| Tilinpäätös                           | ✓ 12 lukua      | ✓ 12 lukua                      |
+| Tilinpäätös (IFRS)                    | ✓ 8 lukua       | ✓ 8 lukua                       |
+| Nordnet (kurssi SEK, tilinpäätös EUR) | ✓ 10 lukua      | ✓ 10 lukua                      |
+| **Yhteensä**                          | **7/7**         | **6/7**                         |
+
+Kesto 55 s koko ajolta. Ei ⚠-rivejä, hylättyjä lukuja eikä ylimääräisiä lukuja.
+
+### Huomiot
+
+- **Inderes:** vertailuvuoden liikevaihto poimittiin oikein. Inderes ajettiin lisäksi kolme kertaa erikseen, ja luku löytyi joka kerta (4/4, ennen korjausta 0/3).
+- Luvun valuutta oli edelleen oikein kaikissa aineistoissa.
+
+---
+
 ## 2026-09-27 · commit `04678fb` (vaihe 11i: valuuttojen sekoittumisen täysi tuki)
 
 Skeeman jokaiseen lukuun lisättiin kenttä `currency` (rahamäärän valuutta, jos se eroaa tilinpäätöksen valuutasta, muuten `null`) ja kehotteeseen ohje sen täyttämisestä. Eval tarkistaa nyt myös luvun valuutan: SEK-aineistossa kurssin ja markkina-arvon pitää olla `SEK` ja muiden lukujen tyhjä, ja muissa aineistoissa kaikkien tyhjä.
