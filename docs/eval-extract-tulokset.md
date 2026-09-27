@@ -10,9 +10,39 @@ EVAL_MODEL=claude-haiku-4-5 npm run eval-extract
 
 ---
 
-## 2026-09-27 · oletusmalliksi `claude-opus-5-5`, ei vielä ajettu
+## 2026-09-27 · commit `addcfbd` (oletusmalliksi Claude Opus 5.5)
 
-Oletusmalli vaihdettiin Claude Opus 5:stä Opus 5.5:een, ja Opus 5 poistettiin valikosta. Kehote ja skeema ovat ennallaan. Aja `npm run eval-extract` ja kirjaa tulokset tähän ennen kuin oletus vahvistetaan.
+Oletusmalli vaihdettiin Claude Opus 5:stä Opus 5.5:een, ja Opus 5 poistettiin valikosta. Kehote ja skeema ovat ennallaan.
+
+### Yhteenveto
+
+| Lähde         | claude-opus-5-5 | claude-opus-5 (edellinen ajo) |
+| ------------- | --------------- | ----------------------------- |
+| Nordnet       | ✓ 10 lukua      | ✓ 10 lukua                    |
+| Inderes       | ✓ 12 lukua      | ✓ 11 lukua                    |
+| Kauppalehti   | ✓ 8 lukua       | ✓ 8 lukua                     |
+| Yahoo Finance | ✓ 18 lukua      | ✓ 18 lukua                    |
+| Tilinpäätös   | ✓ 12 lukua      | ✓ 12 lukua                    |
+| **Yhteensä**  | **5/5**         | **5/5**                       |
+
+Kesto 42 s koko ajolta, 6–10 s lähdettä kohden. Ajattelutaso `low` kuten Opus 5:llä. Ei ⚠-rivejä eikä hylättyjä lukuja.
+
+### Huomiot
+
+- **Inderes:** poimi kaksi odotettujen ulkopuolista lukua, jotka testi hyväksyi. Molemmat ovat oikeita:
+  - `ttm-kasvu = 6,5` (rivi `Kasvu-%`), kuten Opus 5.
+  - `liikevaihto-edellinen = 812,4 milj. €`, eli vuoden 2024 liikevaihto. Opus 5 ei poiminut tätä. Luvun avulla sovellus voi laskea kasvun itse.
+  - Kannattaa lisätä molemmat fixtureen odotetuiksi luvuiksi.
+- **Inderes:** valitsi monisarakkeisesta taulukosta oikean vuoden (2025, ei ennustetta), kertoi oikaistuista luvuista ja huomasi tekstiin upotetun kehotuksen muuttaa P/E:tä jättäen sen noudattamatta.
+- **Yahoo Finance:** valitsi toteutuneen trailing-P/E:n forward-luvun sijaan eikä sekoittanut nettomarginaalia (`Profit Margin`) EBIT-prosenttiin, jonka Haiku teki edellisessä ajossa.
+- **Tilinpäätös:** muunsi tuhannet eurot euroiksi ja poimi myös edellisen vuoden liikevaihdon, jonka Haiku jätti pois.
+- **Nordnet ja Kauppalehti:** kun kautta ei ollut kerrottu, luvut merkittiin 12 kk:n luvuiksi ilman vuotta, ja tunnistamattomat luvut (beta, oma pääoma/osake) jätettiin pois ja niistä kerrottiin.
+- Kieltäytymisiä ei tullut, joten varamallia ei tarvittu.
+
+### Johtopäätökset
+
+- `claude-opus-5-5` vahvistetaan oletusmalliksi. Tulos on sama kuin Opus 5:llä, ja Opus 5.5 on halvempi.
+- Sonnet 5:tä ei ole vielä ajettu. Haikun ohjeet ovat ennallaan (ks. alla).
 
 ---
 
