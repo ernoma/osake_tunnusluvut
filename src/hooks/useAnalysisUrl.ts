@@ -5,10 +5,12 @@
 // e (ennuste), ja lähde s (sivulta) tai k (käyttäjä). Laskettuja lukuja ei tallenneta, koska ne
 // syntyvät uudelleen. Osoite päivitetään replaceState-kutsulla kuten useUrlState:ssa.
 //
-// Parametri hval on kurssin ja markkina-arvon valuutta, kun tekoäly on havainnut sen eroavan
-// tilinpäätöksen valuutasta (val), esimerkiksi val=EUR&hval=SEK (kohta 11.11).
+// Rahamäärällä, joka on eri valuutassa kuin analyysi (val), on viides kenttä: luvun valuutta,
+// esimerkiksi val=EUR&kurssi=118.4~ttm~~s~SEK (kohta 11.11). Vaiheen 11h osoitteissa kurssin
+// valuutta oli parametrissa hval. Se luetaan edelleen kurssiin sidottujen lukujen valuutaksi.
 
 import { useCallback, useState } from "react";
+import { CURRENCY_CODE, isMoney, PRICE_BOUND_IDS } from "../data/currency.ts";
 import { figuresById } from "../data/content.ts";
 import type { Period } from "../data/formulas.ts";
 import { PAGE_PARAM } from "./usePage.ts";
@@ -23,18 +25,21 @@ export interface AnalysisFigure {
   year: string;
   /** sivu = poimittu liitetystä tekstistä, kayttaja = syötetty tai korjattu käsin. */
   origin: "sivu" | "kayttaja";
+  /**
+   * Rahamäärän valuutta, jos se on eri kuin analyysin valuutta, esim. SEK-määräinen kurssi
+   * EUR-määräisessä analyysissä. Puuttuu, kun luku on analyysin valuutassa.
+   */
+  currency?: string;
 }
 
 export interface Analysis {
   /** Yhtiön nimi. Tyhjä, jos ei annettu. */
   name: string;
-  /** Kolmikirjaiminen valuuttakoodi, esim. "EUR". */
-  currency: string;
   /**
-   * Kurssin ja markkina-arvon valuutta, jos tekoäly havaitsi sen eroavan tilinpäätöksen
-   * valuutasta (kohta 11.11). Puuttuu tai tyhjä, jos erillistä kurssin valuuttaa ei ole.
+   * Kolmikirjaiminen valuuttakoodi, esim. "EUR": tilinpäätöksen valuutta, johon eri valuutan
+   * luvut muunnetaan ennen laskentaa.
    */
-  priceCurrency?: string;
+  currency: string;
   /** Päivä, jolloin luvut haettiin (vvvv-kk-pp). Tyhjä, jos ei annettu. */
   date: string;
   /** Luvut siinä järjestyksessä kuin ne lisättiin. Sama id esiintyy enintään kerran. */
@@ -53,8 +58,6 @@ export const EMPTY_ANALYSIS: Analysis = {
 /** Parametrit, joita ei voi käyttää luvun id:nä. */
 export const RESERVED_PARAMS = [PAGE_PARAM, "nimi", "val", "pvm", "hval"] as const;
 const [, NAME_PARAM, CURRENCY_PARAM, DATE_PARAM, PRICE_CURRENCY_PARAM] = RESERVED_PARAMS;
-
-const CURRENCY_CODE = /^[A-Z]{3}$/;
 
 const PERIOD_CODES: Record<Period, string> = { toteutunut: "t", ttm: "ttm", ennuste: "e" };
 const ORIGIN_CODES: Record<AnalysisFigure["origin"], string> = { sivu: "s", kayttaja: "k" };
@@ -76,7 +79,6 @@ export function encodeAnalysis(analysis: Analysis): string {
   const parts: [string, string][] = [[PAGE_PARAM, "tutki"]];
   if (analysis.name.trim()) parts.push([NAME_PARAM, analysis.name.trim()]);
   parts.push([CURRENCY_PARAM, analysis.currency]);
-  if (analysis.priceCurrency) parts.push([PRICE_CURRENCY_PARAM, analysis.priceCurrency]);
   if (analysis.date) parts.push([DATE_PARAM, analysis.date]);
   for (const f of analysis.figures) {
     const fields = [
@@ -85,6 +87,7 @@ export function encodeAnalysis(analysis: Analysis): string {
       f.year.replaceAll(SEPARATOR, "").trim(),
       ORIGIN_CODES[f.origin],
     ];
+    if (f.currency && f.currency !== analysis.currency && isMoney(f.id)) fields.push(f.currency);
     parts.push([f.id, fields.join(SEPARATOR)]);
   }
   return "?" + parts.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
@@ -93,27 +96,31 @@ export function encodeAnalysis(analysis: Analysis): string {
 /** Purkaa osoitteen analyysiksi. Tuntemattomat parametrit ja virheelliset luvut ohitetaan. */
 export function decodeAnalysis(search: string): Analysis {
   const params = new URLSearchParams(search);
-  const currency = params.get(CURRENCY_PARAM)?.toUpperCase() ?? "";
+  const currencyParam = params.get(CURRENCY_PARAM)?.toUpperCase() ?? "";
+  const currency = CURRENCY_CODE.test(currencyParam) ? currencyParam : DEFAULT_CURRENCY;
   const priceCurrency = params.get(PRICE_CURRENCY_PARAM)?.toUpperCase() ?? "";
   const date = params.get(DATE_PARAM) ?? "";
   const figures: AnalysisFigure[] = [];
   for (const [id, raw] of params) {
     if (!figuresById.has(id) || figures.some((f) => f.id === id)) continue;
-    const [valueText = "", periodCode = "", year = "", originCode = ""] = raw.split(SEPARATOR);
+    const [valueText = "", periodCode = "", year = "", originCode = "", currencyField = ""] =
+      raw.split(SEPARATOR);
     const value = Number(valueText);
     if (valueText.trim() === "" || !Number.isFinite(value)) continue;
+    // Vaiheen 11h osoitteessa kurssiin sidottujen lukujen valuutta on parametrissa hval.
+    const own = currencyField.toUpperCase() || (PRICE_BOUND_IDS.has(id) ? priceCurrency : "");
     figures.push({
       id,
       value,
       period: decodeCode(PERIOD_CODES, periodCode),
       year: year.trim(),
       origin: decodeCode(ORIGIN_CODES, originCode) ?? "kayttaja",
+      ...(isMoney(id) && CURRENCY_CODE.test(own) && own !== currency ? { currency: own } : {}),
     });
   }
   return {
     name: params.get(NAME_PARAM)?.trim() ?? "",
-    currency: CURRENCY_CODE.test(currency) ? currency : DEFAULT_CURRENCY,
-    ...(CURRENCY_CODE.test(priceCurrency) ? { priceCurrency } : {}),
+    currency,
     date: /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : "",
     figures,
   };

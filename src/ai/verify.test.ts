@@ -93,6 +93,7 @@ describe("testiaineisto", () => {
         }
         expect(found, expected.id).toBeDefined();
         expect(found?.check, `${expected.id}: ${found?.warning}`).toBe("ok");
+        expect(found?.currency, `${expected.id}: valuutta`).toBe(expected.currency);
       }
       expect(result.company.name).toBe(fixture.company.name);
       expect(result.company.currency).toBe(fixture.company.currency);
@@ -110,6 +111,41 @@ describe("testiaineisto", () => {
       "",
     );
     expect(result.company.priceCurrency).toBeNull();
+  });
+
+  it("luvun valuutta: oma, kurssin valuutta tai ei mitään", () => {
+    const value = (id: string, currency: string | null) => ({
+      id,
+      value: 1,
+      period: "ttm" as const,
+      year: null,
+      quote: "x 1",
+      currency,
+    });
+    const result = verifyExtraction(
+      {
+        company: { name: null, ticker: null, currency: "EUR", priceCurrency: "SEK" },
+        values: [
+          value("kurssi", null),
+          value("markkina-arvo", "usd"),
+          value("eps", "EUR"),
+          value("nettotulos", "SEK"),
+          value("pe", "SEK"),
+        ],
+        notes: [],
+      },
+      "x 1",
+    );
+    const currencies = Object.fromEntries(result.values.map((v) => [v.id, v.currency]));
+    // Kurssiin sidottu luku saa kurssin valuutan, ellei sillä ole omaa.
+    expect(currencies).toEqual({
+      kurssi: "SEK",
+      "markkina-arvo": "USD",
+      eps: undefined,
+      nettotulos: "SEK",
+      // Kertoimella ei ole valuuttaa.
+      pe: undefined,
+    });
   });
 
   it("tuntematon id hylätään", () => {

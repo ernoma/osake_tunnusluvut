@@ -15,6 +15,11 @@ export const extractedValueSchema = z.object({
   year: z.string().nullable(),
   /** Tekstin kohta, josta luku löytyi, sellaisenaan. */
   quote: z.string(),
+  /**
+   * Rahamäärän valuutta, jos se eroaa tilinpäätöslukujen valuutasta (company.currency), esim.
+   * SEK-määräinen kurssi, kun tilinpäätös on euroissa (kohta 11.11). Muuten null.
+   */
+  currency: z.string().nullable(),
 });
 
 export const extractionSchema = z.object({

@@ -143,7 +143,12 @@ const rateFormat = fi({ maximumFractionDigits: 4 });
 
 /** Valuuttakurssi euroon: "1 € = 7,4755 DKK". */
 export function formatEurRate(rate: number, currency: string): string {
-  return `1${NBSP}€ = ${rateFormat.format(rate)}${NBSP}${currency}`;
+  return formatRate(rate, currency, "EUR");
+}
+
+/** Valuuttakurssi: "1 USD = 9,4521 SEK", kun base on USD ja currency SEK. */
+export function formatRate(rate: number, currency: string, base: string): string {
+  return `1${NBSP}${currencySymbol(base)} = ${rateFormat.format(rate)}${NBSP}${currency}`;
 }
 
 /** Yksikön nimi syöttökentän vieressä: "€", "USD", "€/osake", "%", "kpl" tai "kerroin". */

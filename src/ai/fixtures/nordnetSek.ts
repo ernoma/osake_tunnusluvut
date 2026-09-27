@@ -28,8 +28,8 @@ export const nordnetSek: ExtractionFixture = {
     "Yhtiö raportoi euroissa.",
   ].join("\n"),
   expected: [
-    { id: "kurssi", value: 118.4 },
-    { id: "markkina-arvo", value: 12.6e9 },
+    { id: "kurssi", value: 118.4, currency: "SEK" },
+    { id: "markkina-arvo", value: 12.6e9, currency: "SEK" },
     { id: "osakkeiden-maara", value: 106_400_000 },
     { id: "osinkotuotto", value: 2.9 },
     { id: "liikevaihto", value: 1488.1e6, period: "toteutunut" },
@@ -43,13 +43,21 @@ export const nordnetSek: ExtractionFixture = {
   response: {
     company: { name: "Exempelbolaget AB", ticker: "EXMP", currency: "EUR", priceCurrency: "SEK" },
     values: [
-      { id: "kurssi", value: 118.4, period: "ttm", year: null, quote: "Viimeisin 118,40 SEK" },
+      {
+        id: "kurssi",
+        value: 118.4,
+        period: "ttm",
+        year: null,
+        quote: "Viimeisin 118,40 SEK",
+        currency: "SEK",
+      },
       {
         id: "markkina-arvo",
         value: 12.6e9,
         period: "ttm",
         year: null,
         quote: "Markkina-arvo 12,6 mrd SEK",
+        currency: "SEK",
       },
       {
         id: "osakkeiden-maara",
@@ -57,14 +65,23 @@ export const nordnetSek: ExtractionFixture = {
         period: "ttm",
         year: null,
         quote: "Osakkeiden määrä 106 400 000",
+        currency: null,
       },
-      { id: "osinkotuotto", value: 2.9, period: "ttm", year: null, quote: "Osinkotuotto 2,9 %" },
+      {
+        id: "osinkotuotto",
+        value: 2.9,
+        period: "ttm",
+        year: null,
+        quote: "Osinkotuotto 2,9 %",
+        currency: null,
+      },
       {
         id: "liikevaihto",
         value: 1488.1e6,
         period: "toteutunut",
         year: "2025",
         quote: "Liikevaihto 1 402,6 1 488,1",
+        currency: null,
       },
       {
         id: "liikevaihto-edellinen",
@@ -72,6 +89,7 @@ export const nordnetSek: ExtractionFixture = {
         period: "toteutunut",
         year: "2024",
         quote: "Liikevaihto 1 402,6 1 488,1",
+        currency: null,
       },
       {
         id: "ebit",
@@ -79,6 +97,7 @@ export const nordnetSek: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Liikevoitto 131,9 142,7",
+        currency: null,
       },
       {
         id: "nettotulos",
@@ -86,6 +105,7 @@ export const nordnetSek: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Nettotulos 92,4 101,8",
+        currency: null,
       },
       {
         id: "oma-paaoma",
@@ -93,6 +113,7 @@ export const nordnetSek: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Oma pääoma 688,0 741,3",
+        currency: null,
       },
       {
         id: "eps",
@@ -100,6 +121,7 @@ export const nordnetSek: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Tulos/osake (EUR) 0,87 0,96",
+        currency: null,
       },
     ],
     notes: ["Kurssi ja markkina-arvo ovat kruunuina (SEK), mutta tilinpäätösluvut euroina (EUR)."],

@@ -2,8 +2,8 @@
 // päivittää analyysin heti. Syötetty tai korjattu arvo merkitään "Syötetty".
 
 import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
-import { figureCurrency } from "../data/analysis.ts";
 import { displayName, figuresById, type FigureInfo } from "../data/content.ts";
+import { currencyOf, currencyOptions, isMoney } from "../data/currency.ts";
 import { parseFigureValue, searchFigures } from "../data/figureEntry.ts";
 import { PERIOD_LABELS, PERIODS, type Period } from "../data/formulas.ts";
 import { formatForInput, formatNumber, unitLabel } from "../data/numberFormat.ts";
@@ -24,10 +24,9 @@ export interface CalculatedFigure {
 
 interface Props {
   figures: AnalysisFigure[];
+  /** Analyysin valuutta. Rahamäärän valuutan voi vaihtaa luvuittain (kohta 11.11). */
   currency: string;
-  /** Kurssin valuutta, jos se eroaa tilinpäätöksen valuutasta (kohta 11.11). */
-  priceCurrency?: string;
-  /** Omista luvuista lasketut, jotka eivät ole taulukossa. */
+  /** Omista luvuista lasketut analyysin valuutassa, jotka eivät ole taulukossa. */
   calculated: CalculatedFigure[];
   onChange: (figures: AnalysisFigure[]) => void;
   /** "Lisää luku" on auki heti, esimerkiksi kun käyttäjä aloittaa tyhjästä. */
@@ -37,13 +36,10 @@ interface Props {
 export default function FiguresTable({
   figures,
   currency,
-  priceCurrency,
   calculated,
   onChange,
   initiallyAdding = false,
 }: Props) {
-  // Kurssiin sidotut luvut näytetään kurssin valuutassa.
-  const currencyOf = (id: string) => figureCurrency(id, currency, priceCurrency);
   const [open, setOpen] = useState(true);
   const [adding, setAdding] = useState(initiallyAdding);
   const [announcement, setAnnouncement] = useState("");
@@ -122,7 +118,7 @@ export default function FiguresTable({
                   <FigureRow
                     key={f.id}
                     figure={f}
-                    currency={currencyOf(f.id)}
+                    currency={currency}
                     onChange={(change) => update(f.id, change)}
                     onRemove={() => remove(f)}
                   />
@@ -135,7 +131,7 @@ export default function FiguresTable({
         {adding ? (
           <AddFigure
             exclude={new Set(figures.map((f) => f.id))}
-            currencyOf={currencyOf}
+            currency={currency}
             onAdd={add}
             onClose={closeAdding}
           />
@@ -160,7 +156,7 @@ export default function FiguresTable({
                 return (
                   <li key={c.id}>
                     <span>{displayName(info)}</span>{" "}
-                    <strong>{formatNumber(c.value, info.unit, currencyOf(c.id))}</strong>
+                    <strong>{formatNumber(c.value, info.unit, currency)}</strong>
                   </li>
                 );
               })}
@@ -183,6 +179,7 @@ function nameOf(id: string): string {
 
 interface RowProps {
   figure: AnalysisFigure;
+  /** Analyysin valuutta. */
   currency: string;
   onChange: (change: Partial<AnalysisFigure>) => void;
   onRemove: () => void;
@@ -197,6 +194,7 @@ function FigureRow({ figure, currency, onChange, onRemove }: RowProps) {
   const hintId = useId();
   if (!info) return null;
   const name = displayName(info);
+  const own = currencyOf(figure, currency);
 
   const commitValue = () => {
     const result = parseFigureValue(draft, info.unit);
@@ -241,7 +239,12 @@ function FigureRow({ figure, currency, onChange, onRemove }: RowProps) {
             onBlur={commitValue}
             onKeyDown={onEnter(commitValue)}
           />
-          <span className={styles.unit}>{unitLabel(info.unit, currency)}</span>
+          <UnitOrCurrency
+            info={info}
+            label={`${name}, valuutta`}
+            value={own}
+            onChange={(c) => onChange({ currency: c === currency ? undefined : c })}
+          />
         </span>
         {error ? (
           <span id={errorId} className={styles.error}>
@@ -250,7 +253,7 @@ function FigureRow({ figure, currency, onChange, onRemove }: RowProps) {
         ) : (
           showHint && (
             <span id={hintId} className={styles.hint}>
-              {formatNumber(figure.value, info.unit, currency)}
+              {formatNumber(figure.value, info.unit, own)}
             </span>
           )
         )}
@@ -286,6 +289,44 @@ function FigureRow({ figure, currency, onChange, onRemove }: RowProps) {
         </button>
       </td>
     </tr>
+  );
+}
+
+/**
+ * Yksikkö syöttökentän vieressä. Rahamäärällä valuutan valinta, koska luku voi olla eri
+ * valuutassa kuin analyysi, esimerkiksi kruunuina (kohta 11.11).
+ */
+function UnitOrCurrency({
+  info,
+  label,
+  id,
+  value,
+  onChange,
+}: {
+  info: FigureInfo;
+  label?: string;
+  id?: string;
+  value: string;
+  onChange: (currency: string) => void;
+}) {
+  if (!isMoney(info.id)) return <span className={styles.unit}>{unitLabel(info.unit)}</span>;
+  return (
+    <>
+      <select
+        id={id}
+        className={styles.select}
+        aria-label={label}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        {currencyOptions(value).map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </select>
+      {info.unit === "€/osake" && <span className={styles.unit}>/osake</span>}
+    </>
   );
 }
 
@@ -326,17 +367,18 @@ export function PeriodSelect({
 
 interface AddProps {
   exclude: ReadonlySet<string>;
-  /** Luvun valuutta id:n mukaan. */
-  currencyOf: (id: string) => string;
+  /** Analyysin valuutta, rahamäärän oletusvaluutta. */
+  currency: string;
   onAdd: (figure: AnalysisFigure) => void;
   onClose: () => void;
 }
 
 /** Haettava lista tunnusluvuista ja lähtötiedoista sekä valitun luvun arvon syöttö. */
-function AddFigure({ exclude, currencyOf, onAdd, onClose }: AddProps) {
+function AddFigure({ exclude, currency, onAdd, onClose }: AddProps) {
   const [query, setQuery] = useState("");
   const [chosen, setChosen] = useState<FigureInfo | null>(null);
   const [value, setValue] = useState("");
+  const [figureCurrency, setFigureCurrency] = useState(currency);
   const [period, setPeriod] = useState<Period | undefined>("toteutunut");
   const [year, setYear] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -351,6 +393,7 @@ function AddFigure({ exclude, currencyOf, onAdd, onClose }: AddProps) {
   const choose = (figure: FigureInfo) => {
     setChosen(figure);
     setValue("");
+    setFigureCurrency(currency);
     setError(null);
   };
 
@@ -367,7 +410,14 @@ function AddFigure({ exclude, currencyOf, onAdd, onClose }: AddProps) {
       valueRef.current?.focus();
       return;
     }
-    onAdd({ id: chosen.id, value: result.value, period, year: year.trim(), origin: "kayttaja" });
+    onAdd({
+      id: chosen.id,
+      value: result.value,
+      period,
+      year: year.trim(),
+      origin: "kayttaja",
+      ...(isMoney(chosen.id) && figureCurrency !== currency ? { currency: figureCurrency } : {}),
+    });
     setQuery("");
     backToSearch();
   };
@@ -403,7 +453,12 @@ function AddFigure({ exclude, currencyOf, onAdd, onClose }: AddProps) {
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
                 />
-                <span className={styles.unit}>{unitLabel(chosen.unit, currencyOf(chosen.id))}</span>
+                <UnitOrCurrency
+                  info={chosen}
+                  label="Luvun valuutta"
+                  value={figureCurrency}
+                  onChange={setFigureCurrency}
+                />
               </span>
             </div>
             <div className={styles.field}>

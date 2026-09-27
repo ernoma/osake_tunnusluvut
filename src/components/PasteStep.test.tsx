@@ -202,17 +202,23 @@ describe("poimittujen lukujen tarkistus", () => {
     expect(recent).not.toContain("Liikevaihto 245 318");
   });
 
-  it("kurssin eri valuutasta varoitetaan tarkistuksessa ja analyysissä", async () => {
+  it("kurssin eri valuutta muunnetaan ennen laskentaa", async () => {
     window.localStorage.setItem(API_KEY_STORAGE_KEY, KEY);
-    stubApi(messageReply(nordnetSek.response));
+    const rates = () =>
+      new Response(
+        JSON.stringify({ amount: 1, base: "EUR", date: "2026-09-25", rates: { SEK: 11.29 } }),
+      );
+    const calls = stubApi(messageReply(nordnetSek.response), rates);
     const { user } = renderPage();
     await paste(user, nordnetSek.text);
     await user.click(extractButton());
 
     await screen.findByRole("heading", { name: "Tarkista poimitut luvut" });
     expect(
-      screen.getByText(/Kurssi ja markkina-arvo ovat SEK-määräisiä, mutta tilinpäätösluvut EUR/),
-    ).toBeInTheDocument();
+      screen.getByText(
+        /Osakkeen kurssi ja markkina-arvo ovat SEK-määräisiä, mutta tilinpäätösluvut EUR/,
+      ),
+    ).toHaveTextContent(/muuntaa ne valuuttaan EUR/);
     const list = screen.getByRole("list", { name: "Poimitut luvut" });
     expect(
       within(list).getByRole("checkbox", { name: /^Osakkeen kurssi 118,40\sSEK/ }),
@@ -222,15 +228,28 @@ describe("poimittujen lukujen tarkistus", () => {
     ).toBeChecked();
 
     await user.click(screen.getByRole("button", { name: /Käytä valittuja lukuja/ }));
-    expect(decodeAnalysis(window.location.search)).toMatchObject({
-      currency: "EUR",
-      priceCurrency: "SEK",
+    const analysis = decodeAnalysis(window.location.search);
+    expect(analysis.currency).toBe("EUR");
+    expect(Object.fromEntries(analysis.figures.map((f) => [f.id, f.currency]))).toMatchObject({
+      kurssi: "SEK",
+      "markkina-arvo": "SEK",
+      eps: undefined,
     });
-    expect(screen.getByRole("combobox", { name: "Kurssin valuutta" })).toHaveValue("SEK");
-    expect(screen.getByText(/Kurssi ja markkina-arvo ovat SEK-määräisiä/)).toBeInTheDocument();
-    expect(screen.getByRole("article", { name: "P/B-luku" })).toHaveTextContent(
-      /yhdistämällä SEK-määräinen kurssiin sidottu luku EUR-määräiseen/,
+    expect(window.location.search).toContain("kurssi=118.4~ttm~~s~SEK");
+    expect(screen.getByRole("combobox", { name: "Osakkeen kurssi, valuutta" })).toHaveValue("SEK");
+
+    // P/E lasketaan euroiksi muunnetusta kurssista: 118,40 SEK ≈ 10,49 € ja 10,49 € ÷ 0,96 €.
+    const pe = await screen.findByRole("article", { name: "P/E-luku" });
+    expect(pe).toHaveTextContent(
+      /Osakkeen kurssi 118,40\sSEK ≈ 10,49\s€ \(1\s€ = 11,29\sSEK\) ÷ osakekohtainen tulos 0,96\s€ = 10,9/,
     );
+    expect(screen.getByRole("article", { name: "P/B-luku" })).toHaveTextContent(
+      /Markkina-arvo 12,6\smrd\.\sSEK ≈ 1,12\smrd\.\s€ .* = 1,5/,
+    );
+    expect(
+      screen.getByText(/ovat SEK-määräisiä\. Ne on muunnettu valuuttaan EUR/),
+    ).toHaveTextContent(/kurssilla 25\.9\.2026: 1\s€ = 11,29\sSEK/);
+    expect(calls.at(-1)?.url).toMatch(/^https:\/\/api\.frankfurter\.dev\/v1\/.*symbols=SEK$/);
   });
 
   it("yksivaluuttaisesta aineistosta ei varoiteta", async () => {
@@ -244,8 +263,9 @@ describe("poimittujen lukujen tarkistus", () => {
     expect(screen.queryByText(/määräisiä, mutta tilinpäätösluvut/)).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /Käytä valittuja lukuja/ }));
     expect(screen.queryByText(/määräisiä, mutta tilinpäätösluvut/)).not.toBeInTheDocument();
-    expect(screen.queryByRole("combobox", { name: "Kurssin valuutta" })).not.toBeInTheDocument();
-    expect(window.location.search).not.toContain("hval");
+    expect(screen.queryByText(/muunnettu valuuttaan/)).not.toBeInTheDocument();
+    expect(window.location.search).not.toMatch(/~[A-Z]{3}(&|$)/);
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 
   it("keksityt lainaukset hylätään, ja tekoälyn huomiot näytetään", async () => {

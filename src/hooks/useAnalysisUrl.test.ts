@@ -80,14 +80,32 @@ describe("decodeAnalysis", () => {
     expect(decodeAnalysis("?val=usd").currency).toBe("USD");
   });
 
-  it("kurssin valuutta säilyy edestakaisin, ja virheellinen ohitetaan", () => {
-    const withPrice: Analysis = { ...vonovia, priceCurrency: "SEK" };
-    const search = encodeAnalysis(withPrice);
-    expect(search).toContain("&val=EUR&hval=SEK&");
-    expect(decodeAnalysis(search)).toEqual(withPrice);
-    expect(encodeAnalysis(vonovia)).not.toContain("hval");
-    expect(decodeAnalysis("?hval=kruunu").priceCurrency).toBeUndefined();
-    expect(decodeAnalysis("?hval=sek").priceCurrency).toBe("SEK");
+  it("luvun valuutta säilyy edestakaisin, ja virheellinen ohitetaan", () => {
+    const sek: Analysis = {
+      ...vonovia,
+      figures: [
+        { id: "kurssi", value: 118.4, period: "ttm", year: "", origin: "sivu", currency: "SEK" },
+        { id: "eps", value: 0.96, period: "toteutunut", year: "2025", origin: "sivu" },
+      ],
+    };
+    const search = encodeAnalysis(sek);
+    expect(search).toContain("&kurssi=118.4~ttm~~s~SEK&eps=0.96~t~2025~s");
+    expect(decodeAnalysis(search)).toEqual(sek);
+
+    const own = (query: string) => decodeAnalysis(query).figures[0]?.currency;
+    expect(own("?val=EUR&kurssi=1~t~~s~kruunu")).toBeUndefined();
+    expect(own("?val=EUR&kurssi=1~t~~s~sek")).toBe("SEK");
+    // Sama kuin analyysin valuutta, tai luku ei ole rahamäärä.
+    expect(own("?val=EUR&kurssi=1~t~~s~EUR")).toBeUndefined();
+    expect(own("?val=EUR&pe=1~t~~s~SEK")).toBeUndefined();
+  });
+
+  it("vaiheen 11h hval antaa kurssiin sidottujen lukujen valuutan", () => {
+    const decoded = decodeAnalysis(
+      "?val=EUR&hval=SEK&kurssi=1~t~~s&markkina-arvo=2~t~~s~USD&eps=3~t~~s",
+    );
+    expect(decoded.figures.map((f) => f.currency)).toEqual(["SEK", "USD", undefined]);
+    expect(encodeAnalysis(decoded)).not.toContain("hval");
   });
 });
 

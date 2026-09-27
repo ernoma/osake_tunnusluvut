@@ -65,6 +65,7 @@ export const tilinpaatosIfrs: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Liikevaihto 412,6 398,1",
+        currency: null,
       },
       {
         id: "ebit",
@@ -72,6 +73,7 @@ export const tilinpaatosIfrs: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Liikevoitto 31,4 28,9",
+        currency: null,
       },
       {
         id: "nettotulos",
@@ -79,6 +81,7 @@ export const tilinpaatosIfrs: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Tilikauden voitto 21,7 19,8",
+        currency: null,
       },
       {
         id: "liikevaihto-edellinen",
@@ -86,6 +89,7 @@ export const tilinpaatosIfrs: ExtractionFixture = {
         period: "toteutunut",
         year: "2024",
         quote: "Liikevaihto 412,6 398,1",
+        currency: null,
       },
       {
         id: "oma-paaoma",
@@ -93,6 +97,7 @@ export const tilinpaatosIfrs: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Oma pääoma yhteensä 152,3 141,7",
+        currency: null,
       },
       {
         id: "kassa",
@@ -100,6 +105,7 @@ export const tilinpaatosIfrs: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Rahavarat 29,4 24,6",
+        currency: null,
       },
       {
         id: "saadut-ennakot",
@@ -107,6 +113,7 @@ export const tilinpaatosIfrs: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Saadut ennakot 13,6 12,1",
+        currency: null,
       },
       {
         id: "taseen-loppusumma",
@@ -114,6 +121,7 @@ export const tilinpaatosIfrs: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Varat yhteensä 366,6 354,0",
+        currency: null,
       },
     ],
     notes: ["Luvut ovat miljoonina euroina, ja ne on muunnettu euroiksi."],

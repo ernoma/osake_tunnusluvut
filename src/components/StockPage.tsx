@@ -1,15 +1,25 @@
 // Tutki osaketta -sivu (suunnitelman kohta 11). Luvut ovat osoitteessa, joten analyysin voi
 // avata uudelleen linkistä, ja selain muistaa viisi viimeisintä analyysiä.
 
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { VerifiedExtraction } from "../ai/verify.ts";
-import { currenciesDiffer, currencyMixWarning } from "../data/analysis.ts";
+import { joinNames } from "../data/analysis.ts";
+import {
+  convertFigures,
+  currencyOptions,
+  needsConversion,
+  ratesNeeded,
+  type Unconverted,
+} from "../data/currency.ts";
+import { rateErrorText } from "../data/exchangeRates.ts";
 import { calculate, type KnownFigure } from "../data/formulas.ts";
+import { formatRate } from "../data/numberFormat.ts";
 import {
   decodeAnalysis,
   EMPTY_ANALYSIS,
   encodeAnalysis,
   hasContent,
+  formatDate,
   today,
   useAnalysisUrl,
   type Analysis,
@@ -30,18 +40,10 @@ import ExtractionReview, {
   type AcceptedExtraction,
 } from "./ExtractionReview.tsx";
 import PasteStep, { PASTE_TEXT_ID, START_HEADING_ID } from "./PasteStep.tsx";
+import { useEurRates } from "../hooks/useEurRate.ts";
 import RecentAnalyses from "./RecentAnalyses.tsx";
 import appStyles from "./App.module.css";
 import styles from "./StockPage.module.css";
-
-/** Valuutat valintalistassa. */
-export const CURRENCIES = ["EUR", "USD", "SEK", "NOK", "DKK", "GBP", "CHF"] as const;
-
-function knownFigures(figures: readonly AnalysisFigure[]): Map<string, KnownFigure> {
-  return new Map(
-    figures.map((f) => [f.id, { value: f.value, origin: f.origin, period: f.period }]),
-  );
-}
 
 export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [analysis, setAnalysis] = useAnalysisUrl();
@@ -80,7 +82,10 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
     focusAfterRender.current = null;
   });
 
-  const result = useMemo(() => calculate(knownFigures(analysis.figures)), [analysis.figures]);
+  // Eri valuutan luvut muunnetaan analyysin valuuttaan ennen laskentaa (kohta 11.11).
+  const rates = useEurRates(ratesNeeded(analysis.figures, analysis.currency), analysis.date);
+  const { known, unconverted } = convertFigures(analysis.figures, analysis.currency, rates);
+  const result = calculate(known);
   const calculated = [...result.figures]
     .filter(([, f]) => f.origin === "laskettu")
     .map(([id, f]) => ({ id, value: f.value }));
@@ -120,15 +125,9 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
     focusAfterRender.current = PASTE_TEXT_ID;
   };
 
-  const acceptExtraction = ({ name, currency, priceCurrency, figures }: AcceptedExtraction) => {
+  const acceptExtraction = ({ name, currency, figures }: AcceptedExtraction) => {
     recentKey.current = null;
-    setAnalysis({
-      name,
-      currency,
-      ...(priceCurrency ? { priceCurrency } : {}),
-      date: today(),
-      figures,
-    });
+    setAnalysis({ name, currency, date: today(), figures });
     setVersion((v) => v + 1);
     setStartedFresh(figures.length === 0);
     setReview(null);
@@ -146,11 +145,16 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
         </p>
         {started ? (
           <div key={version} className={styles.analysis}>
-            <AnalysisDetails analysis={analysis} onChange={setAnalysis} onStartOver={startOver} />
+            <AnalysisDetails
+              analysis={analysis}
+              known={known}
+              unconverted={unconverted}
+              onChange={setAnalysis}
+              onStartOver={startOver}
+            />
             <FiguresTable
               figures={analysis.figures}
               currency={analysis.currency}
-              priceCurrency={analysis.priceCurrency}
               calculated={calculated}
               onChange={(figures) => setAnalysis({ ...analysis, figures })}
               initiallyAdding={startedFresh && analysis.figures.length === 0}
@@ -159,7 +163,7 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
               result={result}
               figures={analysis.figures}
               currency={analysis.currency}
-              priceCurrency={analysis.priceCurrency}
+              unconverted={unconverted}
               date={analysis.date}
               onAdd={(added) =>
                 setAnalysis({ ...analysis, figures: [...analysis.figures, ...added] })
@@ -193,19 +197,21 @@ export const ANALYSIS_HEADING_ID = "analyysi-otsikko";
 
 interface DetailsProps {
   analysis: Analysis;
+  /** Laskennan lähtöluvut analyysin valuutassa. */
+  known: ReadonlyMap<string, KnownFigure>;
+  /** Luvut, joita ei voitu muuntaa analyysin valuuttaan. */
+  unconverted: readonly Unconverted[];
   onChange: (next: Analysis) => void;
   onStartOver: () => void;
 }
 
 /** Yhtiön nimi, valuutta ja hakupäivä sekä paluu alkuun. */
-function AnalysisDetails({ analysis, onChange, onStartOver }: DetailsProps) {
+function AnalysisDetails({ analysis, known, unconverted, onChange, onStartOver }: DetailsProps) {
   const nameId = useId();
   const currencyId = useId();
   const dateId = useId();
-  const priceCurrencyId = useId();
   const dateHintId = useId();
-  const priceCurrency = analysis.priceCurrency ?? "";
-  const currencies = currencyOptions(analysis.currency);
+  const mixed = analysis.figures.some((f) => needsConversion(f, analysis.currency));
 
   return (
     <section className={styles.details} aria-labelledby={ANALYSIS_HEADING_ID}>
@@ -230,40 +236,20 @@ function AnalysisDetails({ analysis, onChange, onStartOver }: DetailsProps) {
           />
         </div>
         <div className={styles.field}>
-          <label htmlFor={currencyId}>
-            {priceCurrency ? "Tilinpäätöksen valuutta" : "Valuutta"}
-          </label>
+          <label htmlFor={currencyId}>{mixed ? "Tilinpäätöksen valuutta" : "Valuutta"}</label>
           <select
             id={currencyId}
             className={styles.input}
             value={analysis.currency}
             onChange={(e) => onChange({ ...analysis, currency: e.target.value })}
           >
-            {currencies.map((c) => (
+            {currencyOptions(analysis.currency).map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>
             ))}
           </select>
         </div>
-        {/* Näkyy vain, kun tekoäly havaitsi kurssin olevan eri valuutassa (kohta 11.11). */}
-        {priceCurrency && (
-          <div className={styles.field}>
-            <label htmlFor={priceCurrencyId}>Kurssin valuutta</label>
-            <select
-              id={priceCurrencyId}
-              className={styles.input}
-              value={priceCurrency}
-              onChange={(e) => onChange({ ...analysis, priceCurrency: e.target.value })}
-            >
-              {currencyOptions(priceCurrency).map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
         <div className={styles.field}>
           <label htmlFor={dateId}>Luvut haettu</label>
           <input
@@ -280,20 +266,68 @@ function AnalysisDetails({ analysis, onChange, onStartOver }: DetailsProps) {
         Kurssiin sidotut luvut, kuten P/E ja osinkotuotto, vanhenevat nopeasti. Päivämäärästä näet
         myöhemmin, kuinka tuoreita luvut ovat.
       </p>
-      {currenciesDiffer(analysis.currency, priceCurrency) && (
-        <p className={styles.currencyWarning}>
-          <span aria-hidden="true">⚠ </span>
-          {currencyMixWarning(analysis.currency, priceCurrency)} Kun luvut ovat samassa valuutassa,
-          valitse sama valuutta molempiin kenttiin.
-        </p>
+      {mixed && (
+        <CurrencyNotes
+          currency={analysis.currency}
+          figures={analysis.figures}
+          known={known}
+          unconverted={unconverted}
+        />
       )}
     </section>
   );
 }
 
-/** Valintalistan valuutat. Osoitteesta luettu muu koodi lisätään listaan. */
-function currencyOptions(selected: string): readonly string[] {
-  return CURRENCIES.includes(selected as (typeof CURRENCIES)[number])
-    ? CURRENCIES
-    : [...CURRENCIES, selected];
+interface NotesProps {
+  currency: string;
+  figures: readonly AnalysisFigure[];
+  known: ReadonlyMap<string, KnownFigure>;
+  unconverted: readonly Unconverted[];
+}
+
+/**
+ * Eri valuutan luvut valuutoittain: mitkä muunnettiin ja millä kurssilla, ja mitä ei voitu
+ * muuntaa ja miksi (kohta 11.11).
+ */
+function CurrencyNotes({ currency, figures, known, unconverted }: NotesProps) {
+  const foreign = [
+    ...new Set(figures.filter((f) => needsConversion(f, currency)).map((f) => f.currency!)),
+  ];
+  return foreign.map((from) => {
+    const ids = figures
+      .filter((f) => needsConversion(f, currency) && f.currency === from)
+      .map((f) => f.id);
+    const failed = unconverted.filter((u) => u.currency === from);
+    const one = ids.length === 1;
+    const names = joinNames(ids);
+    const subject =
+      `${names.charAt(0).toUpperCase()}${names.slice(1)} ` +
+      (one ? `on ${from}-määräinen` : `ovat ${from}-määräisiä`);
+    if (failed.length === 0) {
+      const conversion = known.get(ids[0]!)?.conversion;
+      if (!conversion) return null;
+      return (
+        <p key={from} className={styles.hint}>
+          {subject}. {one ? "Se" : "Ne"} on muunnettu valuuttaan {currency} ennen laskentaa Euroopan
+          keskuspankin kurssilla{conversion.date && ` ${formatDate(conversion.date)}`}:{" "}
+          {formatRate(conversion.rate, from, currency)}.
+        </p>
+      );
+    }
+    const first = failed[0]!;
+    if (first.reason === "haetaan") {
+      return (
+        <p key={from} className={styles.hint} role="status">
+          Haetaan valuuttakurssia, jotta {from}-määräiset luvut voi muuntaa valuuttaan {currency}…
+        </p>
+      );
+    }
+    return (
+      <p key={from} className={styles.currencyWarning}>
+        <span aria-hidden="true">⚠ </span>
+        {subject}, eikä {one ? "sitä" : "niitä"} voitu muuntaa valuuttaan {currency}, joten{" "}
+        {one ? "sitä" : "niitä"} ei käytetä laskennassa. {rateErrorText(first.reason, first.failed)}
+      </p>
+    );
+  });
 }

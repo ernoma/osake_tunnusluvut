@@ -2,92 +2,63 @@
 // osuu, mitä lähtötietoja puuttuvan tunnusluvun laskemiseen tarvitaan ja miksi estettyä lukua
 // ei laskettu. Puhtaita funktioita, jotta ne voi testata ilman käyttöliittymää.
 
-import { figuresById } from "./content.ts";
+import { displayName, figuresById } from "./content.ts";
 import {
   formulas as allFormulas,
   describeFormula,
   formulaInputs,
   type Calculation,
+  type Conversion,
   type Formula,
-  type ResolvedFigure,
 } from "./formulas.ts";
-import { formatNumber } from "./numberFormat.ts";
+import { formatNumber, formatRate, type NumberUnit } from "./numberFormat.ts";
 import type { Metric, MetricRange } from "./types.ts";
 
 /** "Osakkeen kurssi" → "osakkeen kurssi" lauseen keskelle. */
 export const lowerFirst = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 
-// Valuuttojen sekoittuminen (kohta 11.11)
-
-/** Kurssiin sidotut rahamäärät, jotka ilmoitetaan kurssin valuutassa. */
-export const PRICE_BOUND_IDS: ReadonlySet<string> = new Set(["kurssi", "markkina-arvo", "ev"]);
+/** "osakkeen kurssi ja osakekohtainen tulos (EPS)" */
+export function joinNames(ids: readonly string[]): string {
+  const names = ids.map((id) => {
+    const info = figuresById.get(id);
+    return info ? lowerFirst(displayName(info)) : id;
+  });
+  return names.length <= 1
+    ? (names[0] ?? "")
+    : `${names.slice(0, -1).join(", ")} ja ${names.at(-1)}`;
+}
 
 /**
- * Luvun valuutta: kurssiin sidotulla luvulla kurssin valuutta, jos se on annettu, muuten
- * analyysin (tilinpäätöksen) valuutta.
+ * Valuuttamuunnos tekstinä: "12,6 mrd. SEK ≈ 1,12 mrd. € (1 € = 11,29 SEK)". Arvo on analyysin
+ * valuutassa (kohta 11.11).
  */
-export function figureCurrency(id: string, currency: string, priceCurrency = ""): string {
-  return priceCurrency && PRICE_BOUND_IDS.has(id) ? priceCurrency : currency;
-}
-
-/** Ovatko kurssi ja tilinpäätösluvut eri valuutoissa. */
-export function currenciesDiffer(currency: string, priceCurrency: string): boolean {
-  return priceCurrency !== "" && priceCurrency !== currency;
-}
-
-/** Varoitus, kun kurssi ja tilinpäätösluvut ovat eri valuutoissa. */
-export function currencyMixWarning(currency: string, priceCurrency: string): string {
-  return (
-    `Kurssi ja markkina-arvo ovat ${priceCurrency}-määräisiä, mutta tilinpäätösluvut ` +
-    `${currency}-määräisiä. Tunnusluvut, joissa ne yhdistetään (esim. P/E ja P/B), menevät ` +
-    "väärin. Muunna kurssi ja markkina-arvo samaan valuuttaan tai jätä ne pois."
-  );
-}
-
-const isMoney = (id: string) => {
-  const unit = figuresById.get(id)?.unit;
-  return unit === "€" || unit === "€/osake";
-};
-
-/**
- * Yhdistääkö laskelma kurssiin sidotun rahamäärän (kurssi, markkina-arvo, EV) tilinpäätöksen
- * rahamäärään. Myös laskelma, jonka lähtöluku on itse laskettu sekoittamalla, on sekoittunut:
- * EV/EBIT sekoittuu, jos EV on laskettu markkina-arvosta ja nettovelasta.
- */
-export function mixesCurrencies(
-  calculation: Calculation | undefined,
-  figures: ReadonlyMap<string, ResolvedFigure>,
-): boolean {
-  if (!calculation) return false;
-  let price = false;
-  let statement = false;
-  for (const { id } of calculation.inputs) {
-    const input = figures.get(id);
-    if (input?.origin === "laskettu" && mixesCurrencies(input.calculation, figures)) return true;
-    if (!isMoney(id)) continue;
-    if (PRICE_BOUND_IDS.has(id)) price = true;
-    else statement = true;
-  }
-  return price && statement;
+export function describeConversion(
+  value: number,
+  unit: NumberUnit,
+  conversion: Conversion,
+  currency: string,
+): string {
+  const original = formatNumber(conversion.original, unit, conversion.currency);
+  const converted = formatNumber(value, unit, currency);
+  return `${original} ≈ ${converted} (${formatRate(conversion.rate, conversion.currency, currency)})`;
 }
 
 /**
  * Laskelma käyttäjän omilla luvuilla, esimerkiksi
  * "Markkina-arvo 20 mrd. € ÷ vapaa kassavirta 1,1 mrd. €". Nimet kirjoitetaan auki, koska
- * lyhenteet (FCF, EPS) eivät ole aloittelijalle tuttuja. Kurssiin sidotut luvut näytetään
- * kurssin valuutassa (priceCurrency), jos se on annettu.
+ * lyhenteet (FCF, EPS) eivät ole aloittelijalle tuttuja. Toisesta valuutasta muunnettu luku
+ * näytetään alkuperäisenä ja muunnettuna kurssin kanssa:
+ * "markkina-arvo 120 mrd. SEK ≈ 10,6 mrd. € (1 € = 11,29 SEK)".
  */
-export function describeCalculation(
-  calculation: Calculation,
-  currency: string,
-  priceCurrency = "",
-): string {
-  const values = new Map(calculation.inputs.map((i) => [i.id, i.value]));
+export function describeCalculation(calculation: Calculation, currency: string): string {
+  const inputs = new Map(calculation.inputs.map((i) => [i.id, i]));
   const text = describeFormula(calculation.formula, (id) => {
     const info = figuresById.get(id);
-    const value = values.get(id);
-    if (!info || value === undefined) return id;
-    const shown = formatNumber(value, info.unit, figureCurrency(id, currency, priceCurrency));
+    const input = inputs.get(id);
+    if (!info || input === undefined) return id;
+    const shown = input.conversion
+      ? describeConversion(input.value, info.unit, input.conversion, currency)
+      : formatNumber(input.value, info.unit, currency);
     return `${lowerFirst(info.name)} ${shown}`;
   });
   return text.charAt(0).toUpperCase() + text.slice(1);

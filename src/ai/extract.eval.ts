@@ -41,6 +41,10 @@ describe.skipIf(!apiKey)(`poiminta mallilla ${modelId}`, { timeout: 180_000 }, (
         problems.push(`tarkistettava: ${expected.id} (${found.warning}) "${found.quote}"`);
       else if (expected.period && found.period !== expected.period)
         problems.push(`kausi: ${expected.id} = ${found.period}, odotettu ${expected.period}`);
+      else if ((found.currency ?? null) !== (expected.currency ?? null))
+        problems.push(
+          `valuutta: ${expected.id} = ${found.currency ?? "-"}, odotettu ${expected.currency ?? "-"}`,
+        );
     }
     for (const r of result.rejected) {
       problems.push(`hylätty (${r.reason}): ${r.id} = ${r.value} "${r.quote}"`);

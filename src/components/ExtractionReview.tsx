@@ -4,7 +4,7 @@
 
 import { useState, type FormEvent } from "react";
 import type { VerifiedExtraction } from "../ai/verify.ts";
-import { currencyMixWarning, figureCurrency } from "../data/analysis.ts";
+import { joinNames } from "../data/analysis.ts";
 import { displayName, figuresById } from "../data/content.ts";
 import { PERIOD_LABELS } from "../data/formulas.ts";
 import { formatNumber } from "../data/numberFormat.ts";
@@ -16,8 +16,6 @@ export const REVIEW_HEADING_ID = "tarkista-luvut";
 export interface AcceptedExtraction {
   name: string;
   currency: string;
-  /** Kurssin valuutta, jos se eroaa tilinpäätöksen valuutasta. Muuten tyhjä. */
-  priceCurrency: string;
   figures: AnalysisFigure[];
 }
 
@@ -45,7 +43,7 @@ export default function ExtractionReview({ result, defaultCurrency, onAccept, on
     () => new Set(result.values.filter((v) => v.check === "ok").map((v) => v.id)),
   );
   const currency = result.company.currency ?? defaultCurrency;
-  const priceCurrency = result.company.priceCurrency ?? "";
+  const foreign = [...new Set(result.values.flatMap((v) => (v.currency ? [v.currency] : [])))];
   const toCheck = result.values.filter((v) => v.check === "tarkista").length;
 
   const toggle = (id: string, on: boolean) => {
@@ -60,7 +58,6 @@ export default function ExtractionReview({ result, defaultCurrency, onAccept, on
     onAccept({
       name: result.company.name,
       currency,
-      priceCurrency,
       figures: result.values
         .filter((v) => selected.has(v.id))
         .map((v) => ({
@@ -69,6 +66,7 @@ export default function ExtractionReview({ result, defaultCurrency, onAccept, on
           period: v.period,
           year: v.year,
           origin: "sivu",
+          ...(v.currency ? { currency: v.currency } : {}),
         })),
     });
   };
@@ -89,12 +87,19 @@ export default function ExtractionReview({ result, defaultCurrency, onAccept, on
           ` ${toCheck} lukua on merkitty ⚠-merkillä, eikä niitä ole valittu. Tarkista ne itse.`}
       </p>
 
-      {priceCurrency && (
-        <p className={styles.currencyWarning}>
-          <span aria-hidden="true">⚠ </span>
-          {currencyMixWarning(currency, priceCurrency)}
-        </p>
-      )}
+      {foreign.map((from) => {
+        const ids = result.values.filter((v) => v.currency === from).map((v) => v.id);
+        const names = joinNames(ids);
+        return (
+          <p key={from} className={styles.currencyWarning}>
+            {names.charAt(0).toUpperCase() + names.slice(1)}{" "}
+            {ids.length === 1 ? `on ${from}-määräinen` : `ovat ${from}-määräisiä`}, mutta
+            tilinpäätösluvut {currency}-määräisiä. Sovellus muuntaa{" "}
+            {ids.length === 1 ? "sen" : "ne"} valuuttaan {currency} Euroopan keskuspankin kurssilla
+            ennen laskentaa. Voit vaihtaa luvun valuutan seuraavassa vaiheessa.
+          </p>
+        );
+      })}
 
       {result.notes.length > 0 && (
         <div className={styles.notes}>
@@ -127,11 +132,7 @@ export default function ExtractionReview({ result, defaultCurrency, onAccept, on
                   <label htmlFor={checkId} className={styles.label}>
                     <span className={styles.name}>{name}</span>{" "}
                     <strong className={styles.value}>
-                      {formatNumber(
-                        v.value,
-                        info.unit,
-                        figureCurrency(v.id, currency, priceCurrency),
-                      )}
+                      {formatNumber(v.value, info.unit, v.currency ?? currency)}
                     </strong>
                   </label>
                   <span className={styles.meta}>

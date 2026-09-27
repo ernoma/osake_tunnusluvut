@@ -23,6 +23,20 @@ async function addFigure(user: ReturnType<typeof userEvent.setup>, query: string
   await user.click(screen.getByRole("button", { name: "Lisää" }));
 }
 
+/** EKP:n kurssi kruunulle. Muut valuutat eivät ole tiedossa. */
+function stubSekRate() {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) =>
+      url.includes("symbols=SEK")
+        ? new Response(
+            JSON.stringify({ amount: 1, base: "EUR", date: "2026-09-25", rates: { SEK: 11.29 } }),
+          )
+        : new Response("{}", { status: 404 }),
+    ),
+  );
+}
+
 const calculatedList = () =>
   screen.getByRole("heading", { name: "Omista luvuista lasketut" })
     .nextElementSibling as HTMLElement;
@@ -303,25 +317,73 @@ describe("analyysi", () => {
     expect(within(row).queryByText(/osuu tähän väliin/)).not.toBeInTheDocument();
   });
 
-  it("kurssin valuutan vaihto samaksi poistaa varoituksen", async () => {
-    const { user } = renderAt(
-      "?sivu=tutki&val=EUR&hval=SEK&kurssi=118.4~ttm~~s&eps=0.96~t~2025~s&osinkosuhde=40~t~2025~s",
-    );
-    const warning = /Kurssi ja markkina-arvo ovat SEK-määräisiä/;
-    expect(screen.getByText(warning)).toBeInTheDocument();
-    const pe = analysisRow("P/E-luku");
-    expect(pe).toHaveTextContent(/Osakkeen kurssi 118,40\sSEK ÷ osakekohtainen tulos 0,96\s€/);
-    expect(pe).toHaveTextContent(/yhdistämällä SEK-määräinen/);
-    // Sivulta saatu luku, jota ei lasketa kurssista, ei saa varoitusta.
-    expect(analysisRow("Osinkosuhde")).not.toHaveTextContent(/määräinen/);
-    expect(screen.getByLabelText("Tilinpäätöksen valuutta")).toHaveValue("EUR");
+  const SEK_ANALYSIS =
+    "?sivu=tutki&val=EUR&pvm=2026-09-26&kurssi=118.4~ttm~~s~SEK&eps=0.96~t~2025~s";
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Kurssin valuutta" }), "EUR");
-    expect(screen.queryByText(warning)).not.toBeInTheDocument();
-    expect(analysisRow("P/E-luku")).not.toHaveTextContent(/yhdistämällä/);
-    expect(analysisRow("P/E-luku")).toHaveTextContent(/Osakkeen kurssi 118,40\s€/);
-    expect(new URLSearchParams(window.location.search).get("hval")).toBe("EUR");
-    expect(screen.getByRole("combobox", { name: "Kurssin valuutta" })).toBeInTheDocument();
+  it("eri valuutan luku muunnetaan ennen laskentaa, ja valuutan voi vaihtaa", async () => {
+    stubSekRate();
+    const { user } = renderAt(SEK_ANALYSIS);
+    expect(
+      screen.getByText(/Haetaan valuuttakurssia, jotta SEK-määräiset luvut voi muuntaa/),
+    ).toHaveAttribute("role", "status");
+
+    // 118,40 SEK ≈ 10,49 € ja 10,49 € ÷ 0,96 € ≈ 10,9, ei 118,40 ÷ 0,96 ≈ 123.
+    const pe = await screen.findByRole("article", { name: "P/E-luku" });
+    expect(pe).toHaveTextContent(
+      /Osakkeen kurssi 118,40\sSEK ≈ 10,49\s€ \(1\s€ = 11,29\sSEK\) ÷ osakekohtainen tulos 0,96\s€ = 10,9/,
+    );
+    expect(screen.getByLabelText("Tilinpäätöksen valuutta")).toHaveValue("EUR");
+    expect(
+      screen.getByText(/Osakkeen kurssi on SEK-määräinen\. Se on muunnettu/),
+    ).toHaveTextContent(/kurssilla 25\.9\.2026: 1\s€ = 11,29\sSEK/);
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Osakkeen kurssi, valuutta" }),
+      "EUR",
+    );
+    expect(analysisRow("P/E-luku")).toHaveTextContent(
+      /Osakkeen kurssi 118,40\s€ ÷ osakekohtainen tulos 0,96\s€ = 123,3/,
+    );
+    expect(screen.queryByText(/muunnettu valuuttaan/)).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Valuutta")).toHaveValue("EUR");
+    expect(window.location.search).toContain("kurssi=118.4~ttm~~s&");
+  });
+
+  it("kun kurssia ei saada, eri valuutan lukua ei käytetä ja syy kerrotaan", async () => {
+    renderAt(SEK_ANALYSIS);
+    // Sivun yläosassa ja jokaisessa tunnusluvussa, joka tarvitsee kurssia.
+    const [warning] = await screen.findAllByText(/Osakkeen kurssi on SEK-määräinen, eikä sitä/);
+    expect(warning).toHaveTextContent(/ei käytetä laskennassa\. .*Tarkista verkkoyhteys/);
+
+    expect(screen.queryByRole("article", { name: "P/E-luku" })).not.toBeInTheDocument();
+    const item = screen.getByText("P/E-luku:").closest("li")!;
+    expect(item).toHaveTextContent(
+      /Osakkeen kurssi on SEK-määräinen, eikä sitä voitu muuntaa valuuttaan EUR/,
+    );
+    // Kurssia ei pyydetä syöttämään uudelleen.
+    expect(within(item).queryByRole("button", { name: /Lisää/ })).not.toBeInTheDocument();
+  });
+
+  it("Lisää luku -lomakkeessa rahamäärän valuutan voi valita", async () => {
+    stubSekRate();
+    const { user } = renderAt("?sivu=tutki&val=EUR&pvm=2026-09-26&eps=0.96~t~~s");
+    await user.click(screen.getByRole("button", { name: "+ Lisää luku" }));
+    await user.type(screen.getByRole("searchbox", { name: /Hae lukua/ }), "kurssi");
+    await user.keyboard("{Enter}");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Luvun valuutta" }), "SEK");
+    await user.type(screen.getByRole("textbox", { name: "Arvo" }), "118,4");
+    await user.click(screen.getByRole("button", { name: "Lisää" }));
+
+    expect(figuresInUrl().find((f) => f.id === "kurssi")).toMatchObject({
+      value: 118.4,
+      currency: "SEK",
+    });
+    expect(await screen.findByRole("article", { name: "P/E-luku" })).toHaveTextContent(/= 10,9/);
+
+    // Kertoimella ei ole valuuttaa.
+    await user.type(screen.getByRole("searchbox", { name: /Hae lukua/ }), "p/b");
+    await user.keyboard("{Enter}");
+    expect(screen.queryByRole("combobox", { name: "Luvun valuutta" })).not.toBeInTheDocument();
   });
 
   it("euromääräiselle analyysille kurssia ei haeta", () => {
@@ -363,8 +425,13 @@ describe("saavutettavuus (axe)", { timeout: 20_000 }, () => {
     expect(await violations()).toEqual([]);
   });
 
-  it("analyysi: kurssin valuutta ja valuuttavaroitukset", async () => {
-    renderAt("?sivu=tutki&val=EUR&hval=SEK&kurssi=118.4~ttm~~s&eps=0.96~t~2025~s&pe=9~ttm~~s");
+  it("analyysi: luvun valuutta, muunnos ja muuntamaton luku", async () => {
+    stubSekRate();
+    renderAt(
+      "?sivu=tutki&val=EUR&pvm=2026-09-26&kurssi=118.4~ttm~~s~SEK&eps=0.96~t~2025~s&markkina-arvo=5~t~~s~NOK",
+    );
+    await screen.findByRole("article", { name: "P/E-luku" });
+    await screen.findAllByText(/Markkina-arvo on NOK-määräinen, eikä sitä voitu/);
     expect(await violations()).toEqual([]);
   });
 });

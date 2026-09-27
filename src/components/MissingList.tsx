@@ -3,8 +3,9 @@
 // Luvusta, jota ei laskettu nollan tai negatiivisen nimittäjän vuoksi, näytetään kortin sääntö.
 
 import { useId, useRef, useState, type FormEvent } from "react";
-import { lowerFirst, nonPositiveRule } from "../data/analysis.ts";
+import { joinNames, lowerFirst, nonPositiveRule } from "../data/analysis.ts";
 import { displayName, figuresById } from "../data/content.ts";
+import { unconvertedText, type Unconverted } from "../data/currency.ts";
 import { parseFigureValue } from "../data/figureEntry.ts";
 import type { BlockedFigure, Period, ResolvedFigure } from "../data/formulas.ts";
 import { formatNumber, unitLabel } from "../data/numberFormat.ts";
@@ -18,26 +19,17 @@ import styles from "./MissingList.module.css";
 export type MissingItem =
   { metric: Metric; inputs: string[] } | { metric: Metric; blocked: BlockedFigure };
 
-/** "osakkeen kurssi ja osakekohtainen tulos (EPS)" */
-function joinNames(ids: readonly string[]): string {
-  const names = ids.map((id) => {
-    const info = figuresById.get(id);
-    return info ? lowerFirst(displayName(info)) : id;
-  });
-  return names.length <= 1
-    ? (names[0] ?? "")
-    : `${names.slice(0, -1).join(", ")} ja ${names.at(-1)}`;
-}
-
 interface Props {
   items: MissingItem[];
   figures: ReadonlyMap<string, ResolvedFigure>;
-  /** Luvun valuutta id:n mukaan: kurssiin sidotuilla kurssin valuutta. */
-  currencyOf: (id: string) => string;
+  /** Analyysin valuutta. Laskennan luvut ovat tässä valuutassa. */
+  currency: string;
+  /** Luvut, joita ei voitu muuntaa analyysin valuuttaan, joten niitä ei käytetä laskennassa. */
+  unconverted?: readonly Unconverted[];
   onAdd: (metric: Metric, figures: AnalysisFigure[]) => void;
 }
 
-export default function MissingList({ items, figures, currencyOf, onAdd }: Props) {
+export default function MissingList({ items, figures, currency, unconverted = [], onAdd }: Props) {
   const headingId = useId();
   if (items.length === 0) return null;
   return (
@@ -49,12 +41,13 @@ export default function MissingList({ items, figures, currencyOf, onAdd }: Props
         {items.map((item) => (
           <li key={item.metric.id} className={styles.item}>
             {"blocked" in item ? (
-              <BlockedText item={item} figures={figures} currencyOf={currencyOf} />
+              <BlockedText item={item} figures={figures} currency={currency} />
             ) : (
               <MissingEntry
                 metric={item.metric}
                 inputs={item.inputs}
-                currencyOf={currencyOf}
+                currency={currency}
+                unconverted={unconverted}
                 onAdd={(added) => onAdd(item.metric, added)}
               />
             )}
@@ -68,19 +61,18 @@ export default function MissingList({ items, figures, currencyOf, onAdd }: Props
 function BlockedText({
   item,
   figures,
-  currencyOf,
+  currency,
 }: {
   item: { metric: Metric; blocked: BlockedFigure };
   figures: ReadonlyMap<string, ResolvedFigure>;
-  /** Luvun valuutta id:n mukaan: kurssiin sidotuilla kurssin valuutta. */
-  currencyOf: (id: string) => string;
+  currency: string;
 }) {
   const rule = nonPositiveRule(item.metric);
   const values = item.blocked.nonPositive.map((id) => {
     const info = figuresById.get(id);
     const value = figures.get(id)?.value;
     if (!info || value === undefined) return id;
-    return `${lowerFirst(displayName(info))} on ${formatNumber(value, info.unit, currencyOf(id))}`;
+    return `${lowerFirst(displayName(info))} on ${formatNumber(value, info.unit, currency)}`;
   });
   return (
     <p className={styles.text}>
@@ -98,16 +90,21 @@ function BlockedText({
 interface EntryProps {
   metric: Metric;
   inputs: string[];
-  /** Luvun valuutta id:n mukaan: kurssiin sidotuilla kurssin valuutta. */
-  currencyOf: (id: string) => string;
+  currency: string;
+  unconverted: readonly Unconverted[];
   onAdd: (figures: AnalysisFigure[]) => void;
 }
 
-function MissingEntry({ metric, inputs, currencyOf, onAdd }: EntryProps) {
+function MissingEntry({ metric, inputs: allInputs, currency, unconverted, onAdd }: EntryProps) {
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const self = inputs.length === 1 && inputs[0] === metric.id;
   const name = displayName(metric);
+  // Syötetty luku, jota ei voitu muuntaa analyysin valuuttaan, puuttuu laskennasta. Siitä
+  // kerrotaan syy eikä pyydetä syöttämään sitä uudelleen (kohta 11.11).
+  const own = unconverted.find((u) => u.id === metric.id);
+  const reasons = own ? [own] : unconverted.filter((u) => allInputs.includes(u.id));
+  const inputs = own ? [] : allInputs.filter((id) => !reasons.some((u) => u.id === id));
+  const self = inputs.length === 1 && inputs[0] === metric.id;
 
   const close = () => {
     setOpen(false);
@@ -119,10 +116,15 @@ function MissingEntry({ metric, inputs, currencyOf, onAdd }: EntryProps) {
     <>
       <p className={styles.text}>
         <strong>{name}:</strong>{" "}
-        {self
-          ? "Syötä luku itse, esimerkiksi tilinpäätöksestä tai pörssisivulta."
-          : `Syötä ${joinNames(inputs)}.`}{" "}
-        {!open && (
+        {reasons.map((u) => {
+          const info = figuresById.get(u.id);
+          return `${unconvertedText(u, info ? displayName(info) : u.id, currency)} `;
+        })}
+        {inputs.length > 0 &&
+          (self
+            ? "Syötä luku itse, esimerkiksi tilinpäätöksestä tai pörssisivulta."
+            : `Syötä ${reasons.length > 0 ? "myös " : ""}${joinNames(inputs)}.`)}{" "}
+        {!open && inputs.length > 0 && (
           <button
             ref={buttonRef}
             id={addButtonId(metric.id)}
@@ -139,7 +141,7 @@ function MissingEntry({ metric, inputs, currencyOf, onAdd }: EntryProps) {
         <EntryForm
           title={name}
           inputs={inputs}
-          currencyOf={currencyOf}
+          currency={currency}
           onAdd={(added) => {
             setOpen(false);
             onAdd(added);
@@ -154,14 +156,13 @@ function MissingEntry({ metric, inputs, currencyOf, onAdd }: EntryProps) {
 interface FormProps {
   title: string;
   inputs: string[];
-  /** Luvun valuutta id:n mukaan: kurssiin sidotuilla kurssin valuutta. */
-  currencyOf: (id: string) => string;
+  currency: string;
   onAdd: (figures: AnalysisFigure[]) => void;
   onCancel: () => void;
 }
 
 /** Kenttä jokaiselle puuttuvalle lähtötiedolle ja yhteinen kausi. Tyhjät kentät ohitetaan. */
-function EntryForm({ title, inputs, currencyOf, onAdd, onCancel }: FormProps) {
+function EntryForm({ title, inputs, currency, onAdd, onCancel }: FormProps) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -228,7 +229,7 @@ function EntryForm({ title, inputs, currencyOf, onAdd, onCancel }: FormProps) {
                     setFormError(null);
                   }}
                 />
-                <span className={styles.unit}>{unitLabel(info.unit, currencyOf(id))}</span>
+                <span className={styles.unit}>{unitLabel(info.unit, currency)}</span>
               </span>
               {error && (
                 <span id={`${fieldId(id)}-virhe`} className={styles.error}>

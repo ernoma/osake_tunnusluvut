@@ -2,7 +2,7 @@
 // omilla luvuilla, huomautukset, osuva nyrkkisääntöväli, suuntamerkki, yleinen virhe ja linkki
 // korttiin. Näkymä ei koskaan sano "osta" tai "myy" eikä anna pisteitä.
 
-import { describeCalculation, figureCurrency, matchRange } from "../data/analysis.ts";
+import { describeCalculation, describeConversion, matchRange } from "../data/analysis.ts";
 import { displayName } from "../data/content.ts";
 import {
   differsNotably,
@@ -10,7 +10,7 @@ import {
   type Calculation,
   type ResolvedFigure,
 } from "../data/formulas.ts";
-import type { EurRate, RateErrorReason } from "../data/exchangeRates.ts";
+import { rateErrorText, type EurRate } from "../data/exchangeRates.ts";
 import { formatEurRate, formatNumber } from "../data/numberFormat.ts";
 import type { Metric } from "../data/types.ts";
 import { formatDate } from "../hooks/useAnalysisUrl.ts";
@@ -27,40 +27,23 @@ const ORIGIN_LABELS: Record<ResolvedFigure["origin"], string> = {
   laskettu: "Laskettu",
 };
 
-const RATE_ERRORS: Record<RateErrorReason, (currency: string) => string> = {
-  verkko: () => "Valuuttakurssin haku ei onnistunut. Tarkista verkkoyhteys.",
-  valuutta: (currency) => `Euroopan keskuspankki ei julkaise kurssia valuutalle ${currency}.`,
-  vastaus: () => "Valuuttakurssipalvelu ei vastannut odotetusti.",
-};
-
 interface Props {
   metric: Metric;
   figure: ResolvedFigure;
   /** Syötetyn tai poimitun luvun vuosi, esim. "2025". */
   year?: string;
-  /** Analyysin (tilinpäätöksen) valuutta. */
+  /**
+   * Analyysin (tilinpäätöksen) valuutta. Eri valuutan luvut on muunnettu siihen ennen
+   * laskentaa (kohta 11.11).
+   */
   currency: string;
-  /** Kurssin valuutta, jos se eroaa tilinpäätöksen valuutasta (kohta 11.11). */
-  priceCurrency?: string;
-  /** Laskelma yhdistää kurssiin sidotun luvun tilinpäätöslukuun eri valuutoissa. */
-  mixesCurrencies?: boolean;
   /** Analyysin hakupäivä vvvv-kk-pp tai tyhjä. Valuuttakurssi haetaan tältä päivältä. */
   date: string;
 }
 
-export default function AnalysisRow({
-  metric,
-  figure,
-  year,
-  currency: statementCurrency,
-  priceCurrency = "",
-  mixesCurrencies = false,
-  date,
-}: Props) {
-  // Kurssiin sidottu tunnusluku (markkina-arvo, EV) on kurssin valuutassa.
-  const currency = figureCurrency(metric.id, statementCurrency, priceCurrency);
+export default function AnalysisRow({ metric, figure, year, currency, date }: Props) {
   const format = (value: number, unit = metric.unit) => formatNumber(value, unit, currency);
-  const describe = (c: Calculation) => describeCalculation(c, statementCurrency, priceCurrency);
+  const describe = (c: Calculation) => describeCalculation(c, currency);
   const valueText = format(figure.value);
   const calculation = figure.calculation;
   const source = [ORIGIN_LABELS[figure.origin], figure.period && PERIOD_LABELS[figure.period], year]
@@ -97,11 +80,10 @@ export default function AnalysisRow({
         </p>
       )}
 
-      {figure.origin === "laskettu" && mixesCurrencies && (
-        <p className={styles.warning}>
-          <span aria-hidden="true">⚠ </span>Laskettu yhdistämällä {priceCurrency}-määräinen kurssiin
-          sidottu luku {statementCurrency}-määräiseen tilinpäätöslukuun, joten tulos on väärin.
-          Muunna luvut samaan valuuttaan.
+      {figure.conversion && (
+        <p className={styles.calculation}>
+          <span className={styles.smallLabel}>Muunnettu: </span>
+          {describeConversion(figure.value, metric.unit, figure.conversion, currency)}
         </p>
       )}
 
@@ -119,10 +101,7 @@ export default function AnalysisRow({
             <span aria-hidden="true">⚠ </span>
             {figure.origin === "sivu" ? "Sivun luku" : "Syöttämäsi luku"} on {valueText}, omista
             luvuista laskettuna {format(calculation.value)} ({describe(calculation)}
-            ).{" "}
-            {mixesCurrencies
-              ? `Laskelma yhdistää ${priceCurrency}-määräisen kurssiin sidotun luvun ${statementCurrency}-määräiseen tilinpäätöslukuun, joten omista luvuista laskettu arvo on väärin.`
-              : "Ero johtuu yleensä eri kaudesta tai oikaistuista luvuista."}
+            ). Ero johtuu yleensä eri kaudesta tai oikaistuista luvuista.
           </p>
         )}
 
@@ -152,7 +131,7 @@ export default function AnalysisRow({
       {metric.ranges && eurRate.status === "virhe" && (
         <p className={styles.note} role="status">
           Kokoluokkien rajat ovat euroina, joten {currency}-määräistä lukua ei verrata niihin.{" "}
-          {RATE_ERRORS[eurRate.reason](currency)}
+          {rateErrorText(eurRate.reason, currency)}
         </p>
       )}
 

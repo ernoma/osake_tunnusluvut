@@ -645,7 +645,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **11f. Taseen loppusumma = varat yhteensä** ✅ | Sanaston `tase`-termin selitykseen maininta, että taseen loppusumma on sama luku kuin varat yhteensä (ja oma pääoma ja velat yhteensä), `forms`-listaan "varat yhteensä" sekä lähtötiedon `taseen-loppusumma` aliaksiin "varat yhteensä", "vastattavaa yhteensä", "oma pääoma ja velat yhteensä" ja "total equity and liabilities" (kohdat 4.3 ja 11.4) | Sanasto- ja skeematestit menevät läpi, "varat yhteensä" avaa tase-termin selityksen, ja tekoälyhaku poimii IFRS-muotoisen taseen "Varat yhteensä" -rivin taseen loppusummaksi |
 | **11g. Markkina-arvon kokoluokka muussa valuutassa** ✅ | EKP:n kurssi Frankfurter-rajapinnasta, välimuisti, muunnos euroiksi kokoluokan vertailua varten ja CSP:n `connect-src`-lisäys kohdan 11.10 mukaan | DKK-määräinen markkina-arvo osuu oikeaan kokoluokkaan, kurssi ja sen päivä näkyvät, ja kun haku epäonnistuu, näkyy huomautus syineen |
 | **11h. Valuuttojen sekoittumisen varoitus** ✅ | Tekoäly kirjaa, jos kurssi ja markkina-arvo ovat eri valuutassa kuin tilinpäätösluvut, ja sovellus näyttää varoituksen kohdan 11.11 mukaan | Testiaineistossa, jossa kurssi on SEK ja tulos EUR, varoitus näkyy tarkistusvaiheessa ja analyysissä, eikä yksivaluuttaisissa aineistoissa näy |
-| **11i. Valuuttojen sekoittumisen täysi tuki** | Luvuille oma valuutta, muunnos analyysin valuuttaan ennen laskentaa ja valuutta osoitteeseen kohdan 11.11 mukaan | SEK-kurssista ja EUR-tuloksesta laskettu P/E on oikein, ja muunnos näkyy laskelmassa |
+| **11i. Valuuttojen sekoittumisen täysi tuki** ✅ | Luvuille oma valuutta, muunnos analyysin valuuttaan ennen laskentaa ja valuutta osoitteeseen kohdan 11.11 mukaan | SEK-kurssista ja EUR-tuloksesta laskettu P/E on oikein, ja muunnos näkyy laskelmassa |
 | **12. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Molemmat sivut ovat julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 
 Julkaisu on viimeinen vaihe, jotta julkaistu versio sisältää myös Tutki osaketta -sivun. Käyttäjätesti (vaihe 9) tehtiin ensimmäiselle sivulle, joten sen tehtävä 5 (kohta 8.2) testataan erikseen vaiheen 11 jälkeen.
@@ -941,7 +941,8 @@ src/
 │   ├── formulas.ts         # kaavat ja laskenta (puhdas funktio)
 │   ├── figureEntry.ts      # "Lisää luku" -haku ja syötetyn arvon tarkistus
 │   ├── numberFormat.ts     # lukujen jäsennys ja muotoilu
-│   └── exchangeRates.ts    # EKP:n kurssi euroon ja välimuisti (vaihe 11g)
+│   ├── exchangeRates.ts    # EKP:n kurssi euroon ja välimuisti (vaihe 11g)
+│   └── currency.ts         # lukujen valuutat ja muunnos analyysin valuuttaan (vaihe 11i)
 ├── components/
 │   ├── StockPage.tsx       # Tutki osaketta -sivu
 │   ├── PasteStep.tsx       # tekstin liittäminen ja tekoälyhaun tila
@@ -957,7 +958,7 @@ src/
     ├── usePage.ts          # sivun valinta (?sivu=tutki)
     ├── useAnalysisUrl.ts   # analyysin luvut osoitteessa
     ├── useRecentAnalyses.ts
-    └── useEurRate.ts       # kurssin haun tila (vaihe 11g)
+    └── useEurRate.ts       # kurssien haun tila (vaiheet 11g ja 11i)
 ```
 
 ### 11.9 Testit
@@ -1009,3 +1010,11 @@ Sovellus olettaa nyt, että kaikki analyysin luvut ovat samassa valuutassa. Olet
 - Jos kurssia ei saada, eri valuutan lukuja ei käytetä laskennassa, ja puuttuvien listassa kerrotaan syy.
 - Lukutaulukossa ja "Lisää luku" -lomakkeessa rahamääräisen luvun valuutan voi vaihtaa.
 - Vaiheen 11h varoitus poistuu, kun kaikki luvut voidaan muuntaa.
+
+Toteutus:
+
+- **Tekoäly:** skeeman jokaisella luvulla on kenttä `currency` (rahamäärän valuutta, jos se eroaa `company.currency`sta, muuten `null`). `company.priceCurrency` säilyy. Tarkistus (`verify.ts`) antaa kurssiin sidotulle luvulle kurssin valuutan, jos luvulla ei ole omaa. Valuutta hyväksytään vain rahamäärälle ja vain, kun tilinpäätöksen valuutta on tiedossa.
+- **Osoite:** viides kenttä vain, kun luku on eri valuutassa kuin analyysi, esim. `kurssi=118.4~ttm~~s~SEK`. Vaiheen 11h `hval` luetaan edelleen kurssiin sidottujen lukujen valuutaksi, mutta sitä ei enää kirjoiteta. "Kurssin valuutta" -valinta poistui, koska valuutan voi vaihtaa luvuittain.
+- **Muunnos:** `src/data/currency.ts` (`convertFigures`) muuntaa luvut ennen laskentaa. Kurssit haetaan euroon (`useEurRates`), ja ristikurssi lasketaan euron kautta, jos analyysin valuutta ei ole euro. Muunnos kulkee laskelman lähtölukuihin (`Calculation.inputs[].conversion`), ja syötetyn luvun rivillä näkyy "Muunnettu: …".
+- **Näkyvissä:** analyysin otsikko on "Tilinpäätöksen valuutta", kun jokin luku on eri valuutassa. Sen alla kerrotaan valuutoittain, mitkä luvut muunnettiin ja millä kurssilla, tai miksi niitä ei voitu muuntaa. Haun aikana eri valuutan luvut odottavat eivätkä ole laskennassa.
+- **Varoitus:** vaiheen 11h varoitus laskelmien sekoittumisesta (`mixesCurrencies`) poistui, koska laskentaan ei enää pääse eri valuutan lukua. Tarkistusvaiheessa kerrotaan, mitkä luvut ovat eri valuutassa ja että ne muunnetaan.

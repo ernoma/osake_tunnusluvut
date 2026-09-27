@@ -221,16 +221,31 @@ export const PERIOD_LABELS: Record<Period, string> = {
 
 /** Käyttäjän syöttämä tai sivulta poimittu luku. */
 export interface KnownFigure {
+  /** Analyysin valuutassa. */
   value: number;
   origin: "kayttaja" | "sivu";
   period?: Period;
+  /** Luku oli toisessa valuutassa ja muunnettiin analyysin valuuttaan (kohta 11.11). */
+  conversion?: Conversion;
+}
+
+/** Valuuttamuunnos analyysin valuuttaan. */
+export interface Conversion {
+  /** Luvun alkuperäinen valuutta, esim. "SEK". */
+  currency: string;
+  /** Arvo alkuperäisessä valuutassa. */
+  original: number;
+  /** Montako alkuperäisen valuutan yksikköä on yksi analyysin valuutan yksikkö: 1 € = 11,29 SEK. */
+  rate: number;
+  /** EKP:n kurssin päivä vvvv-kk-pp. */
+  date: string;
 }
 
 export interface Calculation {
   formula: Formula;
   value: number;
   /** Lähtöluvut ja niiden arvot kaavan järjestyksessä. */
-  inputs: { id: string; value: number }[];
+  inputs: { id: string; value: number; conversion?: Conversion }[];
   /** Lähtöluvut ovat eri kausilta, esimerkiksi toteutunut ja ennuste. */
   mixedPeriods: boolean;
   /** Lähtölukujen yhteinen kausi, jos se on tiedossa ja sama kaikille. */
@@ -242,6 +257,8 @@ export interface ResolvedFigure {
   origin: "kayttaja" | "sivu" | "laskettu";
   period?: Period;
   mixedPeriods: boolean;
+  /** Syötetty tai poimittu luku muunnettiin toisesta valuutasta. */
+  conversion?: Conversion;
   /**
    * Lasketulla luvulla laskelma, josta se syntyi. Syötetyllä tai poimitulla luvulla omista
    * luvuista laskettu vertailuarvo, jos lähtöluvut riittävät (ks. differsNotably).
@@ -271,7 +288,13 @@ export function calculate(
 ): CalculationResult {
   const figures = new Map<string, ResolvedFigure>();
   for (const [id, k] of known) {
-    figures.set(id, { value: k.value, origin: k.origin, period: k.period, mixedPeriods: false });
+    figures.set(id, {
+      value: k.value,
+      origin: k.origin,
+      period: k.period,
+      mixedPeriods: false,
+      ...(k.conversion ? { conversion: k.conversion } : {}),
+    });
   }
   const blocked = new Map<string, BlockedFigure>();
   const targets = [...new Set(formulaList.map((f) => f.target))];
@@ -295,7 +318,10 @@ export function calculate(
       return {
         formula,
         value,
-        inputs: ids.map((id) => ({ id, value: figures.get(id)!.value })),
+        inputs: ids.map((id) => {
+          const { value, conversion } = figures.get(id)!;
+          return conversion ? { id, value, conversion } : { id, value };
+        }),
         mixedPeriods,
         period: !mixedPeriods && periods.size === 1 ? [...periods][0] : undefined,
       };

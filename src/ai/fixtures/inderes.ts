@@ -51,6 +51,7 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Liikevaihto 812,4 865,0 910,2 955,0",
+        currency: null,
       },
       {
         id: "liikevaihto-edellinen",
@@ -58,6 +59,7 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2024",
         quote: "Liikevaihto 812,4 865,0 910,2 955,0",
+        currency: null,
       },
       {
         id: "ttm-kasvu",
@@ -65,6 +67,7 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Kasvu-% 4,1 % 6,5 % 5,2 % 4,9 %",
+        currency: null,
       },
       {
         id: "ebit",
@@ -72,6 +75,7 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Oik. EBIT 64,8 71,3 78,0 84,1",
+        currency: null,
       },
       {
         id: "ebit-prosentti",
@@ -79,6 +83,7 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "EBIT-% (oik.) 8,0 % 8,2 % 8,6 % 8,8 %",
+        currency: null,
       },
       {
         id: "nettotulos",
@@ -86,6 +91,7 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Nettotulos 44,1 49,9 55,2 60,3",
+        currency: null,
       },
       {
         id: "eps",
@@ -93,6 +99,7 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "EPS (oik.) 0,88 1,00 1,10 1,21",
+        currency: null,
       },
       {
         id: "osinko-per-osake",
@@ -100,6 +107,7 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Osinko/osake 0,50 0,54 0,58 0,62",
+        currency: null,
       },
       {
         id: "pe",
@@ -107,6 +115,7 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "P/E (oik.) 17,2 15,1 13,7 12,5",
+        currency: null,
       },
       {
         id: "ev-ebit",
@@ -114,6 +123,7 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "EV/EBIT (oik.) 13,9 12,6 11,5 10,7",
+        currency: null,
       },
       {
         id: "osinkotuotto",
@@ -121,6 +131,7 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Osinkotuotto-% 3,4 % 3,6 % 3,9 % 4,2 %",
+        currency: null,
       },
       {
         id: "nettovelka",
@@ -128,9 +139,17 @@ export const inderes: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Nettovelka 118,0 96,5 80,0 61,2",
+        currency: null,
       },
       // Tahallinen virhe: lainausta ei ole tekstissä, eli malli on keksinyt luvun.
-      { id: "roe", value: 14.1, period: "toteutunut", year: "2025", quote: "ROE 14,1 %" },
+      {
+        id: "roe",
+        value: 14.1,
+        period: "toteutunut",
+        year: "2025",
+        quote: "ROE 14,1 %",
+        currency: null,
+      },
     ],
     notes: ["Luvut ovat vuodelta 2025. Vuodet 2026e ja 2027e ovat ennusteita."],
   },

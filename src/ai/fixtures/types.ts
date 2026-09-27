@@ -17,7 +17,13 @@ export interface ExtractionFixture {
     priceCurrency: string | null;
   };
   /** Luvut, jotka tekoälyn pitää poimia tekstistä (npm run eval-extract). */
-  expected: { id: string; value: number; period?: Period }[];
+  expected: {
+    id: string;
+    value: number;
+    period?: Period;
+    /** Rahamäärän valuutta, jos se eroaa tilinpäätöksen valuutasta (kohta 11.11). */
+    currency?: string;
+  }[];
   /**
    * Valmis mallin vastaus yksikkötesteihin. Siinä on odotetut luvut ja lisäksi tahallisia
    * virheitä (merkitty kommentilla), joiden käsittely testataan (verify.test.ts).

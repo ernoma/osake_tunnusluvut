@@ -58,6 +58,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Liikevaihto 245 318 231 004",
+        currency: null,
       },
       {
         id: "poistot",
@@ -65,6 +66,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Poistot ja arvonalentumiset -12 450 -11 873",
+        currency: null,
       },
       {
         id: "ebit",
@@ -72,6 +74,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Liikevoitto 21 760 19 402",
+        currency: null,
       },
       {
         id: "rahoituskulut",
@@ -79,6 +82,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Rahoituskulut -3 527 -3 228",
+        currency: null,
       },
       {
         id: "tulos-ennen-veroja",
@@ -86,6 +90,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Tulos ennen veroja 18 645 16 532",
+        currency: null,
       },
       {
         id: "nettotulos",
@@ -93,6 +98,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Tilikauden tulos 14 902 13 170",
+        currency: null,
       },
       {
         id: "oma-paaoma",
@@ -100,6 +106,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Oma pääoma yhteensä 98 440 90 115",
+        currency: null,
       },
       {
         id: "korolliset-velat",
@@ -107,6 +114,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Korolliset velat 61 200 66 850",
+        currency: null,
       },
       // Tahallinen virhe: tuhannet unohtuneet. Lainaus täsmää, mutta rahamäärä on liian pieni.
       {
@@ -115,6 +123,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Saadut ennakot 3 210 2 740",
+        currency: null,
       },
       {
         id: "kassa",
@@ -122,6 +131,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Rahavarat 14 380 12 905",
+        currency: null,
       },
       {
         id: "taseen-loppusumma",
@@ -129,6 +139,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Taseen loppusumma 201 530 194 210",
+        currency: null,
       },
       {
         id: "liikevaihto-edellinen",
@@ -136,6 +147,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2024",
         quote: "Liikevaihto 245 318 231 004",
+        currency: null,
       },
       // Tahallinen virhe: arvo ei vastaa lainausta (malli on lukenut väärän rivin).
       {
@@ -144,6 +156,7 @@ export const tilinpaatos: ExtractionFixture = {
         period: "toteutunut",
         year: "2025",
         quote: "Tilikauden tulos 14 902 13 170",
+        currency: null,
       },
     ],
     notes: ["Luvut ovat tuhansina euroina, ja ne on muunnettu euroiksi."],

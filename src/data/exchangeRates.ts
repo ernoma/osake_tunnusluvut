@@ -17,6 +17,23 @@ export interface EurRate {
 /** Miksi kurssia ei saatu: verkkovirhe, EKP ei julkaise valuutalle kurssia tai outo vastaus. */
 export type RateErrorReason = "verkko" | "valuutta" | "vastaus";
 
+/** Kurssin haun tila. */
+export type RateState =
+  | { status: "haetaan" }
+  | { status: "valmis"; rate: EurRate }
+  | { status: "virhe"; reason: RateErrorReason };
+
+const RATE_ERRORS: Record<RateErrorReason, (currency: string) => string> = {
+  verkko: () => "Valuuttakurssin haku ei onnistunut. Tarkista verkkoyhteys.",
+  valuutta: (currency) => `Euroopan keskuspankki ei julkaise kurssia valuutalle ${currency}.`,
+  vastaus: () => "Valuuttakurssipalvelu ei vastannut odotetusti.",
+};
+
+/** Miksi kurssia ei saatu, käyttäjälle. */
+export function rateErrorText(reason: RateErrorReason, currency: string): string {
+  return RATE_ERRORS[reason](currency);
+}
+
 export class RateError extends Error {
   constructor(readonly reason: RateErrorReason) {
     super(`Valuuttakurssia ei saatu (${reason})`);

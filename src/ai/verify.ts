@@ -8,9 +8,10 @@
 //    huomioidaan. Jos ei vastaa, rivi merkitään tarkistettavaksi, eikä sitä valita oletuksena.
 
 import { figuresById } from "../data/content.ts";
+import { CURRENCY_CODE, isMoney, PRICE_BOUND_IDS } from "../data/currency.ts";
 import type { Period } from "../data/formulas.ts";
 import { parseNumber } from "../data/numberFormat.ts";
-import type { ExtractionResult } from "./schema.ts";
+import type { ExtractedValue, ExtractionResult } from "./schema.ts";
 
 export interface CheckedValue {
   id: string;
@@ -23,6 +24,8 @@ export interface CheckedValue {
   check: "ok" | "tarkista";
   /** Miksi luku pitää tarkistaa, esim. "lainauksen luku ei vastaa arvoa". */
   warning?: string;
+  /** Rahamäärän valuutta, jos se on tiedossa ja eroaa tilinpäätöksen valuutasta. */
+  currency?: string;
 }
 
 /** Rahamäärä, jota pienempi on pörssiyhtiölle epätodennäköinen (euroina tai muuna valuuttana). */
@@ -172,14 +175,26 @@ export function quoteMatchesValue(
   );
 }
 
-const CURRENCY = /^[A-Z]{3}$/;
-
 export function verifyExtraction(result: ExtractionResult, text: string): VerifiedExtraction {
   const normalized = normalizeText(text);
   const contextScales = scalesIn(text);
   const values: CheckedValue[] = [];
   const rejected: RejectedValue[] = [];
   const seen = new Set<string>();
+  const code = (c: string | null) => {
+    const upper = c?.trim().toUpperCase() ?? "";
+    return CURRENCY_CODE.test(upper) ? upper : null;
+  };
+  const currency = code(result.company.currency);
+  // Kurssin valuutasta on hyötyä vain, jos tilinpäätöksen valuutta on tiedossa ja eri.
+  const priceCurrency = code(result.company.priceCurrency);
+  const differentPrice = currency && priceCurrency !== currency ? priceCurrency : null;
+  /** Luvun oma valuutta tai kurssiin sidotulla luvulla kurssin valuutta (kohta 11.11). */
+  const valueCurrency = (v: ExtractedValue) => {
+    if (!currency || !isMoney(v.id)) return null;
+    const own = code(v.currency) ?? (PRICE_BOUND_IDS.has(v.id) ? differentPrice : null);
+    return own !== currency ? own : null;
+  };
 
   for (const v of result.values) {
     const reject = (reason: RejectedValue["reason"]) =>
@@ -205,6 +220,7 @@ export function verifyExtraction(result: ExtractionResult, text: string): Verifi
     });
     // Pörssiyhtiön rahamäärä alle 100 000 on lähes aina unohtunut "milj." tai "MEUR".
     const tooSmall = info.unit === "€" && v.value !== 0 && Math.abs(v.value) < SMALL_AMOUNT;
+    const own = valueCurrency(v);
     values.push({
       id: v.id,
       value: v.value,
@@ -217,21 +233,15 @@ export function verifyExtraction(result: ExtractionResult, text: string): Verifi
         : tooSmall
           ? { warning: "rahamäärä on epätavallisen pieni. Onko yksikkö (milj., mrd) huomioitu?" }
           : {}),
+      ...(own ? { currency: own } : {}),
     });
   }
 
-  const code = (c: string | null) => {
-    const upper = c?.trim().toUpperCase() ?? "";
-    return CURRENCY.test(upper) ? upper : null;
-  };
-  const currency = code(result.company.currency);
-  const priceCurrency = code(result.company.priceCurrency);
   return {
     company: {
       name: result.company.name?.trim() ?? "",
       currency,
-      // Kurssin valuutasta on hyötyä vain, jos tilinpäätöksen valuutta on tiedossa ja eri.
-      priceCurrency: currency && priceCurrency !== currency ? priceCurrency : null,
+      priceCurrency: differentPrice,
     },
     values,
     rejected,
