@@ -1,5 +1,7 @@
 import styles from "./App.module.css";
 
+const REPO_URL = "https://github.com/ernoma/osake_tunnusluvut";
+
 /** Vastuuvapauslauseke ja lisenssi molempien sivujen lopussa. */
 export default function Footer() {
   return (
@@ -14,7 +16,10 @@ export default function Footer() {
         menetyksistä, jotka aiheutuvat sovelluksen tai sen tietojen käytöstä. Tarkista luvut aina
         alkuperäisestä lähteestä.
       </p>
-      <p>Lähdekoodi on avointa, lisenssi EUPL 1.2.</p>
+      <p>
+        <a href={REPO_URL}>Lähdekoodi GitHubissa</a>, lisenssi{" "}
+        <a href={`${REPO_URL}/blob/main/LICENSE`}>EUPL 1.2</a>.
+      </p>
     </footer>
   );
 }

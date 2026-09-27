@@ -1,6 +1,6 @@
 # Osakkeen tunnusluvut – selkokielellä
 
-Selainpohjainen opas osakesijoittamisen tunnuslukuihin aloittelijalle. Suunnitelma on tiedostossa [TOTEUTUSSUUNNITELMA.md](TOTEUTUSSUUNNITELMA.md).
+Selainpohjainen opas osakesijoittamisen tunnuslukuihin aloittelijalle: **https://ernoma.github.io/osake_tunnusluvut/**. Suunnitelma on tiedostossa [TOTEUTUSSUUNNITELMA.md](TOTEUTUSSUUNNITELMA.md).
 
 Sovelluksessa on kaksi sivua:
 
