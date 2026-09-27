@@ -5,7 +5,7 @@ import { row, type ExtractionFixture } from "./types.ts";
 
 export const yahoo: ExtractionFixture = {
   site: "Yahoo Finance",
-  company: { name: "Sample Devices Inc.", currency: "USD" },
+  company: { name: "Sample Devices Inc.", currency: "USD", priceCurrency: null },
   text: [
     "Sample Devices Inc. (SMPD)",
     "NasdaqGS - Currency in USD",
@@ -55,7 +55,7 @@ export const yahoo: ExtractionFixture = {
     { id: "osinkosuhde", value: 34.1 },
   ],
   response: {
-    company: { name: "Sample Devices Inc.", ticker: "SMPD", currency: "usd" },
+    company: { name: "Sample Devices Inc.", ticker: "SMPD", currency: "usd", priceCurrency: null },
     values: [
       { id: "kurssi", value: 128.44, period: "ttm", year: null, quote: "128.44" },
       {

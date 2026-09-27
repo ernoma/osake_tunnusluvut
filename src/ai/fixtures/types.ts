@@ -10,7 +10,12 @@ export interface ExtractionFixture {
   site: string;
   /** Liitetty teksti. */
   text: string;
-  company: { name: string; currency: string };
+  company: {
+    name: string;
+    currency: string;
+    /** Kurssin valuutta, jos se eroaa tilinpäätöksen valuutasta (kohta 11.11). */
+    priceCurrency: string | null;
+  };
   /** Luvut, jotka tekoälyn pitää poimia tekstistä (npm run eval-extract). */
   expected: { id: string; value: number; period?: Period }[];
   /**

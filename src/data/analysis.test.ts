@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { describeCalculation, matchRange, missingInputs, nonPositiveRule } from "./analysis.ts";
+import {
+  currenciesDiffer,
+  currencyMixWarning,
+  describeCalculation,
+  figureCurrency,
+  matchRange,
+  missingInputs,
+  mixesCurrencies,
+  nonPositiveRule,
+} from "./analysis.ts";
 import { metricsById } from "./content.ts";
 import { calculate, type KnownFigure } from "./formulas.ts";
 import type { MetricRange } from "./types.ts";
@@ -93,6 +102,65 @@ describe("P/FCF ja laskelman kuvaus", () => {
     const pe = calculate(known).figures.get("pe")!;
     expect(describeCalculation(pe.calculation!, "EUR")).toBe(
       "Osakkeen kurssi 20,00 € ÷ osakekohtainen tulos 2,00 €",
+    );
+  });
+});
+
+describe("valuuttojen sekoittuminen", () => {
+  const sek = (entries: [string, number][]) =>
+    calculate(
+      new Map<string, KnownFigure>(entries.map(([id, value]) => [id, { value, origin: "sivu" }])),
+    ).figures;
+
+  it("kurssiin sidotut luvut ovat kurssin valuutassa", () => {
+    expect(figureCurrency("kurssi", "EUR", "SEK")).toBe("SEK");
+    expect(figureCurrency("markkina-arvo", "EUR", "SEK")).toBe("SEK");
+    expect(figureCurrency("ev", "EUR", "SEK")).toBe("SEK");
+    expect(figureCurrency("nettotulos", "EUR", "SEK")).toBe("EUR");
+    expect(figureCurrency("kurssi", "EUR")).toBe("EUR");
+  });
+
+  it("kurssin ja tilinpäätösluvun yhdistäminen sekoittaa valuutat", () => {
+    const figures = sek([
+      ["kurssi", 118.4],
+      ["osakkeiden-maara", 106.4e6],
+      ["eps", 0.96],
+      ["oma-paaoma", 741.3e6],
+      ["nettovelka", 200e6],
+      ["ebit", 142.7e6],
+      ["osinko-per-osake", 0.5],
+      ["tuloksen-kasvuennuste", 8],
+    ]);
+    const mixed = (id: string) => mixesCurrencies(figures.get(id)?.calculation, figures);
+    // Kurssi × osakemäärä ei sekoita: osakemäärä ei ole rahamäärä.
+    expect(mixed("markkina-arvo")).toBe(false);
+    expect(mixed("pe")).toBe(true);
+    expect(mixed("pb")).toBe(true);
+    expect(mixed("osinkotuotto")).toBe(true);
+    expect(mixed("ev")).toBe(true);
+    expect(mixed("ev-ebit")).toBe(true);
+    // PEG ei yhdistä rahamääriä, mutta sen P/E on laskettu sekoittamalla.
+    expect(mixed("peg")).toBe(true);
+    // Pelkät tilinpäätösluvut eivät sekoitu.
+    expect(mixed("osinkosuhde")).toBe(false);
+  });
+
+  it("laskelma näyttää kurssiin sidotut luvut kurssin valuutassa", () => {
+    const figures = sek([
+      ["kurssi", 118.4],
+      ["eps", 0.96],
+    ]);
+    expect(describeCalculation(figures.get("pe")!.calculation!, "EUR", "SEK")).toMatch(
+      /^Osakkeen kurssi 118,40\sSEK ÷ osakekohtainen tulos 0,96\s€$/,
+    );
+  });
+
+  it("varoitus nimeää molemmat valuutat", () => {
+    expect(currenciesDiffer("EUR", "SEK")).toBe(true);
+    expect(currenciesDiffer("EUR", "EUR")).toBe(false);
+    expect(currenciesDiffer("EUR", "")).toBe(false);
+    expect(currencyMixWarning("EUR", "SEK")).toMatch(
+      /^Kurssi ja markkina-arvo ovat SEK-määräisiä, mutta tilinpäätösluvut EUR-määräisiä\./,
     );
   });
 });

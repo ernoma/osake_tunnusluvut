@@ -2,9 +2,14 @@
 // omilla luvuilla, huomautukset, osuva nyrkkisääntöväli, suuntamerkki, yleinen virhe ja linkki
 // korttiin. Näkymä ei koskaan sano "osta" tai "myy" eikä anna pisteitä.
 
-import { describeCalculation, matchRange } from "../data/analysis.ts";
+import { describeCalculation, figureCurrency, matchRange } from "../data/analysis.ts";
 import { displayName } from "../data/content.ts";
-import { differsNotably, PERIOD_LABELS, type ResolvedFigure } from "../data/formulas.ts";
+import {
+  differsNotably,
+  PERIOD_LABELS,
+  type Calculation,
+  type ResolvedFigure,
+} from "../data/formulas.ts";
 import type { EurRate, RateErrorReason } from "../data/exchangeRates.ts";
 import { formatEurRate, formatNumber } from "../data/numberFormat.ts";
 import type { Metric } from "../data/types.ts";
@@ -33,13 +38,29 @@ interface Props {
   figure: ResolvedFigure;
   /** Syötetyn tai poimitun luvun vuosi, esim. "2025". */
   year?: string;
+  /** Analyysin (tilinpäätöksen) valuutta. */
   currency: string;
+  /** Kurssin valuutta, jos se eroaa tilinpäätöksen valuutasta (kohta 11.11). */
+  priceCurrency?: string;
+  /** Laskelma yhdistää kurssiin sidotun luvun tilinpäätöslukuun eri valuutoissa. */
+  mixesCurrencies?: boolean;
   /** Analyysin hakupäivä vvvv-kk-pp tai tyhjä. Valuuttakurssi haetaan tältä päivältä. */
   date: string;
 }
 
-export default function AnalysisRow({ metric, figure, year, currency, date }: Props) {
+export default function AnalysisRow({
+  metric,
+  figure,
+  year,
+  currency: statementCurrency,
+  priceCurrency = "",
+  mixesCurrencies = false,
+  date,
+}: Props) {
+  // Kurssiin sidottu tunnusluku (markkina-arvo, EV) on kurssin valuutassa.
+  const currency = figureCurrency(metric.id, statementCurrency, priceCurrency);
   const format = (value: number, unit = metric.unit) => formatNumber(value, unit, currency);
+  const describe = (c: Calculation) => describeCalculation(c, statementCurrency, priceCurrency);
   const valueText = format(figure.value);
   const calculation = figure.calculation;
   const source = [ORIGIN_LABELS[figure.origin], figure.period && PERIOD_LABELS[figure.period], year]
@@ -69,10 +90,18 @@ export default function AnalysisRow({ metric, figure, year, currency, date }: Pr
       {figure.origin === "laskettu" && calculation && (
         <p className={styles.calculation}>
           <span className={styles.smallLabel}>Laskettu omista luvuista: </span>
-          {describeCalculation(calculation, currency)} = {valueText}
+          {describe(calculation)} = {valueText}
           {calculation.formula.note && (
             <span className={styles.formulaNote}> {calculation.formula.note}</span>
           )}
+        </p>
+      )}
+
+      {figure.origin === "laskettu" && mixesCurrencies && (
+        <p className={styles.warning}>
+          <span aria-hidden="true">⚠ </span>Laskettu yhdistämällä {priceCurrency}-määräinen kurssiin
+          sidottu luku {statementCurrency}-määräiseen tilinpäätöslukuun, joten tulos on väärin.
+          Muunna luvut samaan valuuttaan.
         </p>
       )}
 
@@ -89,9 +118,11 @@ export default function AnalysisRow({ metric, figure, year, currency, date }: Pr
           <p className={styles.warning}>
             <span aria-hidden="true">⚠ </span>
             {figure.origin === "sivu" ? "Sivun luku" : "Syöttämäsi luku"} on {valueText}, omista
-            luvuista laskettuna {format(calculation.value)} (
-            {describeCalculation(calculation, currency)}
-            ). Ero johtuu yleensä eri kaudesta tai oikaistuista luvuista.
+            luvuista laskettuna {format(calculation.value)} ({describe(calculation)}
+            ).{" "}
+            {mixesCurrencies
+              ? `Laskelma yhdistää ${priceCurrency}-määräisen kurssiin sidotun luvun ${statementCurrency}-määräiseen tilinpäätöslukuun, joten omista luvuista laskettu arvo on väärin.`
+              : "Ero johtuu yleensä eri kaudesta tai oikaistuista luvuista."}
           </p>
         )}
 

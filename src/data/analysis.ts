@@ -9,6 +9,7 @@ import {
   formulaInputs,
   type Calculation,
   type Formula,
+  type ResolvedFigure,
 } from "./formulas.ts";
 import { formatNumber } from "./numberFormat.ts";
 import type { Metric, MetricRange } from "./types.ts";
@@ -16,18 +17,78 @@ import type { Metric, MetricRange } from "./types.ts";
 /** "Osakkeen kurssi" → "osakkeen kurssi" lauseen keskelle. */
 export const lowerFirst = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 
+// Valuuttojen sekoittuminen (kohta 11.11)
+
+/** Kurssiin sidotut rahamäärät, jotka ilmoitetaan kurssin valuutassa. */
+export const PRICE_BOUND_IDS: ReadonlySet<string> = new Set(["kurssi", "markkina-arvo", "ev"]);
+
+/**
+ * Luvun valuutta: kurssiin sidotulla luvulla kurssin valuutta, jos se on annettu, muuten
+ * analyysin (tilinpäätöksen) valuutta.
+ */
+export function figureCurrency(id: string, currency: string, priceCurrency = ""): string {
+  return priceCurrency && PRICE_BOUND_IDS.has(id) ? priceCurrency : currency;
+}
+
+/** Ovatko kurssi ja tilinpäätösluvut eri valuutoissa. */
+export function currenciesDiffer(currency: string, priceCurrency: string): boolean {
+  return priceCurrency !== "" && priceCurrency !== currency;
+}
+
+/** Varoitus, kun kurssi ja tilinpäätösluvut ovat eri valuutoissa. */
+export function currencyMixWarning(currency: string, priceCurrency: string): string {
+  return (
+    `Kurssi ja markkina-arvo ovat ${priceCurrency}-määräisiä, mutta tilinpäätösluvut ` +
+    `${currency}-määräisiä. Tunnusluvut, joissa ne yhdistetään (esim. P/E ja P/B), menevät ` +
+    "väärin. Muunna kurssi ja markkina-arvo samaan valuuttaan tai jätä ne pois."
+  );
+}
+
+const isMoney = (id: string) => {
+  const unit = figuresById.get(id)?.unit;
+  return unit === "€" || unit === "€/osake";
+};
+
+/**
+ * Yhdistääkö laskelma kurssiin sidotun rahamäärän (kurssi, markkina-arvo, EV) tilinpäätöksen
+ * rahamäärään. Myös laskelma, jonka lähtöluku on itse laskettu sekoittamalla, on sekoittunut:
+ * EV/EBIT sekoittuu, jos EV on laskettu markkina-arvosta ja nettovelasta.
+ */
+export function mixesCurrencies(
+  calculation: Calculation | undefined,
+  figures: ReadonlyMap<string, ResolvedFigure>,
+): boolean {
+  if (!calculation) return false;
+  let price = false;
+  let statement = false;
+  for (const { id } of calculation.inputs) {
+    const input = figures.get(id);
+    if (input?.origin === "laskettu" && mixesCurrencies(input.calculation, figures)) return true;
+    if (!isMoney(id)) continue;
+    if (PRICE_BOUND_IDS.has(id)) price = true;
+    else statement = true;
+  }
+  return price && statement;
+}
+
 /**
  * Laskelma käyttäjän omilla luvuilla, esimerkiksi
  * "Markkina-arvo 20 mrd. € ÷ vapaa kassavirta 1,1 mrd. €". Nimet kirjoitetaan auki, koska
- * lyhenteet (FCF, EPS) eivät ole aloittelijalle tuttuja.
+ * lyhenteet (FCF, EPS) eivät ole aloittelijalle tuttuja. Kurssiin sidotut luvut näytetään
+ * kurssin valuutassa (priceCurrency), jos se on annettu.
  */
-export function describeCalculation(calculation: Calculation, currency: string): string {
+export function describeCalculation(
+  calculation: Calculation,
+  currency: string,
+  priceCurrency = "",
+): string {
   const values = new Map(calculation.inputs.map((i) => [i.id, i.value]));
   const text = describeFormula(calculation.formula, (id) => {
     const info = figuresById.get(id);
     const value = values.get(id);
     if (!info || value === undefined) return id;
-    return `${lowerFirst(info.name)} ${formatNumber(value, info.unit, currency)}`;
+    const shown = formatNumber(value, info.unit, figureCurrency(id, currency, priceCurrency));
+    return `${lowerFirst(info.name)} ${shown}`;
   });
   return text.charAt(0).toUpperCase() + text.slice(1);
 }

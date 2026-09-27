@@ -4,7 +4,7 @@ import { row, type ExtractionFixture } from "./types.ts";
 
 export const nordnet: ExtractionFixture = {
   site: "Nordnet",
-  company: { name: "Esimerkkitehdas Oyj", currency: "EUR" },
+  company: { name: "Esimerkkitehdas Oyj", currency: "EUR", priceCurrency: null },
   text: [
     "Esimerkkitehdas Oyj",
     "ESIM · Helsinki · EUR",
@@ -41,7 +41,7 @@ export const nordnet: ExtractionFixture = {
     { id: "omavaraisuusaste", value: 42.1 },
   ],
   response: {
-    company: { name: "Esimerkkitehdas Oyj", ticker: "ESIM", currency: "EUR" },
+    company: { name: "Esimerkkitehdas Oyj", ticker: "ESIM", currency: "EUR", priceCurrency: null },
     values: [
       { id: "kurssi", value: 23.04, period: "ttm", year: null, quote: "Viimeisin 23,04 EUR" },
       {

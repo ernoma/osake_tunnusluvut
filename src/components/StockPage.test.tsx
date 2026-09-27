@@ -303,6 +303,27 @@ describe("analyysi", () => {
     expect(within(row).queryByText(/osuu tähän väliin/)).not.toBeInTheDocument();
   });
 
+  it("kurssin valuutan vaihto samaksi poistaa varoituksen", async () => {
+    const { user } = renderAt(
+      "?sivu=tutki&val=EUR&hval=SEK&kurssi=118.4~ttm~~s&eps=0.96~t~2025~s&osinkosuhde=40~t~2025~s",
+    );
+    const warning = /Kurssi ja markkina-arvo ovat SEK-määräisiä/;
+    expect(screen.getByText(warning)).toBeInTheDocument();
+    const pe = analysisRow("P/E-luku");
+    expect(pe).toHaveTextContent(/Osakkeen kurssi 118,40\sSEK ÷ osakekohtainen tulos 0,96\s€/);
+    expect(pe).toHaveTextContent(/yhdistämällä SEK-määräinen/);
+    // Sivulta saatu luku, jota ei lasketa kurssista, ei saa varoitusta.
+    expect(analysisRow("Osinkosuhde")).not.toHaveTextContent(/määräinen/);
+    expect(screen.getByLabelText("Tilinpäätöksen valuutta")).toHaveValue("EUR");
+
+    await user.selectOptions(screen.getByRole("combobox", { name: "Kurssin valuutta" }), "EUR");
+    expect(screen.queryByText(warning)).not.toBeInTheDocument();
+    expect(analysisRow("P/E-luku")).not.toHaveTextContent(/yhdistämällä/);
+    expect(analysisRow("P/E-luku")).toHaveTextContent(/Osakkeen kurssi 118,40\s€/);
+    expect(new URLSearchParams(window.location.search).get("hval")).toBe("EUR");
+    expect(screen.getByRole("combobox", { name: "Kurssin valuutta" })).toBeInTheDocument();
+  });
+
   it("euromääräiselle analyysille kurssia ei haeta", () => {
     renderAt("?sivu=tutki&markkina-arvo=5000000000~t~~s");
     expect(within(analysisRow("Markkina-arvo")).getByText(/osuu tähän väliin/)).toBeInTheDocument();
@@ -339,6 +360,11 @@ describe("saavutettavuus (axe)", { timeout: 20_000 }, () => {
     );
     await user.click(screen.getByRole("button", { name: "Lisää: EV/EBIT-luku" }));
     await user.click(screen.getByRole("button", { name: "Lisää" }));
+    expect(await violations()).toEqual([]);
+  });
+
+  it("analyysi: kurssin valuutta ja valuuttavaroitukset", async () => {
+    renderAt("?sivu=tutki&val=EUR&hval=SEK&kurssi=118.4~ttm~~s&eps=0.96~t~2025~s&pe=9~ttm~~s");
     expect(await violations()).toEqual([]);
   });
 });

@@ -5,7 +5,7 @@ import { row, type ExtractionFixture } from "./types.ts";
 
 export const tilinpaatos: ExtractionFixture = {
   site: "Tilinpäätös",
-  company: { name: "Kuvitteellinen Konserni Oyj", currency: "EUR" },
+  company: { name: "Kuvitteellinen Konserni Oyj", currency: "EUR", priceCurrency: null },
   text: [
     "Kuvitteellinen Konserni Oyj – Tilinpäätös 2025",
     "",
@@ -45,7 +45,12 @@ export const tilinpaatos: ExtractionFixture = {
     { id: "liikevaihto-edellinen", value: 231_004_000, period: "toteutunut" },
   ],
   response: {
-    company: { name: "Kuvitteellinen Konserni Oyj", ticker: null, currency: "EUR" },
+    company: {
+      name: "Kuvitteellinen Konserni Oyj",
+      ticker: null,
+      currency: "EUR",
+      priceCurrency: null,
+    },
     values: [
       {
         id: "liikevaihto",

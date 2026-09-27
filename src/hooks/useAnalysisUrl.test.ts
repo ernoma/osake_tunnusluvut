@@ -79,6 +79,16 @@ describe("decodeAnalysis", () => {
   it("hyväksyy muun valuutan koodina", () => {
     expect(decodeAnalysis("?val=usd").currency).toBe("USD");
   });
+
+  it("kurssin valuutta säilyy edestakaisin, ja virheellinen ohitetaan", () => {
+    const withPrice: Analysis = { ...vonovia, priceCurrency: "SEK" };
+    const search = encodeAnalysis(withPrice);
+    expect(search).toContain("&val=EUR&hval=SEK&");
+    expect(decodeAnalysis(search)).toEqual(withPrice);
+    expect(encodeAnalysis(vonovia)).not.toContain("hval");
+    expect(decodeAnalysis("?hval=kruunu").priceCurrency).toBeUndefined();
+    expect(decodeAnalysis("?hval=sek").priceCurrency).toBe("SEK");
+  });
 });
 
 describe("parametrit", () => {

@@ -1,0 +1,98 @@
+// Nordnetin osakesivua mukaileva teksti ruotsalaisesta yhtiöstä, joka on noteerattu kruunuissa
+// mutta raportoi euroissa (suunnitelman kohta 11.11): kurssi ja markkina-arvo ovat SEK-määräisiä,
+// tilinpäätösluvut EUR-määräisiä.
+
+import { row, type ExtractionFixture } from "./types.ts";
+
+export const nordnetSek: ExtractionFixture = {
+  site: "Nordnet (kurssi SEK, tilinpäätös EUR)",
+  company: { name: "Exempelbolaget AB", currency: "EUR", priceCurrency: "SEK" },
+  text: [
+    "Exempelbolaget AB",
+    "EXMP · Tukholma · SEK",
+    row("Viimeisin", "118,40 SEK"),
+    row("-1,20 (-1,00 %)", "Tänään"),
+    "",
+    "Tunnusluvut",
+    row("Markkina-arvo", "12,6 mrd SEK"),
+    row("Osakkeiden määrä", "106 400 000"),
+    row("Osinkotuotto", "2,9 %"),
+    "",
+    "Tilinpäätöstiedot (MEUR)",
+    row("", "2024", "2025"),
+    row("Liikevaihto", "1 402,6", "1 488,1"),
+    row("Liikevoitto", "131,9", "142,7"),
+    row("Nettotulos", "92,4", "101,8"),
+    row("Oma pääoma", "688,0", "741,3"),
+    row("Tulos/osake (EUR)", "0,87", "0,96"),
+    "Yhtiö raportoi euroissa.",
+  ].join("\n"),
+  expected: [
+    { id: "kurssi", value: 118.4 },
+    { id: "markkina-arvo", value: 12.6e9 },
+    { id: "osakkeiden-maara", value: 106_400_000 },
+    { id: "osinkotuotto", value: 2.9 },
+    { id: "liikevaihto", value: 1488.1e6, period: "toteutunut" },
+    { id: "ebit", value: 142.7e6, period: "toteutunut" },
+    { id: "nettotulos", value: 101.8e6, period: "toteutunut" },
+    { id: "oma-paaoma", value: 741.3e6, period: "toteutunut" },
+    { id: "eps", value: 0.96, period: "toteutunut" },
+  ],
+  response: {
+    company: { name: "Exempelbolaget AB", ticker: "EXMP", currency: "EUR", priceCurrency: "SEK" },
+    values: [
+      { id: "kurssi", value: 118.4, period: "ttm", year: null, quote: "Viimeisin 118,40 SEK" },
+      {
+        id: "markkina-arvo",
+        value: 12.6e9,
+        period: "ttm",
+        year: null,
+        quote: "Markkina-arvo 12,6 mrd SEK",
+      },
+      {
+        id: "osakkeiden-maara",
+        value: 106_400_000,
+        period: "ttm",
+        year: null,
+        quote: "Osakkeiden määrä 106 400 000",
+      },
+      { id: "osinkotuotto", value: 2.9, period: "ttm", year: null, quote: "Osinkotuotto 2,9 %" },
+      {
+        id: "liikevaihto",
+        value: 1488.1e6,
+        period: "toteutunut",
+        year: "2025",
+        quote: "Liikevaihto 1 402,6 1 488,1",
+      },
+      {
+        id: "ebit",
+        value: 142.7e6,
+        period: "toteutunut",
+        year: "2025",
+        quote: "Liikevoitto 131,9 142,7",
+      },
+      {
+        id: "nettotulos",
+        value: 101.8e6,
+        period: "toteutunut",
+        year: "2025",
+        quote: "Nettotulos 92,4 101,8",
+      },
+      {
+        id: "oma-paaoma",
+        value: 741.3e6,
+        period: "toteutunut",
+        year: "2025",
+        quote: "Oma pääoma 688,0 741,3",
+      },
+      {
+        id: "eps",
+        value: 0.96,
+        period: "toteutunut",
+        year: "2025",
+        quote: "Tulos/osake (EUR) 0,87 0,96",
+      },
+    ],
+    notes: ["Kurssi ja markkina-arvo ovat kruunuina (SEK), mutta tilinpäätösluvut euroina (EUR)."],
+  },
+};

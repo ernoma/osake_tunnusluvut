@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { API_KEY_STORAGE_KEY, MODEL_STORAGE_KEY } from "../ai/apiKey.ts";
 import { errorReply, messageReply, stubApi } from "../ai/fixtures/api.ts";
 import { inderes } from "../ai/fixtures/inderes.ts";
+import { nordnetSek } from "../ai/fixtures/nordnetSek.ts";
 import { tilinpaatos } from "../ai/fixtures/tilinpaatos.ts";
 import { decodeAnalysis } from "../hooks/useAnalysisUrl.ts";
 import { RECENT_STORAGE_KEY } from "../hooks/useRecentAnalyses.ts";
@@ -199,6 +200,52 @@ describe("poimittujen lukujen tarkistus", () => {
     expect(recent).toContain("Kuvitteellinen Konserni Oyj");
     expect(recent).not.toContain("sk-ant");
     expect(recent).not.toContain("Liikevaihto 245 318");
+  });
+
+  it("kurssin eri valuutasta varoitetaan tarkistuksessa ja analyysissä", async () => {
+    window.localStorage.setItem(API_KEY_STORAGE_KEY, KEY);
+    stubApi(messageReply(nordnetSek.response));
+    const { user } = renderPage();
+    await paste(user, nordnetSek.text);
+    await user.click(extractButton());
+
+    await screen.findByRole("heading", { name: "Tarkista poimitut luvut" });
+    expect(
+      screen.getByText(/Kurssi ja markkina-arvo ovat SEK-määräisiä, mutta tilinpäätösluvut EUR/),
+    ).toBeInTheDocument();
+    const list = screen.getByRole("list", { name: "Poimitut luvut" });
+    expect(
+      within(list).getByRole("checkbox", { name: /^Osakkeen kurssi 118,40\sSEK/ }),
+    ).toBeChecked();
+    expect(
+      within(list).getByRole("checkbox", { name: /^Nettotulos 102\smilj\.\s€/ }),
+    ).toBeChecked();
+
+    await user.click(screen.getByRole("button", { name: /Käytä valittuja lukuja/ }));
+    expect(decodeAnalysis(window.location.search)).toMatchObject({
+      currency: "EUR",
+      priceCurrency: "SEK",
+    });
+    expect(screen.getByRole("combobox", { name: "Kurssin valuutta" })).toHaveValue("SEK");
+    expect(screen.getByText(/Kurssi ja markkina-arvo ovat SEK-määräisiä/)).toBeInTheDocument();
+    expect(screen.getByRole("article", { name: "P/B-luku" })).toHaveTextContent(
+      /yhdistämällä SEK-määräinen kurssiin sidottu luku EUR-määräiseen/,
+    );
+  });
+
+  it("yksivaluuttaisesta aineistosta ei varoiteta", async () => {
+    window.localStorage.setItem(API_KEY_STORAGE_KEY, KEY);
+    stubApi(messageReply(tilinpaatos.response));
+    const { user } = renderPage();
+    await paste(user, tilinpaatos.text);
+    await user.click(extractButton());
+
+    await screen.findByRole("heading", { name: "Tarkista poimitut luvut" });
+    expect(screen.queryByText(/määräisiä, mutta tilinpäätösluvut/)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Käytä valittuja lukuja/ }));
+    expect(screen.queryByText(/määräisiä, mutta tilinpäätösluvut/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Kurssin valuutta" })).not.toBeInTheDocument();
+    expect(window.location.search).not.toContain("hval");
   });
 
   it("keksityt lainaukset hylätään, ja tekoälyn huomiot näytetään", async () => {

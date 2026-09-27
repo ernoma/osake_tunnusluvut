@@ -21,7 +21,13 @@ export const extractionSchema = z.object({
   company: z.object({
     name: z.string().nullable(),
     ticker: z.string().nullable(),
+    /** Tilinpäätöslukujen valuutta. */
     currency: z.string().nullable(),
+    /**
+     * Kurssin ja markkina-arvon valuutta, jos se eroaa tilinpäätöslukujen valuutasta, esim. SEK,
+     * kun tilinpäätös on euroissa (kohta 11.11). Muuten null.
+     */
+    priceCurrency: z.string().nullable(),
   }),
   values: z.array(extractedValueSchema),
   /** Esim. "Tekstissä on kaksi eri P/E-lukua: toteutunut ja ennuste". */

@@ -4,6 +4,9 @@
 // Jokainen luku on muodossa id=arvo~kausi~vuosi~lähde: kausi on t (toteutunut), ttm (12 kk) tai
 // e (ennuste), ja lähde s (sivulta) tai k (käyttäjä). Laskettuja lukuja ei tallenneta, koska ne
 // syntyvät uudelleen. Osoite päivitetään replaceState-kutsulla kuten useUrlState:ssa.
+//
+// Parametri hval on kurssin ja markkina-arvon valuutta, kun tekoäly on havainnut sen eroavan
+// tilinpäätöksen valuutasta (val), esimerkiksi val=EUR&hval=SEK (kohta 11.11).
 
 import { useCallback, useState } from "react";
 import { figuresById } from "../data/content.ts";
@@ -27,6 +30,11 @@ export interface Analysis {
   name: string;
   /** Kolmikirjaiminen valuuttakoodi, esim. "EUR". */
   currency: string;
+  /**
+   * Kurssin ja markkina-arvon valuutta, jos tekoäly havaitsi sen eroavan tilinpäätöksen
+   * valuutasta (kohta 11.11). Puuttuu tai tyhjä, jos erillistä kurssin valuuttaa ei ole.
+   */
+  priceCurrency?: string;
   /** Päivä, jolloin luvut haettiin (vvvv-kk-pp). Tyhjä, jos ei annettu. */
   date: string;
   /** Luvut siinä järjestyksessä kuin ne lisättiin. Sama id esiintyy enintään kerran. */
@@ -43,8 +51,10 @@ export const EMPTY_ANALYSIS: Analysis = {
 };
 
 /** Parametrit, joita ei voi käyttää luvun id:nä. */
-export const RESERVED_PARAMS = [PAGE_PARAM, "nimi", "val", "pvm"] as const;
-const [, NAME_PARAM, CURRENCY_PARAM, DATE_PARAM] = RESERVED_PARAMS;
+export const RESERVED_PARAMS = [PAGE_PARAM, "nimi", "val", "pvm", "hval"] as const;
+const [, NAME_PARAM, CURRENCY_PARAM, DATE_PARAM, PRICE_CURRENCY_PARAM] = RESERVED_PARAMS;
+
+const CURRENCY_CODE = /^[A-Z]{3}$/;
 
 const PERIOD_CODES: Record<Period, string> = { toteutunut: "t", ttm: "ttm", ennuste: "e" };
 const ORIGIN_CODES: Record<AnalysisFigure["origin"], string> = { sivu: "s", kayttaja: "k" };
@@ -66,6 +76,7 @@ export function encodeAnalysis(analysis: Analysis): string {
   const parts: [string, string][] = [[PAGE_PARAM, "tutki"]];
   if (analysis.name.trim()) parts.push([NAME_PARAM, analysis.name.trim()]);
   parts.push([CURRENCY_PARAM, analysis.currency]);
+  if (analysis.priceCurrency) parts.push([PRICE_CURRENCY_PARAM, analysis.priceCurrency]);
   if (analysis.date) parts.push([DATE_PARAM, analysis.date]);
   for (const f of analysis.figures) {
     const fields = [
@@ -83,6 +94,7 @@ export function encodeAnalysis(analysis: Analysis): string {
 export function decodeAnalysis(search: string): Analysis {
   const params = new URLSearchParams(search);
   const currency = params.get(CURRENCY_PARAM)?.toUpperCase() ?? "";
+  const priceCurrency = params.get(PRICE_CURRENCY_PARAM)?.toUpperCase() ?? "";
   const date = params.get(DATE_PARAM) ?? "";
   const figures: AnalysisFigure[] = [];
   for (const [id, raw] of params) {
@@ -100,7 +112,8 @@ export function decodeAnalysis(search: string): Analysis {
   }
   return {
     name: params.get(NAME_PARAM)?.trim() ?? "",
-    currency: /^[A-Z]{3}$/.test(currency) ? currency : DEFAULT_CURRENCY,
+    currency: CURRENCY_CODE.test(currency) ? currency : DEFAULT_CURRENCY,
+    ...(CURRENCY_CODE.test(priceCurrency) ? { priceCurrency } : {}),
     date: /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : "",
     figures,
   };

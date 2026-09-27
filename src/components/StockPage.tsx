@@ -3,6 +3,7 @@
 
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { VerifiedExtraction } from "../ai/verify.ts";
+import { currenciesDiffer, currencyMixWarning } from "../data/analysis.ts";
 import { calculate, type KnownFigure } from "../data/formulas.ts";
 import {
   decodeAnalysis,
@@ -33,7 +34,7 @@ import RecentAnalyses from "./RecentAnalyses.tsx";
 import appStyles from "./App.module.css";
 import styles from "./StockPage.module.css";
 
-/** Valuutat valintalistassa. Osoitteesta luettu muu koodi lisätään listaan. */
+/** Valuutat valintalistassa. */
 export const CURRENCIES = ["EUR", "USD", "SEK", "NOK", "DKK", "GBP", "CHF"] as const;
 
 function knownFigures(figures: readonly AnalysisFigure[]): Map<string, KnownFigure> {
@@ -119,9 +120,15 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
     focusAfterRender.current = PASTE_TEXT_ID;
   };
 
-  const acceptExtraction = ({ name, currency, figures }: AcceptedExtraction) => {
+  const acceptExtraction = ({ name, currency, priceCurrency, figures }: AcceptedExtraction) => {
     recentKey.current = null;
-    setAnalysis({ name, currency, date: today(), figures });
+    setAnalysis({
+      name,
+      currency,
+      ...(priceCurrency ? { priceCurrency } : {}),
+      date: today(),
+      figures,
+    });
     setVersion((v) => v + 1);
     setStartedFresh(figures.length === 0);
     setReview(null);
@@ -143,6 +150,7 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
             <FiguresTable
               figures={analysis.figures}
               currency={analysis.currency}
+              priceCurrency={analysis.priceCurrency}
               calculated={calculated}
               onChange={(figures) => setAnalysis({ ...analysis, figures })}
               initiallyAdding={startedFresh && analysis.figures.length === 0}
@@ -151,6 +159,7 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
               result={result}
               figures={analysis.figures}
               currency={analysis.currency}
+              priceCurrency={analysis.priceCurrency}
               date={analysis.date}
               onAdd={(added) =>
                 setAnalysis({ ...analysis, figures: [...analysis.figures, ...added] })
@@ -193,12 +202,10 @@ function AnalysisDetails({ analysis, onChange, onStartOver }: DetailsProps) {
   const nameId = useId();
   const currencyId = useId();
   const dateId = useId();
+  const priceCurrencyId = useId();
   const dateHintId = useId();
-  const currencies: readonly string[] = CURRENCIES.includes(
-    analysis.currency as (typeof CURRENCIES)[number],
-  )
-    ? CURRENCIES
-    : [...CURRENCIES, analysis.currency];
+  const priceCurrency = analysis.priceCurrency ?? "";
+  const currencies = currencyOptions(analysis.currency);
 
   return (
     <section className={styles.details} aria-labelledby={ANALYSIS_HEADING_ID}>
@@ -223,7 +230,9 @@ function AnalysisDetails({ analysis, onChange, onStartOver }: DetailsProps) {
           />
         </div>
         <div className={styles.field}>
-          <label htmlFor={currencyId}>Valuutta</label>
+          <label htmlFor={currencyId}>
+            {priceCurrency ? "Tilinpäätöksen valuutta" : "Valuutta"}
+          </label>
           <select
             id={currencyId}
             className={styles.input}
@@ -237,6 +246,24 @@ function AnalysisDetails({ analysis, onChange, onStartOver }: DetailsProps) {
             ))}
           </select>
         </div>
+        {/* Näkyy vain, kun tekoäly havaitsi kurssin olevan eri valuutassa (kohta 11.11). */}
+        {priceCurrency && (
+          <div className={styles.field}>
+            <label htmlFor={priceCurrencyId}>Kurssin valuutta</label>
+            <select
+              id={priceCurrencyId}
+              className={styles.input}
+              value={priceCurrency}
+              onChange={(e) => onChange({ ...analysis, priceCurrency: e.target.value })}
+            >
+              {currencyOptions(priceCurrency).map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className={styles.field}>
           <label htmlFor={dateId}>Luvut haettu</label>
           <input
@@ -253,6 +280,20 @@ function AnalysisDetails({ analysis, onChange, onStartOver }: DetailsProps) {
         Kurssiin sidotut luvut, kuten P/E ja osinkotuotto, vanhenevat nopeasti. Päivämäärästä näet
         myöhemmin, kuinka tuoreita luvut ovat.
       </p>
+      {currenciesDiffer(analysis.currency, priceCurrency) && (
+        <p className={styles.currencyWarning}>
+          <span aria-hidden="true">⚠ </span>
+          {currencyMixWarning(analysis.currency, priceCurrency)} Kun luvut ovat samassa valuutassa,
+          valitse sama valuutta molempiin kenttiin.
+        </p>
+      )}
     </section>
   );
+}
+
+/** Valintalistan valuutat. Osoitteesta luettu muu koodi lisätään listaan. */
+function currencyOptions(selected: string): readonly string[] {
+  return CURRENCIES.includes(selected as (typeof CURRENCIES)[number])
+    ? CURRENCIES
+    : [...CURRENCIES, selected];
 }

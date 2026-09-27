@@ -4,6 +4,7 @@
 
 import { useState, type FormEvent } from "react";
 import type { VerifiedExtraction } from "../ai/verify.ts";
+import { currencyMixWarning, figureCurrency } from "../data/analysis.ts";
 import { displayName, figuresById } from "../data/content.ts";
 import { PERIOD_LABELS } from "../data/formulas.ts";
 import { formatNumber } from "../data/numberFormat.ts";
@@ -15,6 +16,8 @@ export const REVIEW_HEADING_ID = "tarkista-luvut";
 export interface AcceptedExtraction {
   name: string;
   currency: string;
+  /** Kurssin valuutta, jos se eroaa tilinpäätöksen valuutasta. Muuten tyhjä. */
+  priceCurrency: string;
   figures: AnalysisFigure[];
 }
 
@@ -42,6 +45,7 @@ export default function ExtractionReview({ result, defaultCurrency, onAccept, on
     () => new Set(result.values.filter((v) => v.check === "ok").map((v) => v.id)),
   );
   const currency = result.company.currency ?? defaultCurrency;
+  const priceCurrency = result.company.priceCurrency ?? "";
   const toCheck = result.values.filter((v) => v.check === "tarkista").length;
 
   const toggle = (id: string, on: boolean) => {
@@ -56,6 +60,7 @@ export default function ExtractionReview({ result, defaultCurrency, onAccept, on
     onAccept({
       name: result.company.name,
       currency,
+      priceCurrency,
       figures: result.values
         .filter((v) => selected.has(v.id))
         .map((v) => ({
@@ -83,6 +88,13 @@ export default function ExtractionReview({ result, defaultCurrency, onAccept, on
         {toCheck > 1 &&
           ` ${toCheck} lukua on merkitty ⚠-merkillä, eikä niitä ole valittu. Tarkista ne itse.`}
       </p>
+
+      {priceCurrency && (
+        <p className={styles.currencyWarning}>
+          <span aria-hidden="true">⚠ </span>
+          {currencyMixWarning(currency, priceCurrency)}
+        </p>
+      )}
 
       {result.notes.length > 0 && (
         <div className={styles.notes}>
@@ -115,7 +127,11 @@ export default function ExtractionReview({ result, defaultCurrency, onAccept, on
                   <label htmlFor={checkId} className={styles.label}>
                     <span className={styles.name}>{name}</span>{" "}
                     <strong className={styles.value}>
-                      {formatNumber(v.value, info.unit, currency)}
+                      {formatNumber(
+                        v.value,
+                        info.unit,
+                        figureCurrency(v.id, currency, priceCurrency),
+                      )}
                     </strong>
                   </label>
                   <span className={styles.meta}>

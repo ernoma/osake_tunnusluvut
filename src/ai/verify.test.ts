@@ -96,8 +96,21 @@ describe("testiaineisto", () => {
       }
       expect(result.company.name).toBe(fixture.company.name);
       expect(result.company.currency).toBe(fixture.company.currency);
+      expect(result.company.priceCurrency).toBe(fixture.company.priceCurrency);
     },
   );
+
+  it("kurssin valuutta jää tyhjäksi, jos se on sama kuin tilinpäätöksen", () => {
+    const result = verifyExtraction(
+      {
+        company: { name: null, ticker: null, currency: "EUR", priceCurrency: " eur" },
+        values: [],
+        notes: [],
+      },
+      "",
+    );
+    expect(result.company.priceCurrency).toBeNull();
+  });
 
   it("tuntematon id hylätään", () => {
     const result = verifyExtraction(nordnet.response, nordnet.text);
@@ -143,10 +156,15 @@ describe("testiaineisto", () => {
 
   it("tuntematon valuutta jää tyhjäksi", () => {
     const result = verifyExtraction(
-      { company: { name: null, ticker: null, currency: "euro" }, values: [], notes: [" ", "x"] },
+      {
+        company: { name: null, ticker: null, currency: "euro", priceCurrency: "SEK" },
+        values: [],
+        notes: [" ", "x"],
+      },
       "",
     );
-    expect(result.company).toEqual({ name: "", currency: null });
+    // Kurssin valuutta ei kerro mitään, jos tilinpäätöksen valuuttaa ei tiedetä.
+    expect(result.company).toEqual({ name: "", currency: null, priceCurrency: null });
     expect(result.notes).toEqual(["x"]);
   });
 });

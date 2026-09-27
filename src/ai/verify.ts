@@ -36,7 +36,13 @@ export interface RejectedValue {
 }
 
 export interface VerifiedExtraction {
-  company: { name: string; currency: string | null };
+  company: {
+    name: string;
+    /** Tilinpäätöslukujen valuutta. */
+    currency: string | null;
+    /** Kurssin ja markkina-arvon valuutta, jos se on tiedossa ja eroaa currencystä. */
+    priceCurrency: string | null;
+  };
   values: CheckedValue[];
   rejected: RejectedValue[];
   notes: string[];
@@ -214,11 +220,18 @@ export function verifyExtraction(result: ExtractionResult, text: string): Verifi
     });
   }
 
-  const currency = result.company.currency?.trim().toUpperCase() ?? "";
+  const code = (c: string | null) => {
+    const upper = c?.trim().toUpperCase() ?? "";
+    return CURRENCY.test(upper) ? upper : null;
+  };
+  const currency = code(result.company.currency);
+  const priceCurrency = code(result.company.priceCurrency);
   return {
     company: {
       name: result.company.name?.trim() ?? "",
-      currency: CURRENCY.test(currency) ? currency : null,
+      currency,
+      // Kurssin valuutasta on hyötyä vain, jos tilinpäätöksen valuutta on tiedossa ja eri.
+      priceCurrency: currency && priceCurrency !== currency ? priceCurrency : null,
     },
     values,
     rejected,

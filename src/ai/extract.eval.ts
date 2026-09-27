@@ -58,6 +58,7 @@ describe.skipIf(!apiKey)(`poiminta mallilla ${modelId}`, { timeout: 180_000 }, (
 
     expect(problems).toEqual([]);
     expect(result.company.currency).toBe(fixture.company.currency);
+    expect(result.company.priceCurrency).toBe(fixture.company.priceCurrency);
   });
 });
 

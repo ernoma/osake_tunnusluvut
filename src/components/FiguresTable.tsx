@@ -2,6 +2,7 @@
 // päivittää analyysin heti. Syötetty tai korjattu arvo merkitään "Syötetty".
 
 import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { figureCurrency } from "../data/analysis.ts";
 import { displayName, figuresById, type FigureInfo } from "../data/content.ts";
 import { parseFigureValue, searchFigures } from "../data/figureEntry.ts";
 import { PERIOD_LABELS, PERIODS, type Period } from "../data/formulas.ts";
@@ -24,6 +25,8 @@ export interface CalculatedFigure {
 interface Props {
   figures: AnalysisFigure[];
   currency: string;
+  /** Kurssin valuutta, jos se eroaa tilinpäätöksen valuutasta (kohta 11.11). */
+  priceCurrency?: string;
   /** Omista luvuista lasketut, jotka eivät ole taulukossa. */
   calculated: CalculatedFigure[];
   onChange: (figures: AnalysisFigure[]) => void;
@@ -34,10 +37,13 @@ interface Props {
 export default function FiguresTable({
   figures,
   currency,
+  priceCurrency,
   calculated,
   onChange,
   initiallyAdding = false,
 }: Props) {
+  // Kurssiin sidotut luvut näytetään kurssin valuutassa.
+  const currencyOf = (id: string) => figureCurrency(id, currency, priceCurrency);
   const [open, setOpen] = useState(true);
   const [adding, setAdding] = useState(initiallyAdding);
   const [announcement, setAnnouncement] = useState("");
@@ -116,7 +122,7 @@ export default function FiguresTable({
                   <FigureRow
                     key={f.id}
                     figure={f}
-                    currency={currency}
+                    currency={currencyOf(f.id)}
                     onChange={(change) => update(f.id, change)}
                     onRemove={() => remove(f)}
                   />
@@ -129,7 +135,7 @@ export default function FiguresTable({
         {adding ? (
           <AddFigure
             exclude={new Set(figures.map((f) => f.id))}
-            currency={currency}
+            currencyOf={currencyOf}
             onAdd={add}
             onClose={closeAdding}
           />
@@ -154,7 +160,7 @@ export default function FiguresTable({
                 return (
                   <li key={c.id}>
                     <span>{displayName(info)}</span>{" "}
-                    <strong>{formatNumber(c.value, info.unit, currency)}</strong>
+                    <strong>{formatNumber(c.value, info.unit, currencyOf(c.id))}</strong>
                   </li>
                 );
               })}
@@ -320,13 +326,14 @@ export function PeriodSelect({
 
 interface AddProps {
   exclude: ReadonlySet<string>;
-  currency: string;
+  /** Luvun valuutta id:n mukaan. */
+  currencyOf: (id: string) => string;
   onAdd: (figure: AnalysisFigure) => void;
   onClose: () => void;
 }
 
 /** Haettava lista tunnusluvuista ja lähtötiedoista sekä valitun luvun arvon syöttö. */
-function AddFigure({ exclude, currency, onAdd, onClose }: AddProps) {
+function AddFigure({ exclude, currencyOf, onAdd, onClose }: AddProps) {
   const [query, setQuery] = useState("");
   const [chosen, setChosen] = useState<FigureInfo | null>(null);
   const [value, setValue] = useState("");
@@ -396,7 +403,7 @@ function AddFigure({ exclude, currency, onAdd, onClose }: AddProps) {
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
                 />
-                <span className={styles.unit}>{unitLabel(chosen.unit, currency)}</span>
+                <span className={styles.unit}>{unitLabel(chosen.unit, currencyOf(chosen.id))}</span>
               </span>
             </div>
             <div className={styles.field}>

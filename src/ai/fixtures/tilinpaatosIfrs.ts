@@ -6,7 +6,7 @@ import { row, type ExtractionFixture } from "./types.ts";
 
 export const tilinpaatosIfrs: ExtractionFixture = {
   site: "Tilinpäätös (IFRS)",
-  company: { name: "Esimerkki Teollisuus Oyj", currency: "EUR" },
+  company: { name: "Esimerkki Teollisuus Oyj", currency: "EUR", priceCurrency: null },
   text: [
     "Esimerkki Teollisuus Oyj – Konsernitilinpäätös 2025 (IFRS)",
     "",
@@ -52,7 +52,12 @@ export const tilinpaatosIfrs: ExtractionFixture = {
     { id: "taseen-loppusumma", value: 366_600_000, period: "toteutunut" },
   ],
   response: {
-    company: { name: "Esimerkki Teollisuus Oyj", ticker: null, currency: "EUR" },
+    company: {
+      name: "Esimerkki Teollisuus Oyj",
+      ticker: null,
+      currency: "EUR",
+      priceCurrency: null,
+    },
     values: [
       {
         id: "liikevaihto",

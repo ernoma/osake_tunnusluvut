@@ -2,7 +2,12 @@
 // kohta 11.5). Kategorian lopussa kerrotaan, mitkä tunnusluvut puuttuvat ja mitä niihin tarvitaan.
 
 import { useId, useLayoutEffect, useRef, useState } from "react";
-import { missingInputs } from "../data/analysis.ts";
+import {
+  currenciesDiffer,
+  figureCurrency,
+  missingInputs,
+  mixesCurrencies,
+} from "../data/analysis.ts";
 import { groupByCategory, metrics } from "../data/content.ts";
 import type { CalculationResult } from "../data/formulas.ts";
 import type { Metric } from "../data/types.ts";
@@ -18,13 +23,24 @@ interface Props {
   result: CalculationResult;
   figures: readonly AnalysisFigure[];
   currency: string;
+  /** Kurssin valuutta, jos se eroaa tilinpäätöksen valuutasta (kohta 11.11). */
+  priceCurrency?: string;
   /** Hakupäivä vvvv-kk-pp tai tyhjä. */
   date: string;
   onAdd: (figures: AnalysisFigure[]) => void;
 }
 
-export default function AnalysisView({ result, figures, currency, date, onAdd }: Props) {
+export default function AnalysisView({
+  result,
+  figures,
+  currency,
+  priceCurrency = "",
+  date,
+  onAdd,
+}: Props) {
   const headingId = useId();
+  const currencyOf = (id: string) => figureCurrency(id, currency, priceCurrency);
+  const differ = currenciesDiffer(currency, priceCurrency);
   const [announcement, setAnnouncement] = useState("");
   const years = new Map(figures.map((f) => [f.id, f.year]));
   const known = new Set(result.figures.keys());
@@ -86,10 +102,20 @@ export default function AnalysisView({ result, figures, currency, date, onAdd }:
                 figure={result.figures.get(metric.id)!}
                 year={years.get(metric.id)}
                 currency={currency}
+                priceCurrency={priceCurrency}
+                mixesCurrencies={
+                  differ &&
+                  mixesCurrencies(result.figures.get(metric.id)!.calculation, result.figures)
+                }
                 date={date}
               />
             ))}
-            <MissingList items={missing} figures={result.figures} currency={currency} onAdd={add} />
+            <MissingList
+              items={missing}
+              figures={result.figures}
+              currencyOf={currencyOf}
+              onAdd={add}
+            />
           </section>
         );
       })}

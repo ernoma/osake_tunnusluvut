@@ -32,11 +32,12 @@ function joinNames(ids: readonly string[]): string {
 interface Props {
   items: MissingItem[];
   figures: ReadonlyMap<string, ResolvedFigure>;
-  currency: string;
+  /** Luvun valuutta id:n mukaan: kurssiin sidotuilla kurssin valuutta. */
+  currencyOf: (id: string) => string;
   onAdd: (metric: Metric, figures: AnalysisFigure[]) => void;
 }
 
-export default function MissingList({ items, figures, currency, onAdd }: Props) {
+export default function MissingList({ items, figures, currencyOf, onAdd }: Props) {
   const headingId = useId();
   if (items.length === 0) return null;
   return (
@@ -48,12 +49,12 @@ export default function MissingList({ items, figures, currency, onAdd }: Props) 
         {items.map((item) => (
           <li key={item.metric.id} className={styles.item}>
             {"blocked" in item ? (
-              <BlockedText item={item} figures={figures} currency={currency} />
+              <BlockedText item={item} figures={figures} currencyOf={currencyOf} />
             ) : (
               <MissingEntry
                 metric={item.metric}
                 inputs={item.inputs}
-                currency={currency}
+                currencyOf={currencyOf}
                 onAdd={(added) => onAdd(item.metric, added)}
               />
             )}
@@ -67,18 +68,19 @@ export default function MissingList({ items, figures, currency, onAdd }: Props) 
 function BlockedText({
   item,
   figures,
-  currency,
+  currencyOf,
 }: {
   item: { metric: Metric; blocked: BlockedFigure };
   figures: ReadonlyMap<string, ResolvedFigure>;
-  currency: string;
+  /** Luvun valuutta id:n mukaan: kurssiin sidotuilla kurssin valuutta. */
+  currencyOf: (id: string) => string;
 }) {
   const rule = nonPositiveRule(item.metric);
   const values = item.blocked.nonPositive.map((id) => {
     const info = figuresById.get(id);
     const value = figures.get(id)?.value;
     if (!info || value === undefined) return id;
-    return `${lowerFirst(displayName(info))} on ${formatNumber(value, info.unit, currency)}`;
+    return `${lowerFirst(displayName(info))} on ${formatNumber(value, info.unit, currencyOf(id))}`;
   });
   return (
     <p className={styles.text}>
@@ -96,11 +98,12 @@ function BlockedText({
 interface EntryProps {
   metric: Metric;
   inputs: string[];
-  currency: string;
+  /** Luvun valuutta id:n mukaan: kurssiin sidotuilla kurssin valuutta. */
+  currencyOf: (id: string) => string;
   onAdd: (figures: AnalysisFigure[]) => void;
 }
 
-function MissingEntry({ metric, inputs, currency, onAdd }: EntryProps) {
+function MissingEntry({ metric, inputs, currencyOf, onAdd }: EntryProps) {
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const self = inputs.length === 1 && inputs[0] === metric.id;
@@ -136,7 +139,7 @@ function MissingEntry({ metric, inputs, currency, onAdd }: EntryProps) {
         <EntryForm
           title={name}
           inputs={inputs}
-          currency={currency}
+          currencyOf={currencyOf}
           onAdd={(added) => {
             setOpen(false);
             onAdd(added);
@@ -151,13 +154,14 @@ function MissingEntry({ metric, inputs, currency, onAdd }: EntryProps) {
 interface FormProps {
   title: string;
   inputs: string[];
-  currency: string;
+  /** Luvun valuutta id:n mukaan: kurssiin sidotuilla kurssin valuutta. */
+  currencyOf: (id: string) => string;
   onAdd: (figures: AnalysisFigure[]) => void;
   onCancel: () => void;
 }
 
 /** Kenttä jokaiselle puuttuvalle lähtötiedolle ja yhteinen kausi. Tyhjät kentät ohitetaan. */
-function EntryForm({ title, inputs, currency, onAdd, onCancel }: FormProps) {
+function EntryForm({ title, inputs, currencyOf, onAdd, onCancel }: FormProps) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -224,7 +228,7 @@ function EntryForm({ title, inputs, currency, onAdd, onCancel }: FormProps) {
                     setFormError(null);
                   }}
                 />
-                <span className={styles.unit}>{unitLabel(info.unit, currency)}</span>
+                <span className={styles.unit}>{unitLabel(info.unit, currencyOf(id))}</span>
               </span>
               {error && (
                 <span id={`${fieldId(id)}-virhe`} className={styles.error}>

@@ -16,6 +16,14 @@
   margin: 0;
 }
 
+.currencyWarning {
+  max-width: 70ch;
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1.5px solid var(--color-range);
+  border-radius: 0.25rem;
+}
+
 .notes {
   align-self: stretch;
   padding: var(--space-3) var(--space-4);

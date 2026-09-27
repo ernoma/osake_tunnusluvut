@@ -6,7 +6,7 @@ import { row, type ExtractionFixture } from "./types.ts";
 
 export const inderes: ExtractionFixture = {
   site: "Inderes",
-  company: { name: "Mallivalmiste", currency: "EUR" },
+  company: { name: "Mallivalmiste", currency: "EUR", priceCurrency: null },
   text: [
     "Mallivalmiste",
     "Suositus Lisää · Tavoitehinta 16,00 EUR",
@@ -43,7 +43,7 @@ export const inderes: ExtractionFixture = {
     { id: "nettovelka", value: 96.5e6, period: "toteutunut" },
   ],
   response: {
-    company: { name: "Mallivalmiste", ticker: null, currency: "EUR" },
+    company: { name: "Mallivalmiste", ticker: null, currency: "EUR", priceCurrency: null },
     values: [
       {
         id: "liikevaihto",

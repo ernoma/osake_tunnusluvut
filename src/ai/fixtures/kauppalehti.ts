@@ -5,7 +5,7 @@ import { row, type ExtractionFixture } from "./types.ts";
 
 export const kauppalehti: ExtractionFixture = {
   site: "Kauppalehti",
-  company: { name: "Testikone Oyj", currency: "EUR" },
+  company: { name: "Testikone Oyj", currency: "EUR", priceCurrency: null },
   text: [
     "Testikone Oyj (TKONE)",
     row("Kurssi", "8,652 €"),
@@ -33,7 +33,7 @@ export const kauppalehti: ExtractionFixture = {
     { id: "pb", value: 1.22 },
   ],
   response: {
-    company: { name: "Testikone Oyj", ticker: "TKONE", currency: "EUR" },
+    company: { name: "Testikone Oyj", ticker: "TKONE", currency: "EUR", priceCurrency: null },
     values: [
       { id: "kurssi", value: 8.652, period: "ttm", year: null, quote: "Kurssi 8,652 €" },
       {
