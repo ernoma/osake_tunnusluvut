@@ -10,6 +10,33 @@ EVAL_MODEL=claude-haiku-4-5 npm run eval-extract
 
 ---
 
+## 2026-09-27 · commit `b7ae677` (vaihe 11f: taseen loppusumma = varat yhteensä)
+
+Lähtötiedon `taseen-loppusumma` aliaksiin lisättiin "varat yhteensä", "vastattavaa yhteensä", "oma pääoma ja velat yhteensä" ja "total equity and liabilities". Kehotteen lukulista kootaan aliaksista, joten kehote muuttui. Uusi testiaineisto **Tilinpäätös (IFRS)**: taseen loppusumma on vain riveillä "Varat yhteensä" ja "Oma pääoma ja velat yhteensä", ja välisummat (pitkä- ja lyhytaikaiset varat) ovat houkuttimina.
+
+### Yhteenveto
+
+| Lähde              | claude-opus-5-5 | claude-opus-5-5 (edellinen ajo) |
+| ------------------ | --------------- | ------------------------------- |
+| Nordnet            | ✓ 10 lukua      | ✓ 10 lukua                      |
+| Inderes            | ✓ 12 lukua      | ✓ 12 lukua                      |
+| Kauppalehti        | ✓ 8 lukua       | ✓ 8 lukua                       |
+| Yahoo Finance      | ✓ 18 lukua      | ✓ 18 lukua                      |
+| Tilinpäätös        | ✓ 12 lukua      | ✓ 12 lukua                      |
+| Tilinpäätös (IFRS) | ✓ 8 lukua       | (uusi)                          |
+| **Yhteensä**       | **6/6**         | **5/5**                         |
+
+Kesto 44 s koko ajolta, 6–9 s lähdettä kohden. Ei ⚠-rivejä, hylättyjä eikä ylimääräisiä lukuja.
+
+### Huomiot
+
+- **Tilinpäätös (IFRS):** poimi taseen loppusumman riviltä "Varat yhteensä" (366,6 milj. €) eikä välisummista, ja muunsi miljoonat euroiksi.
+- **Tilinpäätös (IFRS):** valitsi omaksi pääomaksi rivin "Oma pääoma yhteensä" ja kertoi, että luku sisältää määräysvallattomien omistajien osuuden.
+- **Tilinpäätös (IFRS):** ei laskenut korollisia velkoja yhteen pitkä- ja lyhytaikaisista rahoitusveloista, vaan kertoi osat huomautuksessa. Huomautuksen mukaan "sovellus voi laskea summan", mikä ei pidä paikkaansa: sovelluksessa ei ole kaavaa korollisille veloille. Käyttäjä voi syöttää summan käsin.
+- Muiden lähteiden tulokset ovat samat kuin edellisessä ajossa, joten aliasten lisäys ei heikentänyt poimintaa.
+
+---
+
 ## 2026-09-27 · commit `addcfbd` (oletusmalliksi Claude Opus 5.5)
 
 Oletusmalli vaihdettiin Claude Opus 5:stä Opus 5.5:een, ja Opus 5 poistettiin valikosta. Kehote ja skeema ovat ennallaan.
