@@ -647,8 +647,13 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **11h. Valuuttojen sekoittumisen varoitus** ✅ | Tekoäly kirjaa, jos kurssi ja markkina-arvo ovat eri valuutassa kuin tilinpäätösluvut, ja sovellus näyttää varoituksen kohdan 11.11 mukaan | Testiaineistossa, jossa kurssi on SEK ja tulos EUR, varoitus näkyy tarkistusvaiheessa ja analyysissä, eikä yksivaluuttaisissa aineistoissa näy |
 | **11i. Valuuttojen sekoittumisen täysi tuki** ✅ | Luvuille oma valuutta, muunnos analyysin valuuttaan ennen laskentaa ja valuutta osoitteeseen kohdan 11.11 mukaan | SEK-kurssista ja EUR-tuloksesta laskettu P/E on oikein, ja muunnos näkyy laskelmassa |
 | **12. Julkaisu** | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Molemmat sivut ovat julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
+| **13. Yhdistelmähuomiot** | Analyysiin huomiot, jotka syntyvät kahden tai useamman luvun yhdistelmästä, kohdan 12.1 mukaan | Jokainen sääntö laukeaa testiesimerkissään eikä laukea ilman lähtölukujaan, huomiot näkyvät analyysissä tekstinä, eikä mikään huomio kehota ostamaan tai myymään |
+| **14. Esimerkkiyhtiö** | Linkki "Kokeile esimerkkiyhtiöllä" Tutki osaketta -sivulle kohdan 12.2 mukaan | Linkki avaa valmiin analyysin ilman API-avainta, kuvitteellisuus näkyy otsikossa, ja analyysissä on ainakin yksi laskettu luku, puuttuva luku ja yhdistelmähuomio |
+| **15. Lisätunnusluvut: korkokate, nettomarginaali ja ROA** | Kolme tunnuslukua kohdan 12.3 mukaan README:n ohjeella | Validointi- ja kaavatestit menevät läpi, kortit löytyvät haulla ja sisällysluettelosta, linkit on luettu, ja eval on ajettu uusilla odotetuilla luvuilla |
 
 Julkaisu on viimeinen vaihe, jotta julkaistu versio sisältää myös Tutki osaketta -sivun. Käyttäjätesti (vaihe 9) tehtiin ensimmäiselle sivulle, joten sen tehtävä 5 (kohta 8.2) testataan erikseen vaiheen 11 jälkeen.
+
+Vaiheet 13–15 tehdään tässä järjestyksessä. Muiden jatkokehitysideoiden järjestystä ei ole päätetty (kohta 12.4).
 
 ## 8. Testaus
 
@@ -732,16 +737,11 @@ Yksityiskohtainen ohje mallitietueineen ja virheilmoitusten korjauksineen on tie
 ## 10. Avoimet kysymykset myöhemmin päätettäväksi
 
 - ~~Tarvitaanko myöhemmin laskuri?~~ Ratkaistu vaiheessa 11 (kohta 11).
-- Toimialakohtaiset tyypilliset tasot (esim. EBIT-% tai P/E eri aloilla): lisätäänkö `ranges`-kenttään toimialatunniste?
+- Toimialakohtaiset tyypilliset tasot (esim. EBIT-% tai P/E eri aloilla): lisätäänkö `ranges`-kenttään toimialatunniste? Ks. kohta 12.4.
 - Kuvitetaanko vertaukset pienillä kuvakkeilla?
 - Lisätäänkö lisälukemista-linkit myöhemmin myös sanastotermeille? Sama `ExternalLink`-rakenne sopii niihin sellaisenaan.
 - Tarvitaanko englanninkielinen versio?
-- **Tutki osaketta -sivu (kohta 11):**
-  - Siirretäänkö tekoälyhaku omaan taustapalveluun (esim. Cloudflare Worker), jotta käyttäjä ei tarvitse omaa API-avainta? Silloin tarvitaan käyttömäärän rajoitus, botintorjunta ja kulukatto. Kohdan 11.3 rajapinta sallii vaihdon muuttamatta muuta sovellusta.
-  - Useampi vuosi ja ennusteet rinnakkain, jotta kehityssuunnan näkee. Nyt jokaisesta luvusta tallennetaan yksi arvo.
-  - Kuvakaappaus syötteenä tekstin lisäksi (Claude lukee kuvia).
-  - Kahden osakkeen vertailu rinnakkain.
-  - Yhdistelmähuomiot, esimerkiksi "osinko on suurempi kuin vapaa kassavirta" tai "ROE on paljon ROI:ta korkeampi, joten ero johtuu velasta". Kortit sanovat nämä jo sanoin, ja ne voisi tarkistaa luvuista.
+- **Tutki osaketta -sivu (kohta 11):** jatkokehitysideat on koottu kohtaan 12.
 
 ## 11. Tutki osaketta -sivu (vaihe 11)
 
@@ -1018,3 +1018,71 @@ Toteutus:
 - **Muunnos:** `src/data/currency.ts` (`convertFigures`) muuntaa luvut ennen laskentaa. Kurssit haetaan euroon (`useEurRates`), ja ristikurssi lasketaan euron kautta, jos analyysin valuutta ei ole euro. Muunnos kulkee laskelman lähtölukuihin (`Calculation.inputs[].conversion`), ja syötetyn luvun rivillä näkyy "Muunnettu: …".
 - **Näkyvissä:** analyysin otsikko on "Tilinpäätöksen valuutta", kun jokin luku on eri valuutassa. Sen alla kerrotaan valuutoittain, mitkä luvut muunnettiin ja millä kurssilla, tai miksi niitä ei voitu muuntaa. Haun aikana eri valuutan luvut odottavat eivätkä ole laskennassa.
 - **Varoitus:** vaiheen 11h varoitus laskelmien sekoittumisesta (`mixesCurrencies`) poistui, koska laskentaan ei enää pääse eri valuutan lukua. Tarkistusvaiheessa kerrotaan, mitkä luvut ovat eri valuutassa ja että ne muunnetaan.
+
+## 12. Jatkokehitys
+
+Ideat koottiin 2026-10-04 sovelluksen ja tämän suunnitelman pohjalta. Ensimmäisenä tehtiin oikeiden sivujen testi (vaihe 11e, `docs/kasin-testaus.md`), koska tekoälyhakua ei ollut testattu oikeilla teksteillä. Testi löysi lainaustarkistuksesta virheen (kerroinsana "EURm"), ja sen jälkeen lainaukset muutettiin alkamaan rivin nimestä. Seuraavaksi tehdään vaiheet 13–15 (kohdat 12.1–12.3). Muiden ideoiden järjestystä ei ole päätetty (kohta 12.4).
+
+### 12.1 Yhdistelmähuomiot (vaihe 13)
+
+**Miksi:** periaate 7 ("yksi luku ei koskaan riitä") näkyy nyt korteilla sanoina, mutta analyysi tulkitsee jokaisen luvun erikseen. Monen tulkinnan voi tarkistaa suoraan käyttäjän luvuista. Huomiot eivät tarvitse tekoälyä eivätkä maksa mitään, ja ne lisäävät opetusarvoa eniten suhteessa työmäärään.
+
+- Analyysiin tulee osio, esimerkiksi "Mitä luvut kertovat yhdessä", jossa näkyvät lauenneet huomiot. Jokaisessa huomiossa on:
+  - mistä luvuista se syntyi ja niiden arvot
+  - selkokielinen selitys sanastoviittauksineen
+  - linkit kyseisiin kortteihin.
+- Säännöt ovat dataa samaan tapaan kuin kaavat (`formulas.ts`): id, tarvittavat luvut, ehto ja teksti. Sääntö arvioidaan vain, kun kaikki sen luvut ovat saatavilla, joko syötettyinä, poimittuina tai laskettuina.
+- Rajat ovat nyrkkisääntöjä, ja teksti sanoo sen ("yleensä"). Huomio kertoo, mitä yhdistelmä tarkoittaa, eikä sano "osta" tai "myy" (kohta 1, rajaukset).
+- Jos luvut ovat eri kausilta, huomio merkitään samoin kuin eri kausien laskelma (kohta 11.4).
+- Ehdokassääntöjä, joiden rajat tarkistetaan korttien tekstistä ja lähteistä ennen toteutusta:
+
+| Yhdistelmä | Mitä huomio kertoo |
+|---|---|
+| Osinkosuhde yli 100 % | Osinkoa maksetaan enemmän kuin yhtiö tekee tulosta. Se ei yleensä voi jatkua pitkään. |
+| Osingot yhteensä yli vapaan kassavirran | Osinko maksetaan osin velalla tai kassasta. |
+| ROE selvästi ROI:ta korkeampi | Ero johtuu yleensä velasta, joka kasvattaa oman pääoman tuottoa ja riskiä. |
+| Liiketoiminnan kassavirta selvästi nettotulosta pienempi | Tulos ei muutu rahaksi, esimerkiksi koska käyttöpääoma sitoo sitä. |
+| EBITDA positiivinen ja vapaa kassavirta negatiivinen | Investoinnit vievät enemmän kuin liiketoiminta tuottaa. |
+| P/E ja EV/EBIT eroavat selvästi | Velka tai kassa muuttaa kuvaa: EV huomioi ne, P/E ei. |
+| Nettovelka/EBITDA korkea ja osinkosuhde korkea | Velkaa on paljon, ja tuloksesta jaetaan silti suuri osa. |
+
+- **Testit:** jokaisella säännöllä on esimerkki, jossa se laukeaa, ja esimerkki, jossa se ei laukea. Lisäksi testataan, ettei sääntö laukea, kun jokin sen luvuista puuttuu. Sisältötestit tarkistavat tekstin pituuden ja sanastoviittaukset kuten korteilla. axe-tarkistus ajetaan analyysille, jossa on huomioita.
+
+### 12.2 Esimerkkiyhtiö (vaihe 14)
+
+**Miksi:** Tutki osaketta -sivu on tyhjä, kunnes käyttäjällä on liitettävä teksti tai API-avain. Aloittelija ei näe, mitä sivu tekee, ennen kuin hän on nähnyt vaivaa. Analyysi on jo osoitteessa (kohta 11.7), joten valmis osoite riittää.
+
+- Liittämisvaiheeseen tulee linkki "Kokeile esimerkkiyhtiöllä". Se avaa analyysin kuvitteellisen yhtiön luvuilla.
+- Yhtiö on kuvitteellinen ja sen nimi kertoo sen (esim. "Esimerkki Oyj"). Otsikossa lukee, että luvut ovat keksittyjä. Periaatteen 4 mukaisesti oikeita yhtiöitä ei käytetä.
+- Luvut valitaan niin, että analyysi näyttää sivun ominaisuudet: ainakin yksi laskettu luku kaavoineen, yksi puuttuva luku "Lisää"-painikkeineen, yksi välien väliin osuva luku ja vähintään yksi yhdistelmähuomio (vaihe 13).
+- Osoite on yhdessä vakiossa. Testi purkaa sen ja tarkistaa, että analyysissä on edellä luetellut osat. Näin esimerkki ei hajoa huomaamatta, kun tunnuslukuja tai kaavoja muutetaan.
+
+### 12.3 Lisätunnusluvut (vaihe 15)
+
+**Miksi:** uuden luvun lisääminen on pelkkää dataa (README: "Näin lisäät uuden tunnusluvun"). Nämä kolme luvun saa laskettua suurelta osin olemassa olevista lähtötiedoista, ja ne näkyvät oikeilla sivuilla. Nordnet ja Kauppalehti näyttävät ROA:n ("Pääoman tuotto (ROA)", "Kokonaispääoman tuotto"), mutta tekoäly jättää sen nyt pois, koska vastaavaa tunnuslukua ei ole.
+
+| Tunnusluku | Kategoria | Kaava | Lähtötiedot |
+|---|---|---|---|
+| Korkokate | Velka | EBIT ÷ rahoituskulut | Molemmat ovat jo olemassa (EBIT ja `rahoituskulut`) |
+| Nettomarginaali (nettotulos-%) | Kannattavuus | nettotulos ÷ liikevaihto | Molemmat ovat jo olemassa |
+| ROA (kokonaispääoman tuotto) | Kannattavuus | nettotulos ÷ taseen loppusumma | Molemmat ovat jo olemassa |
+
+- Lisäys tehdään README:n ohjeella ja kohdan 9 tarkistuslistalla, ja se kirjataan kohtaan 6 kuten vaiheissa 8d–8g.
+- Korkokatteen nimittäjä merkitään `positive`-listaan. Rahoituskulut voivat olla nolla, jolloin korkokatetta ei lasketa.
+- Testiaineistoon (`src/ai/fixtures/`) lisätään odotetut luvut niihin teksteihin, joissa uudet luvut ovat. Eval ajetaan kolmella toistolla (`EVAL_RUNS=3`), ja tulokset kirjataan.
+
+### 12.4 Muut ideat (järjestys avoin)
+
+| Idea | Miksi | Huomioitavaa |
+|---|---|---|
+| Viikoittainen linkkitarkistus | Vaihe 12 lupaa sen, mutta `pages.yml` ajaa tarkistukset vain pushista, pull requestista ja käsin. | Yksi `schedule`-rivi ja erillinen työ, joka ajaa `npm run check-links`. Pieni. |
+| Käyttäjätestin tehtävä 5 | Kohta 8.2: Tutki osaketta -sivua ei ole testattu aloittelijoilla. | Kannattaa tehdä vaiheen 14 jälkeen, jolloin testaaja voi aloittaa esimerkkiyhtiöstä. |
+| Analyysin tarkistus oikeilla luvuilla | `docs/kasin-testaus.md`: osuvia välejä ja laskettuja lukuja ei tarkistettu selaimessa oikeiden sivujen luvuilla. | Oikeiden sivujen tekstit ovat kansiossa `oikeat_sivut/`. |
+| Vanhentuneiden lukujen varoitus ja "Päivitä kurssi" | Kurssiin sidotut luvut (P/E, osinkotuotto) vanhenevat nopeasti. Tallennettuun analyysiin palataan luultavasti kurssin päivittämiseksi, mutta sitä ei ole varmistettu. | Varoitus esim. yli viikon vanhasta hakupäivästä. Kurssin muutos laskee kurssiin sidotut luvut uudelleen. Sivulta poimittu P/E ei päivity itsestään, joten siitä pitää kertoa. |
+| "Ei sovellu tälle toimialalle" -huomautukset | Esim. nettovelkaantumisaste ja EBITDA-luvut eivät sovi pankeille. Tämä on pienempi työ kuin toimialakohtaiset välit, ja se estää harhaanjohtavimmat tulkinnat. | Toimiala pitää valita tai poimia tekstistä. Aloitetaan muutamasta toimialasta. |
+| Kahden yhtiön vertailu rinnakkain | Tunnusluvut kertovat eniten verrattuna saman alan yhtiöihin. | Analyysit ovat jo osoitteessa ja viimeisimmät-listassa, joten vertailu voi rakentua niiden päälle. |
+| Kuvakaappaus syötteenä | Kohderyhmä näkee luvut pankin sovelluksessa, josta tekstin kopiointi on hankalaa. Claude lukee kuvia. | Lainaustarkistus (`verify.ts`) vertaa lainausta liitettyyn tekstiin. Kuvalle tarvitaan muu tarkistus, esim. kuva näkyvissä tarkistusvaiheessa. Testiaineistoon kuvia. |
+| Useampi vuosi ja kehityssuunta | Suunta (esim. EBIT-% nousee vai laskee) kertoo usein enemmän kuin yksittäinen luku, ja oikeilla sivuilla on usein monivuotiset taulukot. | Iso muutos: datamalli, osoitteen muoto, kehote ja eval. Nyt jokaisesta luvusta tallennetaan yksi arvo. |
+| Taustapalvelu ilman omaa API-avainta | Aloittelija tuskin luo Anthropic Console -tiliä, joten tämä kasvattaisi käyttäjämäärää eniten. | Vaatii kulukaton, käyttömäärän rajoituksen ja botintorjunnan. Muuttaa lupauksen, että teksti kulkee vain Anthropicille. `extractFigures` on yhden funktion takana (kohta 11.3). |
+| Toimialakohtaiset nyrkkisäännöt | Jokainen väli sanoo "vaihtelee toimialoittain". | Paljon sisältötyötä ja virheriski. Kannattaa aloittaa "ei sovellu" -huomautuksista. |
+| Muut kohdan 10 kysymykset | Vertausten kuvitus, sanastotermien lisälukemista-linkit ja englanninkielinen versio. | Pienempi hyöty kohderyhmälle. |
