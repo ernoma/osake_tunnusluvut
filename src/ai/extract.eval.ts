@@ -3,9 +3,11 @@
 //
 //   ANTHROPIC_API_KEY=sk-ant-… npm run eval-extract
 //   ANTHROPIC_API_KEY=sk-ant-… EVAL_MODEL=claude-haiku-4-5 npm run eval-extract
+//   ANTHROPIC_API_KEY=sk-ant-… EVAL_RUNS=3 npm run eval-extract
 //
 // Jokaisesta testitekstistä pitää poimia kaikki odotetut luvut oikein, eikä vastauksessa saa
-// olla keksittyjä lainauksia.
+// olla keksittyjä lainauksia. Tulos vaihtelee ajosta toiseen, joten EVAL_RUNS ajaa jokaisen
+// tekstin useamman kerran (oletus 1).
 
 import { describe, expect, it } from "vitest";
 import { DEFAULT_MODEL, modelById, MODELS, type ModelId } from "./apiKey.ts";
@@ -16,16 +18,28 @@ const env = (globalThis as { process?: { env: Record<string, string | undefined>
 const apiKey = env?.ANTHROPIC_API_KEY;
 const modelId = (env?.EVAL_MODEL ?? DEFAULT_MODEL) as ModelId;
 
+const runs = Number(env?.EVAL_RUNS ?? 1);
+
 if (!MODELS.some((m) => m.id === modelId)) {
   throw new Error(`Tuntematon EVAL_MODEL: ${modelId}. Vaihtoehdot: ${MODELS.map((m) => m.id)}`);
 }
+if (!Number.isInteger(runs) || runs < 1) {
+  throw new Error(`EVAL_RUNS pitää olla positiivinen kokonaisluku, nyt: ${env?.EVAL_RUNS}`);
+}
+
+const cases = fixtures.flatMap((f) =>
+  Array.from(
+    { length: runs },
+    (_, i) => [runs > 1 ? `${f.site} (ajo ${i + 1}/${runs})` : f.site, f] as const,
+  ),
+);
 
 function close(a: number, b: number): boolean {
   return Math.abs(a - b) <= Math.max(Math.abs(b) * 1e-6, 1e-9);
 }
 
 describe.skipIf(!apiKey)(`poiminta mallilla ${modelId}`, { timeout: 180_000 }, () => {
-  it.each(fixtures.map((f) => [f.site, f] as const))("%s", async (_site, fixture) => {
+  it.each(cases)("%s", async (label, fixture) => {
     const result = await extractFigures(fixture.text, undefined, {
       apiKey,
       model: modelById(modelId),
@@ -53,7 +67,7 @@ describe.skipIf(!apiKey)(`poiminta mallilla ${modelId}`, { timeout: 180_000 }, (
 
     console.log(
       [
-        `${fixture.site}: ${result.values.length} lukua, ${problems.length} ongelmaa`,
+        `${label}: ${result.values.length} lukua, ${problems.length} ongelmaa`,
         ...problems.map((p) => `  ✗ ${p}`),
         ...extra.map((v) => `  + ylimääräinen: ${v.id} = ${v.value} "${v.quote}"`),
         ...result.notes.map((n) => `  · ${n}`),

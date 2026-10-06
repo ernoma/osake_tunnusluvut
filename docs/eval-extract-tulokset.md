@@ -8,6 +8,12 @@ Ajo toisella mallilla:
 EVAL_MODEL=claude-haiku-4-5 npm run eval-extract
 ```
 
+Poiminta vaihtelee ajosta toiseen, joten kehotteen muutoksen jälkeen jokainen teksti kannattaa ajaa kolme kertaa:
+
+```bash
+EVAL_RUNS=3 npm run eval-extract
+```
+
 ---
 
 ## 2026-09-27 · vertailukauden luku kehotteeseen
