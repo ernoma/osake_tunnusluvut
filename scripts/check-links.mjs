@@ -2,7 +2,8 @@
 //
 // Tarkistaa, että jokainen metrics.ts:n linkki vastaa ilman virhettä ja että uudelleenohjaukset
 // pysyvät sivuston omassa verkkotunnuksessa (sources.ts). Tulostaa ongelmalliset linkit ja
-// päättyy virhekoodiin 1, jos yksikin linkki on rikki.
+// päättyy virhekoodiin 1, jos yksikin linkki on rikki. Vastaus 401 tai 403 ei ole rikki vaan
+// "sivusto esti tarkistuksen", koska osa sivustoista estää GitHub Actionsin palvelimet.
 //
 // Ei ole osa `npm test`:iä, koska yksittäinen hidas tai tilapäisesti alhaalla oleva sivusto ei
 // saa kaataa buildia. Ks. TOTEUTUSSUUNNITELMA.md, kohta 6.7.
@@ -107,6 +108,11 @@ async function checkUrl(url, domain, hostMatches) {
     if (res.status >= 200 && res.status < 300) {
       return { ok: true, status: res.status, finalUrl: current, redirected: current !== url };
     }
+    // Osa sivustoista (esim. Investopedia) estää pilvipalvelimien osoitteet, joten GitHub
+    // Actionsissa ne vastaavat 403, vaikka sivu on olemassa. Poistettu sivu vastaa 404 tai 410.
+    if (res.status === 401 || res.status === 403) {
+      return { ok: true, blocked: true, status: res.status, finalUrl: current };
+    }
     return { ok: false, status: res.status, problem: `HTTP ${res.status}` };
   }
   return { ok: false, problem: `yli ${MAX_REDIRECTS} uudelleenohjausta` };
@@ -151,10 +157,18 @@ async function main() {
 
   const broken = results.filter((r) => !r.ok);
   const moved = results.filter((r) => r.ok && r.redirected);
+  const blocked = results.filter((r) => r.blocked);
 
   for (const r of results) {
-    const mark = !r.ok ? "✗" : r.redirected ? "→" : "✓";
+    const mark = !r.ok ? "✗" : r.blocked ? "?" : r.redirected ? "→" : "✓";
     console.log(`${mark} ${r.status ?? "---"} ${r.url}`);
+  }
+
+  if (blocked.length > 0) {
+    console.log(
+      `\nSivusto esti tarkistuksen (${blocked.length}). Sivu on luultavasti olemassa, mutta tarkista se tarvittaessa selaimella:`,
+    );
+    for (const r of blocked) console.log(`  ${r.url}  [${r.usedBy.join(", ")}]`);
   }
 
   if (moved.length > 0) {
@@ -170,7 +184,11 @@ async function main() {
     console.log("\nKorvaa rikkinäinen linkki toisella tai poista se (kohta 6.7).");
     process.exitCode = 1;
   } else {
-    console.log(`\nKaikki ${results.length} osoitetta vastasivat.`);
+    console.log(
+      blocked.length > 0
+        ? `\n${results.length - blocked.length} / ${results.length} osoitetta vastasivat. ${blocked.length} osoitteen tarkistuksen sivusto esti.`
+        : `\nKaikki ${results.length} osoitetta vastasivat.`,
+    );
   }
 }
 

@@ -611,7 +611,7 @@ Tarkat osoitteet haetaan ja tarkistetaan vaiheessa 3b. Tähän suunnitelmaan ei 
 
 Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi:
 
-1. Skripti `scripts/check-links.mjs` (`npm run check-links`) tarkistaa, että jokainen osoite vastaa ilman virhettä ja että uudelleenohjaukset eivät vie toiselle verkkotunnukselle. Se tulostaa ongelmalliset linkit.
+1. Skripti `scripts/check-links.mjs` (`npm run check-links`) tarkistaa, että jokainen osoite vastaa ilman virhettä ja että uudelleenohjaukset eivät vie toiselle verkkotunnukselle. Se tulostaa ongelmalliset linkit. Vastaus 401 tai 403 raportoidaan erikseen ("sivusto esti tarkistuksen") eikä kaada tarkistusta, koska Investopedia estää GitHub Actionsin palvelimet, vaikka sivut ovat olemassa.
 2. GitHub Actions ajaa tarkistuksen kerran viikossa ja avaa issuen, jos jokin linkki on rikki. Tarkistus on erillään tavallisista testeistä, koska yksittäinen hidas tai tilapäisesti alhaalla oleva sivusto ei saa kaataa buildia.
 3. Testit antavat varoituksen linkistä, jonka `checkedAt` on yli 12 kuukautta vanha. Linkin sisältö luetaan silloin uudelleen, koska sivu voi toimia teknisesti mutta sen sisältö on voinut muuttua.
 4. Rikkinäinen linkki korvataan toisella tai poistetaan. Kortti toimii myös ilman linkkejä.
