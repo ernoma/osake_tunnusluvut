@@ -55,6 +55,7 @@ npm run dev
 | `npm run check-links`  | Lisälukemista-linkkien tarkistus (verkkoyhteys)                                                                     |
 | `npm run build`        | Tuotantoversio kansioon `dist/`                                                                                     |
 | `npm run eval-extract` | Tekoälyhaun laatu oikeaa mallia vasten (`ANTHROPIC_API_KEY`, maksullinen), tulokset `docs/eval-extract-tulokset.md` |
+| `npm run eval-real`    | Tekoälyhaku oikeilta sivuilta kopioiduille teksteille kansiossa `oikeat_sivut/` (ei repossa), tarkistus käsin       |
 
 ## Kansiorakenne
 

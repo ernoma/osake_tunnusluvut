@@ -69,10 +69,13 @@ export function quoteFound(quote: string, normalizedText: string): boolean {
   return q.length > 0 && normalizedText.includes(q);
 }
 
+/** Valuutat, joiden perään kerroin kirjoitetaan englanninkielisessä tilinpäätöksessä: "EURm". */
+const CODES = "(?:eur|usd|sek|nok|dkk|gbp|chf)";
+
 /** Kerroinsanat. Pidemmät ensin, jotta "miljoonaa" ei jää "m":n alle. */
 const SCALE_WORDS: [string, number][] = [
-  ["miljardi[a-zä]*|mrd|billions?|bn|b", 1e9],
-  ["miljoon[a-zä]*|milj|millions?|meur|musd|msek|mnok|mdkk|m€|m\\$|mn|m", 1e6],
+  [`miljardi[a-zä]*|mrd|billions?|${CODES}bn|bn|b`, 1e9],
+  [`miljoon[a-zä]*|milj|millions?|meur|musd|msek|mnok|mdkk|${CODES}mn?|m€|m\\$|mn|m`, 1e6],
   ["1 ?000 (?:euroa|eur|€)|tuhat[a-zä]*|thousands?|teur|t€|k€|k", 1e3],
 ];
 

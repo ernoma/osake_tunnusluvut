@@ -16,6 +16,25 @@ EVAL_RUNS=3 npm run eval-extract
 
 ---
 
+## 2026-10-06 · kolme toistoa (`EVAL_RUNS=3`)
+
+Ei muutoksia kehotteeseen eikä malliin. Jokainen teksti ajettiin kolme kertaa, jotta ajojen välinen vaihtelu näkyy (vrt. Inderesin vertailuvuosi 27.9.).
+
+| Lähde                                 | claude-opus-5-5  |
+| ------------------------------------- | ---------------- |
+| Nordnet                               | ✓ 3/3 (10 lukua) |
+| Inderes                               | ✓ 3/3 (12 lukua) |
+| Kauppalehti                           | ✓ 3/3 (8 lukua)  |
+| Yahoo Finance                         | ✓ 3/3 (18 lukua) |
+| Tilinpäätös                           | ✓ 3/3 (12 lukua) |
+| Tilinpäätös (IFRS)                    | ✓ 3/3 (8 lukua)  |
+| Nordnet (kurssi SEK, tilinpäätös EUR) | ✓ 3/3 (10 lukua) |
+| **Yhteensä**                          | **21/21**        |
+
+Kesto 155 s. Ei ⚠-rivejä, hylättyjä eikä ylimääräisiä lukuja. Inderesin vertailuvuosi löytyi kaikissa kolmessa ajossa. Oikeiden sivujen tulokset ovat tiedostossa `docs/kasin-testaus.md`.
+
+---
+
 ## 2026-09-27 · vertailukauden luku kehotteeseen
 
 Edellisen ajon Inderes-virheen korjaus. Kehotteen ohje "palauta viimeisin toteutunut" sai mallin jättämään vertailuvuoden liikevaihdon pois. Kehotteeseen lisättiin ohje: vertailukauden luku, jolla on oma id (esim. `liikevaihto-edellinen`), palautetaan aina, kun tekstissä on sama luku edelliseltä kaudelta. Se on valittua kautta edeltävä kausi.

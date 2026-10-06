@@ -19,7 +19,8 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "check-links": "node scripts/check-links.mjs",
-    "eval-extract": "vitest run --config vitest.eval.config.ts"
+    "eval-extract": "vitest run --config vitest.eval.config.ts src/ai/extract.eval.ts",
+    "eval-real": "vitest run --config vitest.eval.config.ts src/ai/realPages.eval.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

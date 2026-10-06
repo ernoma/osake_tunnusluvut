@@ -4,6 +4,39 @@ Automaattiset testit eivät kata kaikkea: oikeiden sivujen tekstin rakenne vaiht
 
 ---
 
+## 2026-10-06 · oikeat sivut tekoälyhaulla
+
+Kultakin sivulta kopioitiin yhden yhtiön sivu tai tunnuslukuosio tekstitiedostoon kansioon `oikeat_sivut/` (ei repossa), ja poiminta ajettiin komennolla `npm run eval-real` (oletusmalli Opus 5.5). Jokainen poimittu luku verrattiin käsin tekstiin.
+
+| Sivu                                            | Yhtiö                 | Poimittu / oikein | ⚠-rivit  | Hylätyt | Huomiot |
+| ----------------------------------------------- | --------------------- | ----------------- | -------- | ------- | ------- |
+| Nordnet (osakkeen sivu, USD, monivuotinen)      | Walmart               | 26 / 26           | 0        | 0       | ¹       |
+| Inderes (yhtiösivu, vain ennusteita)            | Solar Foods           | 6 / 6             | 0        | 0       | ²       |
+| Kauppalehti (tilinpäätöksen tunnusluvut)        | IQM Quantum Computers | 14 / 14           | 0        | 0       | ³       |
+| Yahoo Finance (Income Statement, TTM-sarake)    | Nokia                 | 8 / 8             | 0        | 0       | ⁴       |
+| Tilinpäätös (englanninkielinen, EURm, 3 vuotta) | Nokia                 | 19 / 19           | 12 → 0 ⁵ | 0       |         |
+
+¹ Kurssiin sidotut luvut (P/E, P/B, osinkotuotto) ovat nykyhetken, EV-kertoimet vuoden 2025 lopun lukuja. Malli kertoi erosta huomioissa. ROA:ta ei poimittu ROI:ksi, mikä on oikein.
+² Kertoimet ovat vain ennusteita (26e), ja ne poimittiin kaudella "ennuste". Negatiiviset P/E ja EV/EBIT säilyivät negatiivisina.
+³ Kauppalehti näyttää markkina-arvon, P/E:n ja muut kertoimet nollina ja osan luvuista täytearvona 999,90. Malli jätti ne pois ja kertoi syyn. Yksikkö "miljoonina euroina" otsikossa huomioitiin.
+⁴ Malli valitsi TTM-sarakkeen. Korkokuluille ei ole TTM-lukua, joten se otti vuoden 2025 luvun ja kertoi siitä.
+⁵ Kaikki arvot olivat oikein, mutta 12 rahamäärää sai turhan ⚠-merkin, koska lainauksen tarkistus ei tunnistanut otsikon kerroinsanaa "EURm". Korjattu: `verify.ts` tunnistaa nyt muodot EURm, USDm, EURbn ja muut vastaavat. Uusinta-ajossa ⚠-rivejä oli 0.
+
+**Havainto:** taulukosta poimitun luvun lainaus on usein pelkkä luku ("31,33") tai rivin kaikki vuodet ("2.17B 1.47B 2.09B 915M 1.06B") ilman rivin nimeä. Tarkistus hyväksyy sen, mutta tarkistusvaiheessa käyttäjä ei näe lainauksesta, mistä rivistä ja vuodesta luku on.
+
+Tarkistuslista:
+
+- [x] Arvot ja yksiköt vastaavat sivua (milj. / mrd oikein, prosentit prosentteina).
+- [x] Kausi on oikea: viimeisin toteutunut tai 12 kk, ennuste vain, kun toteutunutta ei ole.
+- [x] Sivulta puuttuva luku (Kauppalehden nollat, Inderesin osinkotuotto) ei päädy analyysiin.
+- [x] ⚠-merkityt luvut ovat oikeasti tarkistettavia (korjauksen jälkeen ei turhia).
+- [x] Kopioidut osiot mahtuivat 30 000 merkkiin (suurin 5 100 merkkiä).
+- [ ] Analyysin osuvat välit ja lasketut luvut: ei tarkistettu selaimessa tällä kertaa.
+
+Puhelintestaus jätettiin pois.
+
+---
+
 ## 2026-09-27 · vaihe 11e
 
 ### Mobiili (375 px) ja saavutettavuus
@@ -34,7 +67,7 @@ Lighthouse 12, saavutettavuus, tuotantoversio (Edge, headless):
 
 ### Oikeat sivut tekoälyhaulla
 
-**Kesken.** Vaatii oman API-avaimen, joten testaa ylläpitäjä. Kopioi kultakin sivulta yhden yhtiön tunnuslukuosio ja liitä se Tutki osaketta -sivulle (oletusmalli Opus 5.5). Kirjaa tulos taulukkoon.
+**Tehty 2026-10-06, ks. yllä.** Kopioi kultakin sivulta yhden yhtiön tunnuslukuosio ja liitä se Tutki osaketta -sivulle (oletusmalli Opus 5.5). Kirjaa tulos taulukkoon.
 
 | Sivu                                     | Yhtiö | Poimittu / oikein | ⚠-rivit | Hylätyt | Huomiot |
 | ---------------------------------------- | ----- | ----------------- | ------- | ------- | ------- |

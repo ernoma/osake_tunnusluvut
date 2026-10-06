@@ -52,6 +52,10 @@ describe("lainauksen luku ja arvo", () => {
   it("taulukon otsikon kerroin tulee muualta tekstistä", () => {
     expect(scalesIn("KONSERNIN TULOSLASKELMA (1 000 euroa)")).toEqual([1e3]);
     expect(scalesIn(row("MEUR", "2024", "2025"))).toEqual([1e6]);
+    expect(scalesIn("EURm (except for percentage and personnel data) 2025 2024")).toEqual([1e6]);
+    expect(scalesIn("USD bn")).toEqual([1e9]);
+    expect(scalesIn("SEKbn")).toEqual([1e9]);
+    expect(scalesIn("Revenue, eur")).toEqual([]);
     expect(quoteMatchesValue("Liikevaihto 865,0", 865e6)).toBe(false);
     expect(quoteMatchesValue("Liikevaihto 865,0", 865e6, { contextScales: [1e6] })).toBe(true);
   });

@@ -7,3 +7,5 @@ coverage/
 .env.*
 .DS_Store
 Thumbs.db
+# Oikeilta sivuilta kopioidut tekstit (npm run eval-real). Sivustojen tekstiä ei tallenneta repoon.
+oikeat_sivut/
