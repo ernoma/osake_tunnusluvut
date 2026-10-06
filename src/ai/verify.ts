@@ -72,6 +72,20 @@ export function quoteFound(quote: string, normalizedText: string): boolean {
 /** Valuutat, joiden perään kerroin kirjoitetaan englanninkielisessä tilinpäätöksessä: "EURm". */
 const CODES = "(?:eur|usd|sek|nok|dkk|gbp|chf)";
 
+/**
+ * Onko lainauksessa luvun nimi eikä pelkkä luku, yksikkö tai valuutta ("713 163", "2.17B",
+ * "4,91 EUR"). Käytetään evalissa: tarkistusvaiheessa käyttäjä näkee lainauksesta, mikä luku on.
+ */
+export function quoteHasLabel(quote: string): boolean {
+  const rest = quote
+    .normalize("NFKC")
+    .toLowerCase()
+    // Luku ja sen perässä oleva kerroin: "2.17b", "915m", "147,84 milj."
+    .replace(/\d[\d.,]*\s*(?:mrd|milj|meur|musd|bn|mn|b|m|k)?(?![a-zåäö])/g, " ")
+    .replace(/(?<![a-zåäö])(?:eur|usd|sek|nok|dkk|gbp|chf)(?![a-zåäö])/g, " ");
+  return /[a-zåäö]/.test(rest);
+}
+
 /** Kerroinsanat. Pidemmät ensin, jotta "miljoonaa" ei jää "m":n alle. */
 const SCALE_WORDS: [string, number][] = [
   [`miljardi[a-zä]*|mrd|billions?|${CODES}bn|bn|b`, 1e9],

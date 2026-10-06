@@ -8,6 +8,7 @@
 import { describe, it } from "vitest";
 import { DEFAULT_MODEL, modelById, MODELS, type ModelId } from "./apiKey.ts";
 import { extractFigures } from "./extract.ts";
+import { quoteHasLabel } from "./verify.ts";
 
 const env = (globalThis as { process?: { env: Record<string, string | undefined> } }).process?.env;
 const apiKey = env?.ANTHROPIC_API_KEY;
@@ -37,12 +38,13 @@ describe.skipIf(!apiKey || pages.length === 0)(
       const result = await extractFigures(text, undefined, { apiKey, model: modelById(modelId) });
       const seconds = Math.round((Date.now() - started) / 1000);
       const warnings = result.values.filter((v) => v.check !== "ok").length;
+      const unlabeled = result.values.filter((v) => !quoteHasLabel(v.quote)).length;
 
       console.log(
         [
           `## ${file}`,
           "",
-          `${result.values.length} lukua, ${warnings} ⚠, ${result.rejected.length} hylättyä, ${seconds} s. ` +
+          `${result.values.length} lukua, ${warnings} ⚠, ${result.rejected.length} hylättyä, ${unlabeled} lainausta ilman nimeä, ${seconds} s. ` +
             `Yhtiö: ${result.company.name}, valuutta ${result.company.currency ?? "-"}, ` +
             `kurssin valuutta ${result.company.priceCurrency ?? "-"}.`,
           "",

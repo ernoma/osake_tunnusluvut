@@ -9,9 +9,24 @@ import {
   normalizeText,
   quoteFound,
   quoteMatchesValue,
+  quoteHasLabel,
   scalesIn,
   verifyExtraction,
 } from "./verify.ts";
+
+describe("quoteHasLabel", () => {
+  it.each([
+    ["Liikevaihto 812,4 865,0", true],
+    ["P/E 37,77", true],
+    ["Net sales 19 889", true],
+    ["713 163", false],
+    ["2.17B 1.47B 1.06B", false],
+    ["4,91 EUR", false],
+    ["147,84 milj. EUR", false],
+  ])("%s → %s", (quote, expected) => {
+    expect(quoteHasLabel(quote)).toBe(expected);
+  });
+});
 
 describe("lainauksen haku tekstistä", () => {
   it("löytää lainauksen, vaikka välilyönnit, viivat ja kirjainkoko eroavat", () => {

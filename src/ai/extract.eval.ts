@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_MODEL, modelById, MODELS, type ModelId } from "./apiKey.ts";
 import { extractFigures } from "./extract.ts";
 import { fixtures } from "./fixtures/index.ts";
+import { quoteHasLabel } from "./verify.ts";
 
 const env = (globalThis as { process?: { env: Record<string, string | undefined> } }).process?.env;
 const apiKey = env?.ANTHROPIC_API_KEY;
@@ -59,6 +60,11 @@ describe.skipIf(!apiKey)(`poiminta mallilla ${modelId}`, { timeout: 180_000 }, (
         problems.push(
           `valuutta: ${expected.id} = ${found.currency ?? "-"}, odotettu ${expected.currency ?? "-"}`,
         );
+    }
+    for (const v of result.values) {
+      // Kurssi on sivun yläosassa usein ilman otsikkoa (Yahoo: "128.44"), joten nimeä ei ole.
+      if (v.id !== "kurssi" && !quoteHasLabel(v.quote))
+        problems.push(`lainauksessa ei nimeä: ${v.id} "${v.quote}"`);
     }
     for (const r of result.rejected) {
       problems.push(`hylätty (${r.reason}): ${r.id} = ${r.value} "${r.quote}"`);

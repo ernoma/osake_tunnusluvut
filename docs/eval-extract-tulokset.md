@@ -16,6 +16,29 @@ EVAL_RUNS=3 npm run eval-extract
 
 ---
 
+## 2026-10-06 · lainaus rivin nimestä valittuun lukuun
+
+Taulukosta poimitun luvun lainaus oli usein pelkkä luku ("31,33") tai rivin luvut ilman nimeä, joten tarkistusvaiheessa ei näkynyt, mistä rivistä ja vuodesta luku oli. Kehotteeseen lisättiin ohje: jos nimen ja luvun välissä on muita lukuja, lainataan yhtenäinen kohta nimestä valittuun lukuun asti. Eval tarkistaa nyt myös, että lainauksessa on nimi (`quoteHasLabel` tiedostossa `verify.ts`). Kurssi on poikkeus, koska sillä ei sivun yläosassa ole usein otsikkoa. `EVAL_RUNS=3`.
+
+| Lähde                                 | claude-opus-5-5    |
+| ------------------------------------- | ------------------ |
+| Nordnet                               | ✓ 3/3 (10 lukua)   |
+| Inderes                               | ✓ 3/3 (12 lukua)   |
+| Kauppalehti                           | ✓ 3/3 (8 lukua)    |
+| Yahoo Finance                         | ✓ 3/3 (18 lukua) ¹ |
+| Tilinpäätös                           | ✓ 3/3 (12 lukua)   |
+| Tilinpäätös (IFRS)                    | ✓ 3/3 (8 lukua)    |
+| Nordnet (kurssi SEK, tilinpäätös EUR) | ✓ 3/3 (10 lukua)   |
+| **Yhteensä**                          | **21/21**          |
+
+Kesto 144 s. Arvot, kaudet ja valuutat olivat oikein kaikissa ajoissa. Ei ⚠-rivejä, hylättyjä eikä ylimääräisiä lukuja, joten pidemmät lainaukset löytyivät tekstistä merkki merkiltä.
+
+¹ Ajossa Yahoo kaatui kaikilla kolmella kerralla nimitarkistukseen, koska kurssin lainaus on "128.44" ilman otsikkoa. Tekstissä ei ole kurssille otsikkoa, joten tarkistus rajattiin kurssin osalta pois ajon jälkeen. Muuta ongelmaa ei ollut.
+
+Oikeilla sivuilla (`npm run eval-real`) 73 luvusta vain Yahoon kurssi jäi ilman nimeä. Erot edelliseen ajoon: Kauppalehdestä poimittiin nyt kassaksi "Likvidit varat", ja Yahoon kaaviosta liikevaihto vuodelta 2023, kun muut luvut ovat TTM-lukuja. Jälkimmäinen on oikea luku oikealla vuodella, mutta sovellus merkitsee siitä lasketun EBIT-%:n eri kausien luvuista lasketuksi.
+
+---
+
 ## 2026-10-06 · kolme toistoa (`EVAL_RUNS=3`)
 
 Ei muutoksia kehotteeseen eikä malliin. Jokainen teksti ajettiin kolme kertaa, jotta ajojen välinen vaihtelu näkyy (vrt. Inderesin vertailuvuosi 27.9.).
