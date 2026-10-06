@@ -677,7 +677,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **12. Julkaisu** ✅ | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Molemmat sivut ovat julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 | **13. Yhdistelmähuomiot** ✅ | Analyysiin huomiot, jotka syntyvät kahden tai useamman luvun yhdistelmästä, kohdan 12.1 mukaan | Jokainen sääntö laukeaa testiesimerkissään eikä laukea ilman lähtölukujaan, huomiot näkyvät analyysissä tekstinä, eikä mikään huomio kehota ostamaan tai myymään |
 | **14. Esimerkkiyhtiö** ✅ | Linkki "Kokeile esimerkkiyhtiöllä" Tutki osaketta -sivulle kohdan 12.2 mukaan | Linkki avaa valmiin analyysin ilman API-avainta, kuvitteellisuus näkyy otsikossa, ja analyysissä on ainakin yksi laskettu luku, puuttuva luku ja yhdistelmähuomio |
-| **15. Lisätunnusluvut: korkokate, nettomarginaali ja ROA** | Kolme tunnuslukua kohdan 12.3 mukaan README:n ohjeella | Validointi- ja kaavatestit menevät läpi, kortit löytyvät haulla ja sisällysluettelosta, linkit on luettu, ja eval on ajettu uusilla odotetuilla luvuilla |
+| **15. Lisätunnusluvut: korkokate, nettomarginaali ja ROA** ✅ | Kolme tunnuslukua kohdan 12.3 mukaan README:n ohjeella | Validointi- ja kaavatestit menevät läpi, kortit löytyvät haulla ja sisällysluettelosta, linkit on luettu, ja eval on ajettu uusilla odotetuilla luvuilla |
 
 Julkaisu on viimeinen vaihe, jotta julkaistu versio sisältää myös Tutki osaketta -sivun. Käyttäjätesti (vaihe 9) tehtiin ensimmäiselle sivulle, joten sen tehtävä 5 (kohta 8.2) testataan erikseen vaiheen 11 jälkeen.
 
@@ -1118,6 +1118,8 @@ Ehdokassääntö "P/E ja EV/EBIT eroavat selvästi" jaettiin kahdeksi säännök
 - Testiaineistoon (`src/ai/fixtures/`) lisätään odotetut luvut niihin teksteihin, joissa uudet luvut ovat. Eval ajetaan kolmella toistolla (`EVAL_RUNS=3`), ja tulokset kirjataan.
 
 **Toteutus (vaihe 15):** kortit, kaavat ja muut muutokset on kirjattu kohtaan 6.6e. Esimerkkiyhtiö laskee uudet luvut ilman muutoksia (korkokate 4,7, nettomarginaali 4,4 % ja ROA 4,9 %), eikä uusi yhdistelmähuomio laukea siinä (nettovelka/EBITDA 2,7). Testiaineistoon lisättiin odotetut luvut: Yahoon "Profit Margin" on nettomarginaali, Nordnetin tekstiin lisättiin rivi "Pääoman tuotto (ROA)" ja Kauppalehden tekstiin rivi "Kokonaispääoman tuotto, %" oikeiden sivujen nimillä. Tilinpäätösaineistoista korkokate, nettomarginaali ja ROA lasketaan, joten niihin ei tullut uusia poimittavia lukuja.
+
+**Eval (vaihe 15):** `EVAL_RUNS=3 npm run eval-extract` meni läpi 21/21 mallilla claude-opus-5-5, ja uudet luvut poimittiin oikein kaikissa ajoissa. Oikeilla sivuilla (`npm run eval-real`) ROA poimittiin Nordnetista ja Kauppalehdestä viimeisimmän vuoden sarakkeesta, eikä se sekoittunut ROI:hin. Tulokset ovat tiedostossa `docs/eval-extract-tulokset.md`.
 
 ### 12.4 Muut ideat (järjestys avoin)
 

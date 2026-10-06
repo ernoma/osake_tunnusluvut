@@ -16,6 +16,27 @@ EVAL_RUNS=3 npm run eval-extract
 
 ---
 
+## 2026-10-06 · korkokate, nettomarginaali ja ROA (vaihe 15)
+
+Kehotteen lukulista kasvoi kolmella tunnusluvulla, ja ROI:lta poistettiin alias "pääoman tuotto". Testiaineistoon lisättiin odotetut luvut: Yahoon "Profit Margin" nettomarginaaliksi, Nordnetin "Pääoman tuotto (ROA)" ja Kauppalehden "Kokonaispääoman tuotto, %". `EVAL_RUNS=3`.
+
+| Lähde                                 | claude-opus-5-5  |
+| ------------------------------------- | ---------------- |
+| Nordnet                               | ✓ 3/3 (11 lukua) |
+| Inderes                               | ✓ 3/3 (12 lukua) |
+| Kauppalehti                           | ✓ 3/3 (9 lukua)  |
+| Yahoo Finance                         | ✓ 3/3 (19 lukua) |
+| Tilinpäätös                           | ✓ 3/3 (12 lukua) |
+| Tilinpäätös (IFRS)                    | ✓ 3/3 (8 lukua)  |
+| Nordnet (kurssi SEK, tilinpäätös EUR) | ✓ 3/3 (10 lukua) |
+| **Yhteensä**                          | **21/21**        |
+
+Kesto 144 s. Uudet luvut poimittiin oikein kaikissa ajoissa, eikä Nordnetin "Pääoman tuotto (ROA)" sekoittunut ROI:hin.
+
+Oikeilla sivuilla (`npm run eval-real`) ROA poimittiin Nordnetista (8,03 %, 2025) ja Kauppalehdestä (−25,63 %, 12/2025) viimeisimmän vuoden sarakkeesta. ROI:ksi meni edelleen Kauppalehden rivi "Sijoitetun pääoman tuotto, %" ja Nokian tilinpäätöksen "Return on capital employed". Yahoon oikealla sivulla ei ole Profit Margin -riviä, joten nettomarginaalia ei poimittu. Korkokatetta ei näy millään sivulla. Se lasketaan liikevoitosta ja rahoituskuluista. Yhdessäkään luvussa ei ollut ⚠-merkintää.
+
+---
+
 ## 2026-10-06 · lainaus rivin nimestä valittuun lukuun
 
 Taulukosta poimitun luvun lainaus oli usein pelkkä luku ("31,33") tai rivin luvut ilman nimeä, joten tarkistusvaiheessa ei näkynyt, mistä rivistä ja vuodesta luku oli. Kehotteeseen lisättiin ohje: jos nimen ja luvun välissä on muita lukuja, lainataan yhtenäinen kohta nimestä valittuun lukuun asti. Eval tarkistaa nyt myös, että lainauksessa on nimi (`quoteHasLabel` tiedostossa `verify.ts`). Kurssi on poikkeus, koska sillä ei sivun yläosassa ole usein otsikkoa. `EVAL_RUNS=3`.
