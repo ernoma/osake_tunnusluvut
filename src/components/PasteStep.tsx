@@ -13,6 +13,7 @@ import {
 } from "../ai/apiKey.ts";
 import { ExtractionError, extractionError, MAX_TEXT_LENGTH } from "../ai/errors.ts";
 import type { VerifiedExtraction } from "../ai/verify.ts";
+import { EXAMPLE_SEARCH } from "../data/example.ts";
 import ApiKeyField, { API_KEY_INPUT_ID } from "./ApiKeyField.tsx";
 import styles from "./PasteStep.module.css";
 
@@ -24,6 +25,8 @@ interface Props {
   onTextChange: (text: string) => void;
   onExtracted: (result: VerifiedExtraction) => void;
   onEnterManually: () => void;
+  /** Avaa esimerkkiyhtiön analyysin (kohta 12.2). */
+  onTryExample: () => void;
   /** Viimeisimmät analyysit kentän alla. */
   children?: ReactNode;
 }
@@ -35,6 +38,7 @@ export default function PasteStep({
   onTextChange,
   onExtracted,
   onEnterManually,
+  onTryExample,
   children,
 }: Props) {
   const [savedKey, setSavedKey] = useState(loadApiKey);
@@ -135,6 +139,21 @@ export default function PasteStep({
         <h2 id={START_HEADING_ID} tabIndex={-1} className={styles.stepHeading}>
           Aloita
         </h2>
+        <p className={styles.example}>
+          Haluatko ensin nähdä, mitä sivu tekee?{" "}
+          <a
+            href={window.location.pathname + EXAMPLE_SEARCH}
+            onClick={(e) => {
+              // Ctrl- ja keskiklikkaus avaavat esimerkin uuteen välilehteen tavalliseen tapaan.
+              if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+              e.preventDefault();
+              onTryExample();
+            }}
+          >
+            Kokeile esimerkkiyhtiöllä
+          </a>
+          . Se ei tarvitse API-avainta, ja sen luvut ovat keksittyjä.
+        </p>
         <form className={styles.form} onSubmit={submit} noValidate>
           <label htmlFor={PASTE_TEXT_ID} className={styles.label}>
             Liitä teksti, jossa on yhtiön tunnuslukuja

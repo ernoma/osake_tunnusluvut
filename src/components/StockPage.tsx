@@ -11,6 +11,7 @@ import {
   ratesNeeded,
   type Unconverted,
 } from "../data/currency.ts";
+import { EXAMPLE_NAME, EXAMPLE_SEARCH } from "../data/example.ts";
 import { rateErrorText } from "../data/exchangeRates.ts";
 import { calculate, type KnownFigure } from "../data/formulas.ts";
 import { formatRate } from "../data/numberFormat.ts";
@@ -65,13 +66,11 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
 
   useEffect(() => {
     if (analysis.figures.length === 0) return;
+    const search = encodeAnalysis(analysis);
+    // Muuttamaton esimerkki ei ole käyttäjän oma analyysi, joten sitä ei tallenneta.
+    if (search === EXAMPLE_SEARCH) return;
     recentKey.current ??= newRecentKey();
-    save({
-      key: recentKey.current,
-      name: analysis.name,
-      date: analysis.date,
-      search: encodeAnalysis(analysis),
-    });
+    save({ key: recentKey.current, name: analysis.name, date: analysis.date, search });
   }, [analysis, save]);
 
   // Vaiheen vaihtuessa kohdistus siirtyy uuden vaiheen alkuun.
@@ -99,6 +98,15 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
   const openRecent = (entry: RecentAnalysis) => {
     recentKey.current = entry.key;
     setAnalysis(decodeAnalysis(entry.search));
+    setVersion((v) => v + 1);
+    setStartedFresh(false);
+    setStarted(true);
+    focusAfterRender.current = ANALYSIS_HEADING_ID;
+  };
+
+  const openExample = () => {
+    recentKey.current = null;
+    setAnalysis(decodeAnalysis(EXAMPLE_SEARCH));
     setVersion((v) => v + 1);
     setStartedFresh(false);
     setStarted(true);
@@ -179,6 +187,7 @@ export default function StockPage({ onNavigate }: { onNavigate: (page: Page) => 
             onTextChange={setPasteText}
             onExtracted={showReview}
             onEnterManually={startManually}
+            onTryExample={openExample}
           >
             <RecentAnalyses recent={recent} onOpen={openRecent} onRemove={remove} />
           </PasteStep>
@@ -208,17 +217,27 @@ function AnalysisDetails({ analysis, known, unconverted, onChange, onStartOver }
   const dateId = useId();
   const dateHintId = useId();
   const mixed = analysis.figures.some((f) => needsConversion(f, analysis.currency));
+  // Esimerkkiyhtiön kuvitteellisuus näkyy otsikossa (kohta 12.2).
+  const example = analysis.name.trim() === EXAMPLE_NAME;
 
   return (
     <section className={styles.details} aria-labelledby={ANALYSIS_HEADING_ID}>
       <div className={styles.detailsHead}>
         <h2 id={ANALYSIS_HEADING_ID} tabIndex={-1} className={styles.stepHeading}>
-          Yhtiö
+          {example ? "Esimerkkiyhtiö: kuvitteellinen yhtiö, keksityt luvut" : "Yhtiö"}
         </h2>
         <button type="button" className={styles.secondaryButton} onClick={onStartOver}>
           Uusi analyysi
         </button>
       </div>
+      {example && (
+        <p className={styles.hint}>
+          Esimerkki Oyj:tä ei ole olemassa. Sen luvut on keksitty näyttämään, mitä sivu tekee:
+          lasketut tunnusluvut kaavoineen, puuttuvat luvut ja huomiot, jotka syntyvät usean luvun
+          yhdistelmästä. Voit muuttaa lukuja ja katsoa, miten analyysi muuttuu. Uusi analyysi
+          aloittaa oman yhtiön.
+        </p>
+      )}
       <div className={styles.fields}>
         <div className={styles.field}>
           <label htmlFor={nameId}>Yhtiön nimi</label>

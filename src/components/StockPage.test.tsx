@@ -209,6 +209,41 @@ describe("osoite ja viimeisimmät", () => {
   });
 });
 
+describe("esimerkkiyhtiö", () => {
+  it("linkki avaa valmiin analyysin ilman API-avainta, ja kuvitteellisuus näkyy otsikossa", async () => {
+    window.localStorage.clear();
+    const { user } = renderAt("?sivu=tutki");
+    const link = screen.getByRole("link", { name: "Kokeile esimerkkiyhtiöllä" });
+    expect(link.getAttribute("href")).toContain("nimi=Esimerkki%20Oyj");
+    await user.click(link);
+
+    const heading = screen.getByRole("heading", { level: 2, name: /Esimerkkiyhtiö/ });
+    expect(heading).toHaveTextContent("kuvitteellinen yhtiö, keksityt luvut");
+    expect(heading).toHaveFocus();
+    expect(screen.getByRole("textbox", { name: "Yhtiön nimi" })).toHaveValue("Esimerkki Oyj");
+    expect(window.location.search).toContain("nimi=Esimerkki%20Oyj");
+
+    // Laskettu luku kaavoineen, puuttuva luku ja yhdistelmähuomio.
+    expect(screen.getByRole("article", { name: "P/E-luku" })).toHaveTextContent(
+      "Laskettu omista luvuista",
+    );
+    expect(screen.getByRole("button", { name: "Lisää: PEG-luku" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Mitä luvut kertovat yhdessä" })).toBeInTheDocument();
+
+    // Muuttamaton esimerkki ei mene viimeisimpiin.
+    expect(window.localStorage.getItem(RECENT_STORAGE_KEY) ?? "[]").not.toContain("Esimerkki");
+  });
+
+  it("muutettu esimerkki ei ole enää esimerkki", async () => {
+    const { user } = renderAt("?sivu=tutki");
+    await user.click(screen.getByRole("link", { name: "Kokeile esimerkkiyhtiöllä" }));
+    const name = screen.getByRole("textbox", { name: "Yhtiön nimi" });
+    await user.clear(name);
+    await user.type(name, "Oma Oyj");
+    expect(screen.getByRole("heading", { level: 2, name: "Yhtiö" })).toBeInTheDocument();
+  });
+});
+
 const analysisRow = (name: string) => screen.getByRole("article", { name });
 
 describe("analyysi", () => {
@@ -449,6 +484,12 @@ describe("saavutettavuus (axe)", { timeout: 20_000 }, () => {
     );
     await user.click(screen.getByRole("button", { name: "Lisää: EV/EBIT-luku" }));
     await user.click(screen.getByRole("button", { name: "Lisää" }));
+    expect(await violations()).toEqual([]);
+  });
+
+  it("esimerkkiyhtiö", async () => {
+    const { user } = renderAt("?sivu=tutki");
+    await user.click(screen.getByRole("link", { name: "Kokeile esimerkkiyhtiöllä" }));
     expect(await violations()).toEqual([]);
   });
 

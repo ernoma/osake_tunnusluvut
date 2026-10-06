@@ -8,6 +8,16 @@
   composes: stepHeading from "./StockPage.module.css";
 }
 
+.example {
+  max-width: 70ch;
+}
+
+.example a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-underline-offset: 0.2em;
+}
+
 .form {
   display: flex;
   flex-direction: column;

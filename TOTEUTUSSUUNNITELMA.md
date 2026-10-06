@@ -648,7 +648,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **11i. Valuuttojen sekoittumisen täysi tuki** ✅ | Luvuille oma valuutta, muunnos analyysin valuuttaan ennen laskentaa ja valuutta osoitteeseen kohdan 11.11 mukaan | SEK-kurssista ja EUR-tuloksesta laskettu P/E on oikein, ja muunnos näkyy laskelmassa |
 | **12. Julkaisu** ✅ | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Molemmat sivut ovat julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
 | **13. Yhdistelmähuomiot** ✅ | Analyysiin huomiot, jotka syntyvät kahden tai useamman luvun yhdistelmästä, kohdan 12.1 mukaan | Jokainen sääntö laukeaa testiesimerkissään eikä laukea ilman lähtölukujaan, huomiot näkyvät analyysissä tekstinä, eikä mikään huomio kehota ostamaan tai myymään |
-| **14. Esimerkkiyhtiö** | Linkki "Kokeile esimerkkiyhtiöllä" Tutki osaketta -sivulle kohdan 12.2 mukaan | Linkki avaa valmiin analyysin ilman API-avainta, kuvitteellisuus näkyy otsikossa, ja analyysissä on ainakin yksi laskettu luku, puuttuva luku ja yhdistelmähuomio |
+| **14. Esimerkkiyhtiö** ✅ | Linkki "Kokeile esimerkkiyhtiöllä" Tutki osaketta -sivulle kohdan 12.2 mukaan | Linkki avaa valmiin analyysin ilman API-avainta, kuvitteellisuus näkyy otsikossa, ja analyysissä on ainakin yksi laskettu luku, puuttuva luku ja yhdistelmähuomio |
 | **15. Lisätunnusluvut: korkokate, nettomarginaali ja ROA** | Kolme tunnuslukua kohdan 12.3 mukaan README:n ohjeella | Validointi- ja kaavatestit menevät läpi, kortit löytyvät haulla ja sisällysluettelosta, linkit on luettu, ja eval on ajettu uusilla odotetuilla luvuilla |
 
 Julkaisu on viimeinen vaihe, jotta julkaistu versio sisältää myös Tutki osaketta -sivun. Käyttäjätesti (vaihe 9) tehtiin ensimmäiselle sivulle, joten sen tehtävä 5 (kohta 8.2) testataan erikseen vaiheen 11 jälkeen.
@@ -1071,6 +1071,8 @@ Ehdokassääntö "P/E ja EV/EBIT eroavat selvästi" jaettiin kahdeksi säännök
 - Yhtiö on kuvitteellinen ja sen nimi kertoo sen (esim. "Esimerkki Oyj"). Otsikossa lukee, että luvut ovat keksittyjä. Periaatteen 4 mukaisesti oikeita yhtiöitä ei käytetä.
 - Luvut valitaan niin, että analyysi näyttää sivun ominaisuudet: ainakin yksi laskettu luku kaavoineen, yksi puuttuva luku "Lisää"-painikkeineen, yksi välien väliin osuva luku ja vähintään yksi yhdistelmähuomio (vaihe 13).
 - Osoite on yhdessä vakiossa. Testi purkaa sen ja tarkistaa, että analyysissä on edellä luetellut osat. Näin esimerkki ei hajoa huomaamatta, kun tunnuslukuja tai kaavoja muutetaan.
+
+**Toteutus (vaihe 14):** osoite on vakiona `EXAMPLE_SEARCH` tiedostossa `src/data/example.ts`, ja testi on tiedostossa `example.test.ts`. Linkki on liittämisvaiheen alussa ennen tekstikenttää. Kun nimi on "Esimerkki Oyj", otsikossa lukee "Esimerkkiyhtiö: kuvitteellinen yhtiö, keksityt luvut", ja sen alla kerrotaan, että luvut on keksitty. Esimerkissä on 16 toteutunutta lukua vuodelta 2025. Niistä lasketaan muun muassa P/E ja EV/EBIT. EBIT-% (7 %) osuu välien väliin, PEG puuttuu, P/FCF jää laskematta negatiivisen vapaan kassavirran vuoksi, ja neljä yhdistelmähuomiota laukeaa. Muuttamatonta esimerkkiä ei tallenneta viimeisimpiin analyyseihin, mutta muutettu tallennetaan.
 
 ### 12.3 Lisätunnusluvut (vaihe 15)
 
