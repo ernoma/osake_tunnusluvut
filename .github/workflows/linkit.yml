@@ -1,0 +1,51 @@
+# Lisälukemista-linkkien viikoittainen tarkistus (suunnitelman kohta 6.7). Erillään julkaisusta,
+# koska yksittäinen hidas tai tilapäisesti alhaalla oleva sivusto ei saa kaataa buildia.
+# Jos jokin linkki on rikki, avataan issue tai kommentoidaan jo avoinna olevaa.
+name: Linkkitarkistus
+
+on:
+  schedule:
+    # Maanantaisin klo 6.00 UTC.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - id: check
+        run: |
+          set -o pipefail
+          npm run --silent check-links 2>&1 | tee linkit.txt
+      - name: Avaa tai päivitä issue
+        if: failure() && steps.check.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Rikkinäisiä lisälukemista-linkkejä"
+          {
+            echo "Viikoittainen linkkitarkistus löysi ongelmia: $RUN_URL"
+            echo
+            echo "Korvaa rikkinäinen linkki toisella tai poista se (TOTEUTUSSUUNNITELMA.md, kohta 6.7)."
+            echo
+            echo '```'
+            cat linkit.txt
+            echo '```'
+          } > body.md
+          number=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body-file body.md
+          else
+            gh issue create --title "$title" --body-file body.md
+          fi

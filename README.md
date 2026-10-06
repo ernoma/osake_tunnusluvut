@@ -228,6 +228,8 @@ Kirjaa lisäys lopuksi toteutussuunnitelman kohtaan 6 (taulukkorivi ja "Lisäyks
 
 `.github/workflows/pages.yml` ajaa tarkistukset (lint, muotoilu, testit, build) jokaiselle pushille ja pull requestille ja julkaisee `main`-haaran GitHub Pagesiin. Ota julkaisu käyttöön repositorion asetuksista: **Settings → Pages → Source: GitHub Actions**. Build käyttää suhteellisia polkuja, joten sivu toimii myös alihakemistossa (`https://<käyttäjä>.github.io/<repo>/`).
 
+`.github/workflows/linkit.yml` ajaa `npm run check-links` maanantaisin ja tarvittaessa käsin (**Actions → Linkkitarkistus → Run workflow**). Jos jokin linkki on rikki, se avaa issuen "Rikkinäisiä lisälukemista-linkkejä" tai kommentoi jo avoinna olevaa.
+
 ## Lisenssi
 
 [EUPL 1.2](LICENSE) (European Union Public Licence). Lisenssi on saatavilla kaikilla EU:n virallisilla kielillä, myös [suomeksi](https://eur-lex.europa.eu/legal-content/FI/TXT/?uri=CELEX:32017D0863).
