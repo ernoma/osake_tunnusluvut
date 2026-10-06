@@ -20,6 +20,7 @@ export const nordnet: ExtractionFixture = {
     row("EPS", "1,62 EUR"),
     row("Osinko/osake", "1,10 EUR"),
     row("Oman pääoman tuotto", "13,5 %"),
+    row("Pääoman tuotto (ROA)", "5,6 %"),
     row("Omavaraisuusaste", "42,1 %"),
     row("Beta", "0,86"),
     "",
@@ -38,6 +39,7 @@ export const nordnet: ExtractionFixture = {
     { id: "eps", value: 1.62 },
     { id: "osinko-per-osake", value: 1.1 },
     { id: "roe", value: 13.5 },
+    { id: "roa", value: 5.6 },
     { id: "omavaraisuusaste", value: 42.1 },
   ],
   response: {
@@ -85,6 +87,14 @@ export const nordnet: ExtractionFixture = {
         period: "ttm",
         year: null,
         quote: "Oman pääoman tuotto 13,5 %",
+        currency: null,
+      },
+      {
+        id: "roa",
+        value: 5.6,
+        period: "ttm",
+        year: null,
+        quote: "Pääoman tuotto (ROA) 5,6 %",
         currency: null,
       },
       {

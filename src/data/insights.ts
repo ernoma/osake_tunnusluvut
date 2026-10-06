@@ -26,6 +26,8 @@ export interface Insight {
 const HIGH_PAYOUT = 70;
 /** Nettovelka/EBITDA, jota korkeampi on "paljon velkaa" (kortin nyrkkisääntö: yli 3). */
 const HIGH_LEVERAGE = 3;
+/** Korkokate, jota pienempi ei ole "hyvä" (kortin nyrkkisääntö: yli 3 on hyvä). */
+const GOOD_COVERAGE = 3;
 /** ROE:n ja ROI:n ero prosenttiyksikköinä, jota pidetään selvänä. */
 const ROE_ROI_GAP = 5;
 /** Kassavirta on "selvästi" tulosta pienempi, kun se jää alle tämän osuuden tuloksesta. */
@@ -91,6 +93,13 @@ export const insights: readonly Insight[] = [
     when: (v) => v("nettovelka-ebitda") > HIGH_LEVERAGE && v("osinkosuhde") > HIGH_PAYOUT,
     title: "Velkaa on paljon, ja tuloksesta jaetaan silti suuri osa",
     text: "Velan lyhentämiseen jää vähän rahaa. Jos tulos heikkenee, yhtiö joutuu yleensä valitsemaan osingon ja velan lyhentämisen välillä, ja osinkoa usein leikataan.",
+  },
+  {
+    id: "velka-ja-korot",
+    figures: ["nettovelka-ebitda", "korkokate"],
+    when: (v) => v("nettovelka-ebitda") > HIGH_LEVERAGE && v("korkokate") < GOOD_COVERAGE,
+    title: "Velkaa on paljon, ja liikevoitto kattaa korot vain niukasti",
+    text: "Velka on suuri suhteessa [[EBITDA|käyttökatteeseen]], eikä liikevoitto riitä korkoihin moninkertaisesti. Jos tulos heikkenee tai korot nousevat, velan hoito käy yleensä nopeasti raskaaksi.",
   },
 ];
 

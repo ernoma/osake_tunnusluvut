@@ -196,6 +196,7 @@ describe("Haku ja suodatus", () => {
       "omavaraisuusaste",
       "nettovelkaantumisaste",
       "nettovelka-ebitda",
+      "korkokate",
     ]);
     expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual([
       "Onko yhtiöllä liikaa velkaa?",

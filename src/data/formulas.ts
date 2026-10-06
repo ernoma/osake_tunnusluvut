@@ -45,6 +45,13 @@ export const formulas: readonly Formula[] = [
     positive: ["liikevaihto"],
   },
   {
+    id: "nettomarginaali",
+    target: "nettomarginaali",
+    expr: div("nettotulos", "liikevaihto"),
+    percent: true,
+    positive: ["liikevaihto"],
+  },
+  {
     id: "ttm-kasvu",
     target: "ttm-kasvu",
     expr: sub(div("liikevaihto", "liikevaihto-edellinen"), 1),
@@ -69,6 +76,13 @@ export const formulas: readonly Formula[] = [
     target: "roi",
     expr: div(add("tulos-ennen-veroja", "rahoituskulut"), add("oma-paaoma", "korolliset-velat")),
     percent: true,
+  },
+  {
+    id: "roa",
+    target: "roa",
+    expr: div("nettotulos", "taseen-loppusumma"),
+    percent: true,
+    positive: ["taseen-loppusumma"],
   },
   {
     id: "vapaa-kassavirta",
@@ -115,6 +129,12 @@ export const formulas: readonly Formula[] = [
     target: "nettovelka-ebitda",
     expr: div("nettovelka", "ebitda"),
     positive: ["ebitda"],
+  },
+  {
+    id: "korkokate",
+    target: "korkokate",
+    expr: div("ebit", "rahoituskulut"),
+    positive: ["rahoituskulut"],
   },
   { id: "pe", target: "pe", expr: div("kurssi", "eps"), positive: ["eps"] },
   {

@@ -40,6 +40,7 @@ export const inputs: InputFigure[] = [
     name: "Rahoituskulut",
     unit: "€",
     aliases: ["korkokulut", "financial expenses", "interest expense"],
+    term: "rahoituskulut",
     expense: true,
   },
   {

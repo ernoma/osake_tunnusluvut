@@ -27,6 +27,7 @@ const EXAMPLES: Record<string, { values: Record<string, number>; expected?: numb
   ev: { values: { "markkina-arvo": 50 * M, nettovelka: 20 * M } },
   ebitda: { values: { ebit: 30_000, poistot: 20_000 } },
   "ebit-prosentti": { values: { ebit: 30_000, liikevaihto: 300_000 } },
+  nettomarginaali: { values: { nettotulos: 15_000, liikevaihto: 300_000 } },
   "ttm-kasvu": { values: { liikevaihto: 110 * M, "liikevaihto-edellinen": 100 * M } },
   eps: { values: { nettotulos: 10 * M, "osakkeiden-maara": 5 * M } },
   roe: { values: { nettotulos: 10 * M, "oma-paaoma": 100 * M } },
@@ -38,6 +39,7 @@ const EXAMPLES: Record<string, { values: Record<string, number>; expected?: numb
       "korolliset-velat": 40 * M,
     },
   },
+  roa: { values: { nettotulos: 5 * M, "taseen-loppusumma": 100 * M } },
   "vapaa-kassavirta": { values: { "liiketoiminnan-kassavirta": 50 * M, investoinnit: 20 * M } },
   osinkotuotto: { values: { "osinko-per-osake": 1, kurssi: 25 } },
   osinkosuhde: { values: { "osinko-per-osake": 1, eps: 2 } },
@@ -50,6 +52,7 @@ const EXAMPLES: Record<string, { values: Record<string, number>; expected?: numb
   // Velka 60, kassa 20 ja oma pääoma 80 milj. €
   nettovelkaantumisaste: { values: { nettovelka: 40 * M, "oma-paaoma": 80 * M } },
   "nettovelka-ebitda": { values: { nettovelka: 60 * M, ebitda: 30 * M } },
+  korkokate: { values: { ebit: 30 * M, rahoituskulut: 5 * M } },
   pe: { values: { kurssi: 20, eps: 2 } },
   "pe-markkina-arvosta": { values: { "markkina-arvo": 200 * M, nettotulos: 20 * M } },
   // "Osake maksaa 20 € ja omaa pääomaa on 10 € osaketta kohden": 10 milj. osaketta

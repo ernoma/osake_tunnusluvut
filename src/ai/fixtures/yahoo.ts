@@ -43,6 +43,7 @@ export const yahoo: ExtractionFixture = {
     { id: "ps", value: 3.41 },
     { id: "pb", value: 6.05 },
     { id: "ev-ebitda", value: 15.62 },
+    { id: "nettomarginaali", value: 13.72 },
     { id: "roe", value: 26.18 },
     { id: "liikevaihto", value: 15.35e9 },
     { id: "ebitda", value: 3.77e9 },
@@ -112,6 +113,14 @@ export const yahoo: ExtractionFixture = {
         period: "ttm",
         year: null,
         quote: "Enterprise Value/EBITDA 15.62",
+        currency: null,
+      },
+      {
+        id: "nettomarginaali",
+        value: 13.72,
+        period: "ttm",
+        year: null,
+        quote: "Profit Margin 13.72%",
         currency: null,
       },
       {

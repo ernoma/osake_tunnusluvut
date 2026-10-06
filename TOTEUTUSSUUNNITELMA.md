@@ -17,7 +17,7 @@ Aikuinen, joka on nähnyt tunnuslukuja esimerkiksi pankin sovelluksessa, osakeve
    - mitä muita tunnuslukuja kannattaa katsoa rinnalla
 2. **Aloittelija ymmärtää kortin ilman muita lähteitä.** Jokainen vaikea sana on selitetty samassa näkymässä. Tätä mitataan käyttäjätestillä (kohta 7).
 3. Uuden tunnusluvun lisääminen onnistuu **lisäämällä yksi tietue datatiedostoon**, eikä koodia tarvitse muuttaa.
-4. Käyttöliittymä pysyy selkeänä, vaikka tunnuslukuja olisi 27 sijaan 50.
+4. Käyttöliittymä pysyy selkeänä, vaikka tunnuslukuja olisi 30 sijaan 50.
 
 **Rajaukset**
 
@@ -218,7 +218,7 @@ Sivun alussa, heti otsikon ja haun alla ja ennen johdantopaneelia, on sisällysl
 ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
 │  Osakkeen tunnusluvut – selkokielellä                                 [🔍 Hae...]  [☾]       │
 ├──────────────────────────────────────────────────────────────────────────────────────────────┤
-│ ▾ TUNNUSLUVUT A–Ö (27)  Pienennä                                                             │
+│ ▾ TUNNUSLUVUT A–Ö (30)  Pienennä                                                             │
 │ EBIT          │ Liikevaihto           │ Oman pääoman tuotto  │ Osinkotuotto  │ ROE           │
 │ EBIT-%        │ Liikevoitto           │ Omavaraisuusaste     │ P/B-luku      │ Yritysarvo    │
 │ EPS           │ Liikevoittoprosentti  │ Osakekohtainen tulos │ P/E-luku      │               │
@@ -232,7 +232,7 @@ Pienennettynä (oletus mobiilissa) luettelo on yksi rivi, joka pysyy sivun ylär
 
 ```
 ┌─────────────────────────────────────┐
-│ ▸ TUNNUSLUVUT A–Ö (27)  Näytä       │
+│ ▸ TUNNUSLUVUT A–Ö (30)  Näytä       │
 ├─────────────────────────────────────┤
 │ [Kaikki] [Koko] [Kannattavuus] …    │  ← suodatinpalkki kiinnittyy luettelon alle
 └─────────────────────────────────────┘
@@ -250,7 +250,7 @@ Pienennettynä (oletus mobiilissa) luettelo on yksi rivi, joka pysyy sivun ylär
 - **Palstat CSS:n `columns`-ominaisuudella** (`columns: 9.25rem`): selain päättää palstojen määrän leveyden mukaan, eikä palstamäärää kirjoiteta koodiin. Palstat täyttyvät ylhäältä alas, joten aakkosjärjestys luetaan palsta kerrallaan, ja DOM-järjestys on sama kuin lukujärjestys ruudunlukijalle.
 - 22 riviä mahtuu tietokoneen näytöllä (1280 px) kuuteen palstaan ja **neljään riviin**, ja 800 px leveydellä neljään palstaan ja kuuteen riviin. 50 tunnusluvullakin rivejä on noin 10–12.
 - Tiivis typografia: fonttikoko noin 0,9 × perusfontti, riviväli noin 1,5 eikä ylimääräisiä välejä rivien välissä. Palstan leveys valitaan niin, että pisinkin nimi ("Nettovelkaantumisaste") mahtuu yhdelle riville. Jos nimi kapealla näytöllä kuitenkin rivittyy, `break-inside: avoid` estää sitä jakautumasta kahdelle palstalle.
-- Otsikkorivi "Tunnusluvut A–Ö (27)" on pieni ja heti luettelon yläpuolella. Ei kehystä eikä korttimaista taustaa, jotka lisäisivät pystysuuntaista täytettä.
+- Otsikkorivi "Tunnusluvut A–Ö (30)" on pieni ja heti luettelon yläpuolella. Ei kehystä eikä korttimaista taustaa, jotka lisäisivät pystysuuntaista täytettä.
 - Palstojen välissä on **kevyt pystyviiva** (`column-rule: 1px solid var(--color-border)`), joka erottaa palstat toisistaan viemättä yhtään riviä lisää.
 - Ei kirjainväliotsikoita (A, E, L …), koska ne lisäisivät rivejä. Alkukirjaimet erottuvat riittävästi ilman niitä.
 - **Mobiilissa** (alle noin 600 px) luettelo on kahdessa palstassa.
@@ -440,16 +440,16 @@ Toisen sivun (Tutki osaketta) tiedostot ovat kohdassa 11.8.
 - **Kosketus:** painikkeiden kosketusalue on vähintään 44 × 44 px.
 - **Vastuuvapauslauseke:** näkyy sivun alareunassa ja johdannossa ystävällisellä sävyllä: *"Tämä on opas tunnuslukujen ymmärtämiseen, ei sijoitusneuvontaa. Sijoittamiseen liittyy aina riski."*
 
-## 6. Sisältö: 27 tunnuslukua
+## 6. Sisältö: 30 tunnuslukua
 
 Tämä on luonnos `metrics.ts`-tiedoston sisällöstä. Tekstit viimeistellään vaiheessa 3 kohdan 2 periaatteiden mukaisiksi.
 
 **Tasot**
 
 - **Perus:** Markkina-arvo, Liikevaihto, EBIT, EBIT-%, EPS, Osinko/osake, Osinkotuotto, Omavaraisuusaste, P/E
-- **Syventävä:** EV, TTM-kasvu, EBITDA, Liiketoiminnan kassavirta, Vapaa kassavirta, ROE, ROI, Osinkosuhde, Nettovelkaantumisaste, Nettovelka/EBITDA, P/B, PEG, P/S, EV/EBIT, EV/EBITDA, EV/Sales, Kassavirtatuotto, P/FCF
+- **Syventävä:** EV, TTM-kasvu, EBITDA, Nettomarginaali, Liiketoiminnan kassavirta, Vapaa kassavirta, ROE, ROI, ROA, Osinkosuhde, Nettovelkaantumisaste, Nettovelka/EBITDA, Korkokate, P/B, PEG, P/S, EV/EBIT, EV/EBITDA, EV/Sales, Kassavirtatuotto, P/FCF
 
-TTM-kasvu, EBITDA ja EV/Sales lisättiin vaiheessa 8d ja kohdan 6.6b luvut vaiheessa 8e sekä P/FCF vaiheessa 8f ja Liiketoiminnan kassavirta vaiheessa 8g (kohta 7).
+TTM-kasvu, EBITDA ja EV/Sales lisättiin vaiheessa 8d ja kohdan 6.6b luvut vaiheessa 8e sekä P/FCF vaiheessa 8f ja Liiketoiminnan kassavirta vaiheessa 8g (kohta 7). Korkokate, nettomarginaali ja ROA lisättiin vaiheessa 15 (kohta 6.6e).
 
 ### 6.1 Koko: Kuinka iso yhtiö on?
 
@@ -588,6 +588,34 @@ Vapaa kassavirta lasketaan liiketoiminnan kassavirrasta vähentämällä investo
 - Tunnuslukuja on tämän jälkeen 27. Lukumäärät on päivitetty kohtiin 1, 5.1b ja 6.
 
 **Linkit:** Suomenkielinen linkki on Wikipedian artikkeli "Kassavirta", joka selittää kassavirtalaskelman kolme osaa (juokseva kassavirta, investoinnit ja rahoitus). Se sopii tälle kortille paremmin kuin vapaalle kassavirralle, jolta se aiemmin poistettiin. Englanninkielinen linkki on Investopedian "Operating cash flow" -artikkeli, jossa on kaava ja esimerkki oikeasta rahavirtalaskelmasta.
+
+### 6.6e Korkokate, nettomarginaali ja ROA (vaihe 15)
+
+Kolme syventävää tunnuslukua, jotka lasketaan olemassa olevista lähtötiedoista ja jotka näkyvät oikeilla sivuilla (kohta 12.3). Korkokate täydentää velan kantokykyä: nettovelka/EBITDA kertoo velan määrän suhteessa käyttökatteeseen, korkokate sen, riittääkö liikevoitto korkoihin. Nettomarginaali jatkaa EBIT-%:a korkojen ja verojen jälkeen. ROA täydentää ROE:ta ja ROI:ta: velka ei nosta sitä.
+
+| Tunnusluku | Kategoria | Kysymys | Kaava sanoin | Suunta | Tärkeimmät säännöt | ⚠ Yleinen virhe | Vertaus | Katso rinnalla |
+|---|---|---|---|---|---|---|---|---|
+| **Korkokate** (syventävä) | Velka | Riittääkö yhtiön liikevoitto velkojen korkoihin, ja kuinka moneen kertaan? | Liikevoitto ÷ rahoituskulut | ↑ Suurempi = yleensä vähäriskisempi | Alle 1,5 on heikko ja yli 3 hyvä (nyrkkisääntö). Alle 1 liikevoitto ei riitä korkoihin. Vakaat alat pärjäävät pienemmällä luvulla. Katso usean vuoden kehitystä. | Katsotaan vain velan määrää, vaikka kohtuullinenkin velka on raskas, jos liikevoitto riittää korkoihin niukasti | Kuinka monta kertaa arjen menojen jälkeen jäävä raha riittäisi asuntolainan korkoon | Nettovelka/EBITDA, EBIT, Nettovelkaantumisaste |
+| **Nettomarginaali, nettotulos-%** (syventävä) | Kannattavuus | Montako senttiä jokaisesta myydystä eurosta jää lopulta omistajille? | Nettotulos ÷ liikevaihto × 100 % | ↑ Suurempi = yleensä parempi | Vertaa vain saman alan yhtiöihin, koska yleisiä ohjearvoja ei ole. Jos luku on paljon EBIT-%:a pienempi, korot tai kertaerät vievät suuren osan voitosta. Nouseva suunta on hyvä merkki. | Katsotaan vain liikevoittoa, vaikka velkaiselle yhtiölle jää korkojen jälkeen vähän | EBIT-%:n vertaus, mutta korkojen ja verojen jälkeen | EBIT-%, EPS, ROA |
+| **ROA, kokonaispääoman tuotto** (syventävä) | Kannattavuus | Kuinka paljon tulosta yhtiö saa irti kaikesta omaisuudestaan? | Nettotulos ÷ taseen loppusumma × 100 % | ↑ Suurempi = yleensä parempi | Yli 5 % on usein hyvä ja yli 20 % erinomainen (nyrkkisääntö). Pankeilla ja paljon omaisuutta tarvitsevilla aloilla taso on matala. Jos ROE on paljon ROA:ta korkeampi, ero johtuu velasta. | Verrataan eri alojen yhtiöitä, vaikka kevyen taseen yhtiön ROA näyttää helposti suurelta | Kesämökin vuokratuotto suhteessa mökin koko hintaan, lainasta riippumatta | ROE, ROI, Omavaraisuusaste |
+
+**Lisäyksen vaatimat muut muutokset**
+
+- Sanastoon termi **rahoituskulut** (muodot "rahoituskulu", "korkokulut"), johon myös lähtötieto `rahoituskulut` viittaa. Korkokatteen tiivistelmä tarvitsee sen.
+- Kaavat `formulas.ts`:ään: korkokate (nimittäjä rahoituskulut `positive`-listassa), nettomarginaali (liikevaihto `positive`-listassa kuten EBIT-%:lla) ja ROA (taseen loppusumma `positive`-listassa). Uusia lähtötietoja ei tarvittu.
+- Rinnakkaisviittaukset molempiin suuntiin: Nettovelka/EBITDA ↔ Korkokate, EBIT-% ↔ Nettomarginaali ja ROE ↔ ROA. EBIT-kortin sudenkuoppa, jossa korkokulut mainitaan, viittaa nyt korkokatteeseen (`[[Korkokate]]`).
+- Alias "pääoman tuotto" poistettiin ROI:lta. Nordnet käyttää nimeä "Pääoman tuotto (ROA)" kokonaispääoman tuotosta, joten alias olisi ohjannut tekoälyn väärään lukuun.
+- Aliakset: "nettotulos-%", "nettotulosprosentti", "net margin", "net profit margin", "profit margin" (Yahoo), "return on assets", "kokonaispääoman tuottoprosentti", "korkokatekerroin", "interest coverage", "times interest earned".
+- Sisällysluetteloon tulee lyhennerivi **ROA**. Korkokatteella ja nettomarginaalilla ei ole lyhennettä.
+- Yhdistelmähuomio **velka-ja-korot** (kohta 12.1).
+- Tunnuslukuja on tämän jälkeen 30. Lukumäärät on päivitetty kohtiin 1, 5.1b ja 6.
+
+**Toteutuksessa tarkistettua (vaihe 15)**
+
+- **Korkokate:** Investopedian mukaan 1,5 tai alle on matala, alle 1 ei riitä korkoihin, ja suhdanneherkillä aloilla vähimmäistaso on usein 3. Välit alle 1, 1–1,5, 1,5–3 ja yli 3 perustuvat tähän. Suomenkielisissä lähteissä "korkokate" tarkoittaa pankkien tuloslaskelmassa korkotuottojen ja -kulujen erotusta euroina. Tästä varoitetaan kortin sudenkuopissa, ja kerroinyksikkö erottaa luvut tekoälyhaussa.
+- **Nettomarginaali:** Wikipedian mukaan nettotulosprosentille ei ole yleisiä ohjearvoja. Välit (negatiivinen, alle 5 %, 5–10 % ja yli 15 %) ovat omia, EBIT-%:n väleistä johdettuja arvioita, ja välien huomautus sanoo sen. Wikipedia jakaa liiketoiminnan tuotoilla eikä liikevaihdolla, mikä kerrotaan kaavan huomautuksessa.
+- **ROA:** välit yli 5 % hyvä ja yli 20 % erinomainen sekä pankkien noin 1 % ovat Investopediasta.
+- **Linkit:** Suomenkielinen linkki on vain nettomarginaalilla (Wikipedia "Nettotulos"). Suomen Wikipediassa ei ole artikkeleita korkokatteesta eikä kokonaispääoman tuotosta, eikä aloittelijan tasoista suomenkielistä lähdettä löytynyt, joten niillä on vain Investopedian linkki (testi antaa varoituksen). Investopedia estää automaattisen haun, joten sivut luettiin selaimessa.
 
 ### 6.7 Lisälukemista: linkit muille sivustoille
 
@@ -1060,6 +1088,7 @@ Ideat koottiin 2026-10-04 sovelluksen ja tämän suunnitelman pohjalta. Ensimmä
 | EV/EBIT vähintään P/E | molemmat > 0 ja EV/EBIT ≥ P/E | Velattomalla yhtiöllä EV/EBIT on yleensä P/E:tä pienempi, koska liikevoitosta ei ole vähennetty veroja. Jos se on yhtä suuri tai suurempi, syy on yleensä velka. |
 | P/E yli kaksinkertainen EV/EBIT:iin | molemmat > 0 ja P/E ≥ 2 × EV/EBIT | Suuri kassa pienentää EV:tä, tai korot ja kertaerät pienentävät nettotulosta |
 | Velka ja osinko | nettovelka/EBITDA > 3 ja osinkosuhde > 70 % | Korttien nyrkkisäännöt: yli 3 on paljon velkaa, ja 30–70 % on usein kestävä osinkosuhde |
+| Velka ja korot (vaihe 15) | nettovelka/EBITDA > 3 ja korkokate < 3 | Korttien nyrkkisäännöt: nettovelka/EBITDA yli 3 on paljon velkaa, ja vasta yli 3:n korkokate on hyvä. Yhdessä luvut kertovat, että velkaa on paljon ja sen korot vievät suuren osan liikevoitosta. |
 
 Ehdokassääntö "P/E ja EV/EBIT eroavat selvästi" jaettiin kahdeksi säännöksi, koska ero eri suuntiin tarkoittaa eri asiaa.
 
@@ -1087,6 +1116,8 @@ Ehdokassääntö "P/E ja EV/EBIT eroavat selvästi" jaettiin kahdeksi säännök
 - Lisäys tehdään README:n ohjeella ja kohdan 9 tarkistuslistalla, ja se kirjataan kohtaan 6 kuten vaiheissa 8d–8g.
 - Korkokatteen nimittäjä merkitään `positive`-listaan. Rahoituskulut voivat olla nolla, jolloin korkokatetta ei lasketa.
 - Testiaineistoon (`src/ai/fixtures/`) lisätään odotetut luvut niihin teksteihin, joissa uudet luvut ovat. Eval ajetaan kolmella toistolla (`EVAL_RUNS=3`), ja tulokset kirjataan.
+
+**Toteutus (vaihe 15):** kortit, kaavat ja muut muutokset on kirjattu kohtaan 6.6e. Esimerkkiyhtiö laskee uudet luvut ilman muutoksia (korkokate 4,7, nettomarginaali 4,4 % ja ROA 4,9 %), eikä uusi yhdistelmähuomio laukea siinä (nettovelka/EBITDA 2,7). Testiaineistoon lisättiin odotetut luvut: Yahoon "Profit Margin" on nettomarginaali, Nordnetin tekstiin lisättiin rivi "Pääoman tuotto (ROA)" ja Kauppalehden tekstiin rivi "Kokonaispääoman tuotto, %" oikeiden sivujen nimillä. Tilinpäätösaineistoista korkokate, nettomarginaali ja ROA lasketaan, joten niihin ei tullut uusia poimittavia lukuja.
 
 ### 12.4 Muut ideat (järjestys avoin)
 

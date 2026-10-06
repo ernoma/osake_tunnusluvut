@@ -42,6 +42,10 @@ const examples: Record<string, { fires: Record<string, number>; quiet: Record<st
     fires: { "nettovelka-ebitda": 4, osinkosuhde: 80 },
     quiet: { "nettovelka-ebitda": 2, osinkosuhde: 80 },
   },
+  "velka-ja-korot": {
+    fires: { "nettovelka-ebitda": 4, korkokate: 2 },
+    quiet: { "nettovelka-ebitda": 4, korkokate: 5 },
+  },
 };
 
 describe("yhdistelmähuomiot", () => {

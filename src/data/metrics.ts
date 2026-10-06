@@ -322,7 +322,7 @@ export const metrics: Metric[] = [
       "Vertailukelpoinen EBIT on luku, josta yhtiö on poistanut kertaerät. Yhtiöt määrittelevät sen hieman eri tavoin.",
     ],
     pitfalls: [
-      "Hyvä EBIT ei takaa hyvää lopputulosta omistajalle, jos yhtiöllä on paljon velkaa ja korkokulut ovat suuret.",
+      "Hyvä EBIT ei takaa hyvää lopputulosta omistajalle, jos yhtiöllä on paljon velkaa ja korkokulut ovat suuret. Sen kertoo [[Korkokate]].",
     ],
     companions: [
       { id: "liikevaihto", reason: "Näyttää, mistä voitto on syntynyt." },
@@ -422,6 +422,10 @@ export const metrics: Metric[] = [
       { id: "liikevaihto", reason: "Kasvaako myynti samalla, kun kannattavuus paranee?" },
       { id: "ps", reason: "Hyvä kate oikeuttaa korkeamman hinnan suhteessa myyntiin." },
       { id: "roe", reason: "Kertoo, kuinka hyvin voitto tuottaa omistajien rahalle." },
+      {
+        id: "nettomarginaali",
+        reason: "Kate korkojen ja verojen jälkeen: paljonko jää omistajille?",
+      },
     ],
     links: [
       {
@@ -439,6 +443,90 @@ export const metrics: Metric[] = [
         language: "en",
         kind: "esimerkki",
         checkedAt: "2026-09-25",
+      },
+    ],
+  },
+  {
+    id: "nettomarginaali",
+    name: "Nettomarginaali",
+    aliases: [
+      "nettotulos-%",
+      "nettotulosprosentti",
+      "net margin",
+      "net profit margin",
+      "profit margin",
+    ],
+    category: "kannattavuus",
+    level: "syventava",
+    question: "Montako senttiä jokaisesta myydystä eurosta jää lopulta omistajille?",
+    summary:
+      "Kertoo, montako prosenttia myynnistä jää [[nettotulos|nettotulokseksi]], kun myös korot ja verot on maksettu. Kuin [[EBIT-%]], mutta loppuun asti.",
+    analogy:
+      "Jos myyt tuotteen 100 eurolla ja kulujen, lainan korkojen ja verojen jälkeen omaan taskuun jää 5 €, nettomarginaali on 5 %.",
+    formula: {
+      words: "Nettotulos ÷ liikevaihto × 100 %",
+      note: "Toinen nimi on nettotulosprosentti. Jotkut lähteet jakavat liikevaihdon sijaan kaikilla liiketoiminnan tuotoilla, mikä muuttaa lukua yleensä vain vähän.",
+    },
+    example:
+      "Liikevaihto on 300 000 € ja nettotulos 15 000 €. Nettomarginaali = 15 000 ÷ 300 000 × 100 % = 5 %.",
+    unit: "%",
+    direction: "higher",
+    directionLabel: "Suurempi = yleensä parempi",
+    rules: [
+      "Vertaa vain saman [[toimiala|alan]] yhtiöihin: yleisiä ohjearvoja ei ole.",
+      "Jos nettomarginaali on paljon EBIT-%:a pienempi, korot tai [[kertaerä|kertaerät]] vievät suuren osan voitosta.",
+      "Nouseva suunta vuodesta toiseen on hyvä merkki.",
+    ],
+    commonMistake:
+      "Katsotaan vain liikevoittoa. Velkainen yhtiö voi tehdä hyvää liikevoittoa, mutta korkojen jälkeen omistajille jää vähän.",
+    factors: [
+      "Velka: korot pienentävät nettotulosta mutta eivät liikevoittoa, joten velkaisella yhtiöllä ero EBIT-%:iin on suuri.",
+      "Verot: verokanta vaihtelee maittain, mikä vaikeuttaa eri maiden yhtiöiden vertailua.",
+      "[[kertaerä|Kertaerät]], kuten liiketoiminnan myynti, voivat heilauttaa yhden vuoden lukua paljon.",
+    ],
+    pitfalls: [
+      "Korkea nettomarginaali ei yksin kerro, onko osake hyvä sijoitus. Hinta voi olla jo valmiiksi korkea.",
+    ],
+    ranges: [
+      { label: "Negatiivinen", max: 0, meaning: "Yhtiö tekee tappiota.", tone: "warning" },
+      {
+        label: "Alle 5 %",
+        min: 0,
+        max: 5,
+        meaning: "Matala. Tavallinen esimerkiksi kaupan alalla.",
+        tone: "neutral",
+      },
+      { label: "5–10 %", min: 5, max: 10, meaning: "Tavallinen monella alalla.", tone: "neutral" },
+      {
+        label: "Yli 15 %",
+        min: 15,
+        meaning: "Korkea, tyypillinen esimerkiksi ohjelmistoyhtiöille.",
+        tone: "good",
+      },
+    ],
+    rangesNote:
+      "Suuntaa antava arvio. Yleisiä ohjearvoja ei ole, joten vertaa saman alan yhtiöihin.",
+    companions: [
+      { id: "ebit-prosentti", reason: "Ero kertoo, paljonko korot ja verot vievät liikevoitosta." },
+      { id: "eps", reason: "Sama nettotulos osaketta kohden." },
+      { id: "roa", reason: "Suhteuttaa saman nettotuloksen yhtiön koko omaisuuteen." },
+    ],
+    links: [
+      {
+        title: "Nettotulos ja nettotulosprosentti: miksi yleisiä ohjearvoja ei ole",
+        url: "https://fi.wikipedia.org/wiki/Nettotulos",
+        sourceId: "wikipedia-fi",
+        language: "fi",
+        kind: "selitys",
+        checkedAt: "2026-10-06",
+      },
+      {
+        title: "Net profit margin: formula and a real company example",
+        url: "https://www.investopedia.com/terms/n/net_margin.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "esimerkki",
+        checkedAt: "2026-10-06",
       },
     ],
   },
@@ -735,6 +823,7 @@ export const metrics: Metric[] = [
         id: "roi",
         reason: "Tuotto koko sijoitetulle pääomalle. Suuri ero ROE:hen kertoo velasta.",
       },
+      { id: "roa", reason: "Tuotto kaikelle omaisuudelle, jolloin velka ei nosta lukua." },
     ],
     links: [
       {
@@ -766,7 +855,6 @@ export const metrics: Metric[] = [
       "return on capital employed",
       "sijoitetun pääoman tuottoprosentti",
       "sijoitetun pääoman tuottoaste",
-      "pääoman tuotto",
     ],
     category: "kannattavuus",
     level: "syventava",
@@ -831,6 +919,80 @@ export const metrics: Metric[] = [
         language: "fi",
         kind: "esimerkki",
         checkedAt: "2026-09-26",
+      },
+    ],
+  },
+  {
+    id: "roa",
+    name: "Kokonaispääoman tuotto",
+    abbreviation: "ROA",
+    abbreviationExpanded: "Return On Assets = kokonaispääoman tuotto",
+    aliases: ["return on assets", "kokonaispääoman tuottoprosentti", "kokonaispääoman tuottoaste"],
+    category: "kannattavuus",
+    level: "syventava",
+    question: "Kuinka paljon tulosta yhtiö saa irti kaikesta omaisuudestaan?",
+    summary:
+      "[[nettotulos|Nettotulos]] prosentteina [[tase|taseen loppusummasta]] eli kaikesta yhtiön omaisuudesta. Velka ei nosta lukua samalla tavalla kuin [[ROE|ROE:ta]].",
+    analogy:
+      "Kesämökin vuokratuotto suhteessa mökin koko hintaan, riippumatta siitä, paljonko mökistä on maksettu lainalla. Kallis mökki ei ole hyvä sijoitus, jos vuokraa tulee vähän.",
+    formula: {
+      words: "Nettotulos ÷ taseen loppusumma × 100 %",
+      note: "Taseen loppusumma on sama luku kuin varat yhteensä. Usein käytetään vuoden alun ja lopun keskiarvoa. Jotkut palvelut lisäävät tulokseen rahoituskulut, jolloin luku on hieman suurempi.",
+    },
+    example:
+      "Nettotulos on 5 milj. € ja taseen loppusumma 100 milj. €. ROA = 5 ÷ 100 × 100 % = 5 %.",
+    unit: "%",
+    direction: "higher",
+    directionLabel: "Suurempi = yleensä parempi",
+    rules: [
+      "Yli 5 % on usein hyvä ja yli 20 % erinomainen (nyrkkisääntö).",
+      "Pankeilla ja paljon omaisuutta tarvitsevilla aloilla taso on luonnostaan matala.",
+      "Jos ROE on paljon ROA:ta korkeampi, ero johtuu velasta.",
+    ],
+    commonMistake:
+      "Verrataan eri alojen yhtiöitä. Ohjelmistoyhtiöllä on taseessa vähän omaisuutta, joten sen ROA näyttää helposti suurelta.",
+    factors: [
+      "Kevyillä aloilla, kuten ohjelmistoissa ja palveluissa, taseessa on vähän omaisuutta, joten ROA on usein korkea.",
+      "Suuret [[investointi|investoinnit]] kasvattavat omaisuutta heti mutta tulosta vasta myöhemmin, joten ROA laskee hetkeksi.",
+      "[[kertaerä|Kertaerät]] voivat nostaa tai laskea yhden vuoden lukua.",
+    ],
+    pitfalls: [
+      "Taseen arvot voivat poiketa omaisuuden todellisesta arvosta, varsinkin vanhoissa tehtaissa ja kiinteistöissä.",
+    ],
+    ranges: [
+      { label: "Negatiivinen", max: 0, meaning: "Yhtiö tekee tappiota.", tone: "warning" },
+      {
+        label: "Alle 5 %",
+        min: 0,
+        max: 5,
+        meaning: "Matala. Tavallinen pankeille ja paljon omaisuutta tarvitseville aloille.",
+        tone: "neutral",
+      },
+      { label: "5–20 %", min: 5, max: 20, meaning: "Hyvä.", tone: "good" },
+      {
+        label: "Yli 20 %",
+        min: 20,
+        meaning: "Erinomainen. Tavallinen aloilla, joilla on vähän omaisuutta.",
+        tone: "good",
+      },
+    ],
+    rangesNote: "Nyrkkisääntö. Pankeilla tavallinen taso on noin 1 %.",
+    companions: [
+      { id: "roe", reason: "Tuotto pelkälle omalle pääomalle. Suuri ero ROA:han kertoo velasta." },
+      { id: "roi", reason: "Tuotto omalle pääomalle ja korollisille veloille yhdessä." },
+      {
+        id: "omavaraisuusaste",
+        reason: "Kertoo, kuinka suuri osa omaisuudesta on rahoitettu omalla rahalla.",
+      },
+    ],
+    links: [
+      {
+        title: "Return on assets: formula, industry differences and good levels",
+        url: "https://www.investopedia.com/terms/r/returnonassets.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "selitys",
+        checkedAt: "2026-10-06",
       },
     ],
   },
@@ -1338,6 +1500,7 @@ export const metrics: Metric[] = [
       },
       { id: "ebitda", reason: "Luvun jakaja: kuinka vakaa käyttökate on?" },
       { id: "omavaraisuusaste", reason: "Toinen näkökulma velkaisuuteen, koko taseen kautta." },
+      { id: "korkokate", reason: "Riittääkö liikevoitto velan korkoihin?" },
     ],
     links: [
       {
@@ -1347,6 +1510,98 @@ export const metrics: Metric[] = [
         language: "en",
         kind: "esimerkki",
         checkedAt: "2026-09-26",
+      },
+    ],
+  },
+  {
+    id: "korkokate",
+    name: "Korkokate",
+    aliases: [
+      "korkokatekerroin",
+      "interest coverage",
+      "interest coverage ratio",
+      "times interest earned",
+    ],
+    category: "velka",
+    level: "syventava",
+    question: "Riittääkö yhtiön liikevoitto velkojen korkoihin, ja kuinka moneen kertaan?",
+    summary:
+      "[[EBIT|Liikevoitto]] jaettuna [[rahoituskulut|rahoituskuluilla]]. Kertoo, montako kertaa liikevoitto riittäisi vuoden korkoihin.",
+    analogy:
+      "Kuinka monta kertaa tilillesi arjen menojen jälkeen jäävä raha riittäisi asuntolainan korkoon. Jos se riittää vain juuri ja juuri, pienikin tulojen lasku tekee maksamisesta vaikeaa.",
+    formula: {
+      words: "Liikevoitto ÷ rahoituskulut",
+      symbols: "EBIT ÷ rahoituskulut",
+      note: "Rahoituskuluissa voi olla korkojen lisäksi muita eriä, kuten valuuttakurssitappioita. Jotkut palvelut laskevat luvun käyttökatteesta, jolloin se on suurempi.",
+    },
+    example: "Liikevoitto on 30 milj. € ja rahoituskulut 5 milj. €. Korkokate = 30 ÷ 5 = 6.",
+    unit: "x",
+    direction: "higher",
+    directionLabel: "Suurempi = yleensä vähäriskisempi",
+    rules: [
+      "Alle 1,5 on heikko ja yli 3 hyvä (nyrkkisääntö). Alle 1 liikevoitto ei riitä korkoihin.",
+      "Vakaat alat, kuten sähköyhtiöt, pärjäävät pienemmällä luvulla kuin suhdanneherkät alat.",
+      "Katso usean vuoden kehitystä: korkojen nousu ja tuloksen lasku painavat lukua alas.",
+    ],
+    commonMistake:
+      "Katsotaan vain velan määrää. Kohtuullinenkin velka on raskas, jos liikevoitto riittää korkoihin vain niukasti.",
+    factors: [
+      "Korkotaso: kun korot nousevat ja vanhat lainat uusitaan kalliimmilla, korkokate laskee, vaikka velka ei kasva.",
+      "Suhdanneherkällä yhtiöllä liikevoitto voi pudota nopeasti, jolloin korkokate romahtaa.",
+      "Lainanantajat seuraavat lukua: matalalla korkokatteella uutta lainaa on vaikea tai kallis saada.",
+    ],
+    pitfalls: [
+      "Pankkien tuloslaskelmassa korkokate tarkoittaa eri asiaa: korkotuottojen ja korkokulujen erotusta euroina. Se ei ole tämä kerroin.",
+      "Jos yhtiöllä on hyvin vähän velkaa, luku voi olla valtava. Silloin se ei kerro paljon.",
+    ],
+    ranges: [
+      {
+        label: "Alle 1",
+        max: 1,
+        meaning: "Liikevoitto ei riitä korkoihin.",
+        tone: "warning",
+      },
+      {
+        label: "1–1,5",
+        min: 1,
+        max: 1.5,
+        meaning: "Heikko. Tuloksen lasku voi vaikeuttaa korkojen maksua.",
+        tone: "warning",
+      },
+      {
+        label: "1,5–3",
+        min: 1.5,
+        max: 3,
+        meaning: "Tyydyttävä. Vakailla aloilla usein riittävä.",
+        tone: "neutral",
+      },
+      {
+        label: "Yli 3",
+        min: 3,
+        meaning: "Liikevoitto kattaa korot moninkertaisesti.",
+        tone: "good",
+      },
+    ],
+    rangesNote: "Nyrkkisääntö. Vakailla aloilla pienempi luku riittää.",
+    companions: [
+      {
+        id: "nettovelka-ebitda",
+        reason: "Toinen näkökulma velan kantokykyyn: velan määrä suhteessa käyttökatteeseen.",
+      },
+      { id: "ebit", reason: "Luvun pohja: kuinka vakaa liikevoitto on?" },
+      {
+        id: "nettovelkaantumisaste",
+        reason: "Kertoo, paljonko velkaa on suhteessa omistajien rahaan.",
+      },
+    ],
+    links: [
+      {
+        title: "Interest coverage ratio: formula, example and what a low ratio means",
+        url: "https://www.investopedia.com/terms/i/interestcoverageratio.asp",
+        sourceId: "investopedia",
+        language: "en",
+        kind: "esimerkki",
+        checkedAt: "2026-10-06",
       },
     ],
   },

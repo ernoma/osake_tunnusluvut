@@ -21,6 +21,7 @@ export const kauppalehti: ExtractionFixture = {
     row("Efektiivinen osinkotuotto", "5,2 %"),
     row("Oma pääoma/osake", "7,10 €"),
     row("P/B-luku", "1,22"),
+    row("Kokonaispääoman tuotto, %", "6,3"),
   ].join("\n"),
   expected: [
     { id: "kurssi", value: 8.652 },
@@ -31,6 +32,7 @@ export const kauppalehti: ExtractionFixture = {
     { id: "osinko-per-osake", value: 0.45 },
     { id: "osinkotuotto", value: 5.2 },
     { id: "pb", value: 1.22 },
+    { id: "roa", value: 6.3 },
   ],
   response: {
     company: { name: "Testikone Oyj", ticker: "TKONE", currency: "EUR", priceCurrency: null },
@@ -85,6 +87,14 @@ export const kauppalehti: ExtractionFixture = {
         currency: null,
       },
       { id: "pb", value: 1.22, period: "ttm", year: null, quote: "P/B-luku 1,22", currency: null },
+      {
+        id: "roa",
+        value: 6.3,
+        period: "toteutunut",
+        year: null,
+        quote: "Kokonaispääoman tuotto, % 6,3",
+        currency: null,
+      },
       // Tahallinen virhe: kaksoiskappale, jossa on eri arvo.
       {
         id: "pe",
