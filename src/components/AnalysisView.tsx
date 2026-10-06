@@ -1,15 +1,18 @@
 // Analyysi: tunnusluvut kategorioittain samoin kysymysotsikoin kuin päänäkymässä (suunnitelman
 // kohta 11.5). Kategorian lopussa kerrotaan, mitkä tunnusluvut puuttuvat ja mitä niihin tarvitaan.
+// Ennen kategorioita näkyvät yhdistelmähuomiot (kohta 12.1).
 
 import { useId, useLayoutEffect, useRef, useState } from "react";
 import { missingInputs } from "../data/analysis.ts";
 import { groupByCategory, metrics } from "../data/content.ts";
 import type { Unconverted } from "../data/currency.ts";
 import type { CalculationResult } from "../data/formulas.ts";
+import { evaluateInsights } from "../data/insights.ts";
 import type { Metric } from "../data/types.ts";
 import type { AnalysisFigure } from "../hooks/useAnalysisUrl.ts";
 import AnalysisRow from "./AnalysisRow.tsx";
 import { addButtonId, rowHeadingId } from "./analysisIds.ts";
+import InsightList from "./InsightList.tsx";
 import MissingList, { type MissingItem } from "./MissingList.tsx";
 import styles from "./AnalysisView.module.css";
 
@@ -68,6 +71,8 @@ export default function AnalysisView({
           ? "Tunnusluvut näkyvät tässä, kun lisäät lukuja. Alla näet, mitä kuhunkin tarvitaan."
           : `Tunnuslukuja: ${shownCount} / ${metrics.length}. Nyrkkisäännöt ovat suuntaa antavia, ja tavallinen taso vaihtelee toimialoittain. Vertaa aina saman alan yhtiöihin.`}
       </p>
+
+      <InsightList insights={evaluateInsights(result.figures)} currency={currency} />
 
       {groups.map(({ category, metrics: inCategory }) => {
         const shown = inCategory.filter((m) => result.figures.has(m.id));

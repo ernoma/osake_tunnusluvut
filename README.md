@@ -168,6 +168,8 @@ Merkkirajat koskevat näkyvää tekstiä: `[[oma pääoma|omasta pääomasta]]` 
 
 **Laskenta.** Jos luvun voi laskea muista luvuista, lisää kaava tiedostoon `src/data/formulas.ts` ja kaavan lähtöluvut, jotka eivät ole tunnuslukuja (esim. kurssi tai oma pääoma), tiedostoon `src/data/inputs.ts`. Lisää kaavalle testiesimerkki tiedostoon `src/data/formulas.test.ts`. Testi tarkistaa, että kaava tuottaa kortin esimerkin tuloksen. Kertoimen nimittäjä merkitään `positive`-listaan, jotta esimerkiksi tappiolliselle yhtiölle ei lasketa P/E:tä.
 
+**Yhdistelmähuomiot.** Jos uusi luku kertoo yhdessä toisen luvun kanssa jotain, mitä kumpikaan ei kerro yksin, lisää sääntö tiedostoon `src/data/insights.ts` ja sille esimerkki, jossa se laukeaa, ja esimerkki, jossa se ei laukea, tiedostoon `src/data/insights.test.ts`. Ota sääntöjen rajat korttien nyrkkisäännöistä. Teksti sanoo "yleensä" eikä kehota ostamaan tai myymään.
+
 Tunnuslukujen määrää ei tarvitse päivittää sovellukseen, koska sisällysluettelo laskee sen itse. Toteutussuunnitelmassa määrä mainitaan kohdissa 1, 5.1b ja 6.
 
 ### 3. Valitse lisälukemista-linkit

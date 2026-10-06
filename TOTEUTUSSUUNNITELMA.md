@@ -647,7 +647,7 @@ Linkit rikkoutuvat ajan myötä: sivut siirtyvät, ja sivustot uudistuvat. Siksi
 | **11h. Valuuttojen sekoittumisen varoitus** ✅ | Tekoäly kirjaa, jos kurssi ja markkina-arvo ovat eri valuutassa kuin tilinpäätösluvut, ja sovellus näyttää varoituksen kohdan 11.11 mukaan | Testiaineistossa, jossa kurssi on SEK ja tulos EUR, varoitus näkyy tarkistusvaiheessa ja analyysissä, eikä yksivaluuttaisissa aineistoissa näy |
 | **11i. Valuuttojen sekoittumisen täysi tuki** ✅ | Luvuille oma valuutta, muunnos analyysin valuuttaan ennen laskentaa ja valuutta osoitteeseen kohdan 11.11 mukaan | SEK-kurssista ja EUR-tuloksesta laskettu P/E on oikein, ja muunnos näkyy laskelmassa |
 | **12. Julkaisu** ✅ | GitHub Actions: testit, build ja julkaisu GitHub Pagesiin sekä viikoittainen linkkitarkistus | Molemmat sivut ovat julkisessa osoitteessa, ja linkkitarkistus on ajettu kerran onnistuneesti |
-| **13. Yhdistelmähuomiot** | Analyysiin huomiot, jotka syntyvät kahden tai useamman luvun yhdistelmästä, kohdan 12.1 mukaan | Jokainen sääntö laukeaa testiesimerkissään eikä laukea ilman lähtölukujaan, huomiot näkyvät analyysissä tekstinä, eikä mikään huomio kehota ostamaan tai myymään |
+| **13. Yhdistelmähuomiot** ✅ | Analyysiin huomiot, jotka syntyvät kahden tai useamman luvun yhdistelmästä, kohdan 12.1 mukaan | Jokainen sääntö laukeaa testiesimerkissään eikä laukea ilman lähtölukujaan, huomiot näkyvät analyysissä tekstinä, eikä mikään huomio kehota ostamaan tai myymään |
 | **14. Esimerkkiyhtiö** | Linkki "Kokeile esimerkkiyhtiöllä" Tutki osaketta -sivulle kohdan 12.2 mukaan | Linkki avaa valmiin analyysin ilman API-avainta, kuvitteellisuus näkyy otsikossa, ja analyysissä on ainakin yksi laskettu luku, puuttuva luku ja yhdistelmähuomio |
 | **15. Lisätunnusluvut: korkokate, nettomarginaali ja ROA** | Kolme tunnuslukua kohdan 12.3 mukaan README:n ohjeella | Validointi- ja kaavatestit menevät läpi, kortit löytyvät haulla ja sisällysluettelosta, linkit on luettu, ja eval on ajettu uusilla odotetuilla luvuilla |
 
@@ -1047,6 +1047,21 @@ Ideat koottiin 2026-10-04 sovelluksen ja tämän suunnitelman pohjalta. Ensimmä
 | Nettovelka/EBITDA korkea ja osinkosuhde korkea | Velkaa on paljon, ja tuloksesta jaetaan silti suuri osa. |
 
 - **Testit:** jokaisella säännöllä on esimerkki, jossa se laukeaa, ja esimerkki, jossa se ei laukea. Lisäksi testataan, ettei sääntö laukea, kun jokin sen luvuista puuttuu. Sisältötestit tarkistavat tekstin pituuden ja sanastoviittaukset kuten korteilla. axe-tarkistus ajetaan analyysille, jossa on huomioita.
+
+**Toteutus (vaihe 13):** säännöt ovat tiedostossa `src/data/insights.ts` ja osio komponentissa `InsightList`. Osio näkyy analyysin alussa ennen kategorioita, ja vain silloin, kun jokin huomio laukeaa. Toteutetut rajat:
+
+| Sääntö | Ehto | Peruste |
+|---|---|---|
+| Osinko yli tuloksen | osinkosuhde > 100 % | Osinkosuhteen kortin nyrkkisääntö |
+| Osinko yli kassavirran | osinko/osake × osakkeiden määrä > vapaa kassavirta, kun osinko > 0 | Osingot yhteensä lasketaan, koska omaa lähtötietoa ei ole. Summa näytetään lukujen yhteydessä. |
+| ROE velasta | ROE > 0 ja ROE − ROI ≥ 5 prosenttiyksikköä | ROI:n kortti: "Jos ROE on paljon ROI:ta korkeampi, ero johtuu velasta." |
+| Kassavirta alle tuloksen | nettotulos > 0 ja liiketoiminnan kassavirta < 80 % nettotuloksesta | Liiketoiminnan kassavirran kortti: kassavirran pitäisi olla vähintään nettotuloksen suuruinen |
+| Investoinnit yli kassavirran | EBITDA > 0 ja vapaa kassavirta < 0 | Ehdokassäännön mukaan |
+| EV/EBIT vähintään P/E | molemmat > 0 ja EV/EBIT ≥ P/E | Velattomalla yhtiöllä EV/EBIT on yleensä P/E:tä pienempi, koska liikevoitosta ei ole vähennetty veroja. Jos se on yhtä suuri tai suurempi, syy on yleensä velka. |
+| P/E yli kaksinkertainen EV/EBIT:iin | molemmat > 0 ja P/E ≥ 2 × EV/EBIT | Suuri kassa pienentää EV:tä, tai korot ja kertaerät pienentävät nettotulosta |
+| Velka ja osinko | nettovelka/EBITDA > 3 ja osinkosuhde > 70 % | Korttien nyrkkisäännöt: yli 3 on paljon velkaa, ja 30–70 % on usein kestävä osinkosuhde |
+
+Ehdokassääntö "P/E ja EV/EBIT eroavat selvästi" jaettiin kahdeksi säännöksi, koska ero eri suuntiin tarkoittaa eri asiaa.
 
 ### 12.2 Esimerkkiyhtiö (vaihe 14)
 

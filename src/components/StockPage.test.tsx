@@ -255,6 +255,33 @@ describe("analyysi", () => {
     expect(within(row).getByText(/^Arvo:/).parentElement).toHaveTextContent("12,4");
   });
 
+  it("yhdistelmähuomio näyttää luvut, selityksen ja linkit kortteihin", () => {
+    renderAt("?sivu=tutki&roe=22~t~~s&roi=9~t~~s");
+    const section = screen.getByRole("region", { name: "Mitä luvut kertovat yhdessä" });
+    const item = within(section).getByRole("listitem");
+    expect(item).toHaveTextContent("ROE on selvästi ROI:ta korkeampi");
+    expect(item).toHaveTextContent(/22,0 %.*9,0 %/);
+    expect(item).toHaveTextContent(/Ero johtuu yleensä velasta/);
+    expect(within(item).getByRole("button", { name: /oman pääoman/ })).toBeInTheDocument();
+    expect(
+      within(item)
+        .getAllByRole("link")
+        .map((a) => a.getAttribute("href")),
+    ).toEqual(["/#roe", "/#roi"]);
+  });
+
+  it("yhdistelmähuomioita ei näytetä, kun mikään ei laukea", () => {
+    renderAt("?sivu=tutki&roe=12~t~~s&roi=10~t~~s");
+    expect(screen.queryByRole("region", { name: "Mitä luvut kertovat yhdessä" })).toBeNull();
+  });
+
+  it("yhdistelmähuomio eri kausien luvuista merkitään", () => {
+    renderAt("?sivu=tutki&roe=22~t~~s&roi=9~e~~s");
+    expect(screen.getByRole("region", { name: "Mitä luvut kertovat yhdessä" })).toHaveTextContent(
+      /Luvut ovat eri kausilta/,
+    );
+  });
+
   it("eri kausien luvuista laskettu merkitään", () => {
     renderAt("?sivu=tutki&kurssi=20~t~~s&eps=2~e~~s");
     expect(analysisRow("P/E-luku")).toHaveTextContent(/Laskettu eri kausien luvuista/);
@@ -422,6 +449,18 @@ describe("saavutettavuus (axe)", { timeout: 20_000 }, () => {
     );
     await user.click(screen.getByRole("button", { name: "Lisää: EV/EBIT-luku" }));
     await user.click(screen.getByRole("button", { name: "Lisää" }));
+    expect(await violations()).toEqual([]);
+  });
+
+  it("analyysi: yhdistelmähuomiot", async () => {
+    renderAt(
+      "?sivu=tutki&roe=22~t~~s&roi=9~e~~s&osinko-per-osake=1~t~~s&osakkeiden-maara=100000000~t~~s&vapaa-kassavirta=80000000~t~~s",
+    );
+    expect(
+      within(screen.getByRole("region", { name: "Mitä luvut kertovat yhdessä" })).getAllByRole(
+        "listitem",
+      ),
+    ).toHaveLength(2);
     expect(await violations()).toEqual([]);
   });
 
